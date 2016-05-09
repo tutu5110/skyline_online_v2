@@ -99,11 +99,15 @@ var loadedFlattenHistoryPriceResults = new Array();
 
 var loadedDataStatistics = new Array();
 
-var hedgeResults = new Array();
+var gDataHolder = {};
 
 var SHOW_SIMILAR_TYPE_AVERAGE = false;
 
 var NUM_OF_GRAPHS = 0;
+
+var criteria = {"maxskew": 0.1,
+                "minskew":-0.1,
+                "maxsd": 10};
 
 var CN_REALTIME_SERVER = 'http://qt.gtimg.cn/q=s_';
 var FUND_SERVER = 'http://fund.eastmoney.com/api/PingZhongApi.ashx?m=0&fundcode=';
@@ -170,7 +174,7 @@ window.addEventListener('load', function(){
         var touchobj = e.changedTouches[0] // reference first touch point (ie: first finger)
         FingerStartx = parseInt(touchobj.clientX) // get x position of touch point relative to left edge of browser
         e.preventDefault()
-    }, false)
+    }, false);
     /*
     master.addEventListener('touchmove', function(e){
         var touchobj = e.changedTouches[0] // reference first touch point for this event
@@ -241,16 +245,33 @@ $(document).ready(function(){
    //loadRealtimeStockPairs();
     
     // initialize realtime area
+   // for(var i = 0 ; i < list.length; i ++){
+   //      var stockNames = list[i];
+   //      stockNames = formatStockNames(stockNames);
+   //      var s = new SKYDataLoader([stockNames[0],stockNames[1]],
+   //      {"duration":"2y",
+   //      "div":"realtimeMonitorData",
+   //      "showgraph" :  true,
+   //      "updateRealtime":true},i); 
+   //      graphData[i] = s;
+   //      graphData[i].load();    
+   //  }
+
+
+     //initialize realtime area
    for(var i = 0 ; i < list.length; i ++){
         var stockNames = list[i];
         stockNames = formatStockNames(stockNames);
         var s = new SKYDataLoader([stockNames[0],stockNames[1]],
         {"duration":"2y",
         "div":"realtimeMonitorData",
+        "type": 'automateHedge',
+        "showgraph" :  false,
         "updateRealtime":true},i); 
         graphData[i] = s;
-        graphData[i].createGraph();    
+        graphData[i].load();    
     }
+
 
     /*var target = 'chad';
     var compareList = formatStockNames(loadlist());
@@ -534,10 +555,65 @@ function saveResults(GRAPH_ID, results, param) {
     if (objLength(loadedResults[GRAPH_ID]) == (param['totalItems'] + 1)) {
         //console.log("lunching graphs");
         var systemVars = getSytemVariables(loadedResults[GRAPH_ID]);
-        lunchGraphs(preflight(loadedResults[GRAPH_ID], GRAPH_ID), systemVars, GRAPH_ID);
-        if(graphData[GRAPH_ID].updateRealtime)
-            updateRealtime(graphData[GRAPH_ID]);
+        if(param['callFrom'] === false){
+            lunchGraphs(preflight(loadedResults[GRAPH_ID], GRAPH_ID), systemVars, GRAPH_ID);
+            if(graphData[GRAPH_ID].updateRealtime)
+                updateRealtime(graphData[GRAPH_ID]);
+        } else {
+            var t = preflight(loadedResults[GRAPH_ID], GRAPH_ID);
+            var statVars = t.pop();
+            var tmp = {};
+            tmp['ave'] = statVars['ave'];
+            tmp['sd'] = statVars['sd'];
+            tmp['pairCode'] = systemVars.system[0]['code']+"#" + systemVars.system[1]['code'];
+            tmp['pairName'] = systemVars.system[0]['name']+"#" + systemVars.system[1]['name'];
+            tmp['upperLimit'] = statVars['upperLimit'];
+            tmp['lowerLimit'] = statVars['lowerLimit'];
+            tmp['hedgeType'] = statVars['hedgeType'];
+            if(statVars['hedgeType'] == 1)
+                tmp['skewness'] = statVars['linear_regression_hedge']['equation'][0].toFixed(3);
+            else if(statVars['hedgeType'] == 2)
+                tmp['skewness'] = statVars['linear_regression_mhedge']['equation'][0].toFixed(3);
+            tmp['linear_regression_mhedge'] = statVars['linear_regression_mhedge'];
+            tmp['linear_regression_hedge'] = statVars['linear_regression_hedge']['equation'][0];
+            tmp['opRecommand'] = statVars['opRecommand'];
+            tmp['latestHedgeIndex'] = statVars['latestHedgeIndex'];
+            tmp['hedgeTypeStr'] = statVars['hedgeTypeStr'];
+            if(gDataHolder['automateHedge'] == undefined)
+                gDataHolder['automateHedge'] = new Array();
+            gDataHolder['automateHedge'].push(tmp);
+
+            //check call types
+            if(param['callFrom'] == 'automateHedge'){
+                if(gDataHolder['automateHedge'].length == list.length){
+                    console.log("complete!");
+                    // sort by standard deviation
+                    gDataHolder['automateHedge'].sort(function(a,b){
+                        return (parseFloat(a.sd,10) - parseFloat(b.sd,10));
+                    })
+
+                     var selected = filterData(gDataHolder['automateHedge'], criteria);
+                    // //save
+                     saveResultsToServer(selected,'automateHedgeSelected');
+                     saveResultsToServer(gDataHolder['automateHedge'],'automateHedgeStaRaw');
+                }
+            }
+        }
     }
+}
+
+
+function filterData(obj, criteria){
+    var skewnessMin = criteria['minskew'];
+    var skewnessMax = criteria['maxskew'];
+    var targetSD = criteria['maxsd'];
+    var save = Array();
+    for(var i =0 ; i < obj.length; i ++)
+        if(obj[i]['skewness'] > skewnessMin &&
+           obj[i]['skewness'] < skewnessMax &&
+           obj[i]['sd'] < targetSD)
+            save.push(obj[i]);
+    return save;
 }
 
 function updateRealtime(obj) {
@@ -546,6 +622,26 @@ function updateRealtime(obj) {
     for (var i = 0; i < len; i++) {
         fetchRealtime(codes[i], obj.purchasePrice[codes[i]], obj.graphID);
     }
+}
+
+function saveResultsToServer(arr,filename){
+    var result = "Code, Name, Standard Deviation, Average, HedgeType, Skewness, latestValue, BuySuggestion\n"
+     for(var i = 0 ; i < arr.length; i ++){
+            result += arr[i]['pairCode']+','+
+                  arr[i]['pairName'] + ','+
+                  arr[i]['sd'] + ','+
+                  arr[i]['ave'] + ','+
+                  arr[i]['hedgeType'] + ','+
+                  arr[i]['skewness'] + ','+
+                  arr[i]['latestHedgeIndex'] + ','+
+                  arr[i]['opRecommand'] + "\n";
+     }
+     var str = JSON.stringify(result);
+     str = encodeURIComponent(str);
+    $.post( "save.php", { raw: str, filename: "data/Statistics/"+filename+".csv" }).done(function( data ) {
+        console.log( "Save Complete!:  " + filename );
+      });
+
 }
 
 function fetchRealtime(code, purchasePrice, resourceID) {
@@ -918,6 +1014,7 @@ function flattenData(obj, codesWithOrder) {
  
    // var hdata = [[1,1],[5,5]];
 
+    statVars['codePair'] = codesWithOrder;
 
     statVars['hedgeArr'] = hedgeArr;
 

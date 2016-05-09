@@ -2,10 +2,12 @@ class SKYDataLoader {
 
   constructor(codes, params, GRAPH_ID) {
     this._code= codes;
+    this.showgraph = false;
     this._duration = params['duration'];
     this.graphDiv = params['div'];
     this.updateRealtime = params['updateRealtime'];
-    this.automateHedge = params['automateHedge'];
+    this.resultType = params['type'];
+    this.showgraph = params['showgraph'];
     this.usStockReady = false;
     this.cnStockReady = false;
     this.usStockContent = [];
@@ -21,10 +23,18 @@ class SKYDataLoader {
     this.purchaseDate = {};
  }
 
-   loadAutomateHedge(){
+    load(){
+        if(this.showgraph)
+            this.createGraph();
+        else
+            this.loadDataOnly(this.resultType);
+
+    }
+
+   loadDataOnly(type){
         var code = this._code;
         
-        if(!this.automateHedge){
+        if(type != 'automateHedge'){
                 console.log("ERROR - Function did not call from automateHedge, automateHedge must be set to true to proceed. Now exit");
                 return;
         }
@@ -32,7 +42,7 @@ class SKYDataLoader {
         var isCodeString = code instanceof String;
         if (!isCodeString) {
             var sortedCode = this.catagorizeCode(code);
-            this.loadData(sortedCode, 0);
+            this.loadData(sortedCode,'automateHedge');
         } 
         
    }
@@ -80,7 +90,7 @@ class SKYDataLoader {
     
     */
 
-    loadFuture(code,totalItems, graphID){
+    loadFuture(code,totalItems, graphID,callFrom){
         // sanity check
         if(code.contains('F_'))
             var serverCode = code.substring(2,code.length);
@@ -102,7 +112,7 @@ class SKYDataLoader {
             param['name'] = name;
             param['code'] = serverCode;
             param['totalItems'] = totalItems;
-
+            param['callFrom'] = callFrom;
             saveResults(graphID,dataHolder,param);
         });
     }
@@ -116,7 +126,7 @@ class SKYDataLoader {
         -   US ETFS
         -   Chinese ETFs
     */
-    loadStockHistory(code,totalItems, graphID){
+    loadStockHistory(code,totalItems, graphID, callFrom){
                  
                  // load chinese stock
                  if(code.indexOf("us") == -1){
@@ -162,7 +172,7 @@ class SKYDataLoader {
                             param['name'] = name;
                             param['code'] = code;
                             param['totalItems'] = totalItems;
-                            
+                            param['callFrom'] = callFrom;
                             saveResults(graphID,dataHolder,param);
                         
                             // REALTIME:
@@ -202,6 +212,7 @@ class SKYDataLoader {
                                 _cnStockContent = _cnStockContent.replaceAll("\"", '');
                                 _cnStockContent = _cnStockContent.split("]");
                                 var name = data.substring(data.lastIndexOf("qt"),data.lastIndexOf("}")).split(",")[1]; 
+                                name = name.replaceAll('\"','');
                                 name =convert2UTF8(name)
                                 // packaging
                                 this.cnStockContent = new Array(_cnStockContent.length);
@@ -220,7 +231,7 @@ class SKYDataLoader {
                                 param['name'] = name;
                                 param['code'] = code;
                                 param['totalItems'] = totalItems;
-                            
+                                param['callFrom'] = callFrom;
                                 saveResults(graphID,this.cnStockContent,param);
                                 
                        
@@ -236,29 +247,29 @@ class SKYDataLoader {
                         var server =  "engine.php?cadd=" + encodeURIComponent(USSTOCK_HISTORY_SERVER.replace('#SYMBOL#',code).replace("#begin#",getDataLength('2y').toTimeStamp()).replace("#end#",getDayInChina().toTimeStamp()));
                     }
                      $.get(server, function(data) {
-                            //parsing yahoo
-                             //console.log("loging raw data ------------ " + code+" :" + data);
-                            var _content = JSON.parse(data);
-                            var len = _content.chart.result[0]['timestamp'].length;
-                            var initialPrice = parseFloat(_content.chart.result[0]['indicators']['quote'][0]['close'][0]);
-                            var name = code;
-                            var temp = new Array();
-                            for(var i = 0 ; i < len; i ++){
-                                temp[i] = [];
-                                temp[i][0] = getTime(_content.chart.result[0]['timestamp'][i]);
-                                var c = parseFloat(_content.chart.result[0]['indicators']['quote'][0]['close'][i]);
-                                temp[i][1] = ((c - initialPrice)/initialPrice*100).toFixed(2) + "%";
-                                temp[i][2] = c;
-                             }
-                              //console.log("loading "+code+" complete!");
-                             // console.log(temp);
-                              var param = {};
-                                param['type'] = getStockType(code);
-                                param['name'] = name;
-                                param['code'] = code;
-                                param['totalItems'] = totalItems;
-                            
-                                saveResults(graphID,temp,param);
+                        //parsing yahoo
+                         //console.log("loging raw data ------------ " + code+" :" + data);
+                        var _content = JSON.parse(data);
+                        var len = _content.chart.result[0]['timestamp'].length;
+                        var initialPrice = parseFloat(_content.chart.result[0]['indicators']['quote'][0]['close'][0]);
+                        var name = code;
+                        var temp = new Array();
+                        for(var i = 0 ; i < len; i ++){
+                            temp[i] = [];
+                            temp[i][0] = getTime(_content.chart.result[0]['timestamp'][i]);
+                            var c = parseFloat(_content.chart.result[0]['indicators']['quote'][0]['close'][i]);
+                            temp[i][1] = ((c - initialPrice)/initialPrice*100).toFixed(2) + "%";
+                            temp[i][2] = c;
+                         }
+                          //console.log("loading "+code+" complete!");
+                         // console.log(temp);
+                          var param = {};
+                            param['type'] = getStockType(code);
+                            param['name'] = name;
+                            param['code'] = code;
+                            param['totalItems'] = totalItems;
+                            param['callFrom'] = callFrom;
+                            saveResults(graphID,temp,param);
 
                      });
           }
@@ -291,13 +302,13 @@ class SKYDataLoader {
         callFrom = callFrom || false;
         if(sortedCode['cnStocks'].length>0)
             for(var i = 0 ; i < sortedCode['cnStocks'].length; i ++)
-                this.loadStockHistory(sortedCode['cnStocks'][i],this.totalItems,this.graphID);
+                this.loadStockHistory(sortedCode['cnStocks'][i],this.totalItems,this.graphID,callFrom);
         if(sortedCode['usStocks'].length>0)
             for(var i = 0; i < sortedCode['usStocks'].length; i ++)
-                this.loadStockHistory(sortedCode['usStocks'][i],this.totalItems,this.graphID);
+                this.loadStockHistory(sortedCode['usStocks'][i],this.totalItems,this.graphID,callFrom);
         if(sortedCode['cnFuture'].length>0)
                 for(var i = 0; i < sortedCode['cnFuture'].length; i ++)
-                this.loadFuture(sortedCode['cnFuture'][i],this.totalItems,this.graphID);
+                this.loadFuture(sortedCode['cnFuture'][i],this.totalItems,this.graphID,callFrom);
     }
    
     getStringBetween(str, begin,end){
