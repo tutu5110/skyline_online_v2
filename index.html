@@ -32,13 +32,21 @@
     6. Suggestion System: suggesting 
 
     Todos:
+   
+    2. remove stock that is not transactioning!!!
+    3. remove 30% of time stock not transacting!!!
+    4. sample size less than average!(90%) must be removed!!!
+    3. system one by one view and add!!!
+
     1. 量价异动
     2. get expected return 
     3. get previous high point, and compare possible profit
     4. set begin and end date for Chinese Fund
     5. // i removed 'cn in skydataloader.js line 197'
     6. I also removed cn_fund_ from line 145 before returnning code
-  
+    
+    done:
+     1. need a queue!!!!!
 -->
 
 <head>
@@ -72,7 +80,7 @@
                         </div>
                    </div>
                </div>
-               <div id="mainBody"></div>
+               <div id="mainBody"><input type="button" id="pro" value="proceed!" onclick="proceedAutomateHedgeCalculation();"></div>
                <div id="realtimeMonitor">
                    <div id="rtmHeader"></div>
                    <div id="realtimeMonitorData"></div>
@@ -244,33 +252,24 @@ $(document).ready(function(){
    //  "updateRealtime":false},0);
    //loadRealtimeStockPairs();
     
-    // initialize realtime area
-   // for(var i = 0 ; i < list.length; i ++){
-   //      var stockNames = list[i];
-   //      stockNames = formatStockNames(stockNames);
-   //      var s = new SKYDataLoader([stockNames[0],stockNames[1]],
-   //      {"duration":"2y",
-   //      "div":"realtimeMonitorData",
-   //      "showgraph" :  true,
-   //      "updateRealtime":true},i); 
-   //      graphData[i] = s;
-   //      graphData[i].load();    
-   //  }
-
-
-     //initialize realtime area
+    //initialize realtime area
    for(var i = 0 ; i < list.length; i ++){
         var stockNames = list[i];
         stockNames = formatStockNames(stockNames);
         var s = new SKYDataLoader([stockNames[0],stockNames[1]],
         {"duration":"2y",
         "div":"realtimeMonitorData",
-        "type": 'automateHedge',
-        "showgraph" :  false,
-        "updateRealtime":true},i); 
+        "showgraph" :  true,
+        "updateRealtime": false},i); 
         graphData[i] = s;
         graphData[i].load();    
     }
+
+
+     //initialize automate hedge
+    // automateHedge();
+
+  
 
 
     /*var target = 'chad';
@@ -298,6 +297,42 @@ $(document).ready(function(){
    //console.log(getDayOneYearAgo());
  });
 
+
+function automateHedge(){
+  var filename = 'data/SystemLists/CN_Fundlist.csv';
+     var targetStock = 'chad';
+    $.post( "load.php", { filename: filename }).done(function( data ) {
+        var loadedListtmp = JSON.parse(data).split("\n");
+        var len = loadedListtmp.length;
+        var loadedList = new Array();
+        for(var i = 0 ; i < len ; i ++){
+          var _tmp = loadedListtmp[i].split(',');
+          loadedList.push([_tmp[0],_tmp[1]]);
+        }
+
+        for(var i = 0 ; i < loadedList.length; i ++){
+        var stockNames = [loadedList[i][0],targetStock];
+        stockNames = formatStockNames(stockNames);
+        var s = new SKYDataLoader([stockNames[0],stockNames[1]],
+        {"duration":"2y",
+        "div":"realtimeMonitorData",
+        "type": 'automateHedge',
+        "showgraph" :  false,
+        "updateRealtime":true},i); 
+        graphData[i] = s;
+        //need a delayed load!!
+        //graphData[i].load();    
+      }
+
+        var i = 0;
+        var delayLoading = setInterval(function () {   
+              graphData[i].load();                    
+              i++;    
+              if(i> graphData.length-1) 
+                clearInterval(delayLoading);
+        }, 100)
+    });
+}
 function loadList(){
     return ['159919','601328','000100','chad'];
 }
@@ -333,6 +368,7 @@ function formatStockNames(nameArr){
     for(var i =0 ; i < nameArr.length; i ++)
         if(nameArr[i].toLowerCase().beginWith('0') ||
            nameArr[i].toLowerCase().beginWith('3') ||
+           nameArr[i].toLowerCase().beginWith('5') ||
            nameArr[i].toLowerCase().beginWith('1'))
            nameArr[i] =  'sz'+nameArr[i];
         else if(nameArr[i].toLowerCase().beginWith('6'))
@@ -565,8 +601,8 @@ function saveResults(GRAPH_ID, results, param) {
             var tmp = {};
             tmp['ave'] = statVars['ave'];
             tmp['sd'] = statVars['sd'];
-            tmp['pairCode'] = systemVars.system[0]['code']+"#" + systemVars.system[1]['code'];
-            tmp['pairName'] = systemVars.system[0]['name']+"#" + systemVars.system[1]['name'];
+            tmp['pairCode'] = systemVars.system[0]['code'];
+            tmp['pairName'] = systemVars.system[0]['name']+"_" + systemVars.system[1]['name'];
             tmp['upperLimit'] = statVars['upperLimit'];
             tmp['lowerLimit'] = statVars['lowerLimit'];
             tmp['hedgeType'] = statVars['hedgeType'];
@@ -588,20 +624,25 @@ function saveResults(GRAPH_ID, results, param) {
                 if(gDataHolder['automateHedge'].length == list.length){
                     console.log("complete!");
                     // sort by standard deviation
-                    gDataHolder['automateHedge'].sort(function(a,b){
-                        return (parseFloat(a.sd,10) - parseFloat(b.sd,10));
-                    })
-
-                     var selected = filterData(gDataHolder['automateHedge'], criteria);
-                    // //save
-                     saveResultsToServer(selected,'automateHedgeSelected');
-                     saveResultsToServer(gDataHolder['automateHedge'],'automateHedgeStaRaw');
+                    
                 }
             }
         }
     }
 }
 
+
+function proceedAutomateHedgeCalculation(){
+
+  gDataHolder['automateHedge'].sort(function(a,b){
+      return (parseFloat(a.sd,10) - parseFloat(b.sd,10));
+  })
+
+   var selected = filterData(gDataHolder['automateHedge'], criteria);
+  // //save
+   saveResultsToServer(selected,'automateHedgeSelected');
+   saveResultsToServer(gDataHolder['automateHedge'],'automateHedgeStaRaw');
+}
 
 function filterData(obj, criteria){
     var skewnessMin = criteria['minskew'];
@@ -636,10 +677,13 @@ function saveResultsToServer(arr,filename){
                   arr[i]['latestHedgeIndex'] + ','+
                   arr[i]['opRecommand'] + "\n";
      }
+     result = result.replaceAll('\r',"");
      var str = JSON.stringify(result);
+     str = str.replaceAll('\r',"");
      str = encodeURIComponent(str);
     $.post( "save.php", { raw: str, filename: "data/Statistics/"+filename+".csv" }).done(function( data ) {
-        console.log( "Save Complete!:  " + filename );
+        //console.log( "Save Complete!:  " + filename );
+        console.log(data);
       });
 
 }
@@ -1195,6 +1239,11 @@ function mkvalidate(obj, GRAPH_ID) {
                     if (new Date(currentDate) < new Date(masterDate)) {
                         // array remove that date
                         obj[key].splice(cindex, 1);
+                        var tmpdate = obj[key][lastEffectiveIndex][0];
+                        while((new Date(tmpdate) < new Date(masterDate))&& lastEffectiveIndex != obj[key].length-1){
+                          obj[key].splice(cindex, 1);
+                          tmpdate = obj[key][lastEffectiveIndex][0];
+                        }
                         //update on that date to current with no
                     } else {
                         var selectIndex = findLastNoneEmptyEntry(masterDate, obj[key], cindex);

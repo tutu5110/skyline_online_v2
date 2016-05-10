@@ -232,7 +232,10 @@ class SKYDataLoader {
                                 param['code'] = code;
                                 param['totalItems'] = totalItems;
                                 param['callFrom'] = callFrom;
-                                saveResults(graphID,this.cnStockContent,param);
+
+                                // if stock is valid
+                                if(this.cnStockContent.length>10)
+                                    saveResults(graphID,this.cnStockContent,param);
                                 
                        
                          });
