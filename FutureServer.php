@@ -17,7 +17,7 @@ $GLOBALS['FUTURE_SERVER_REALTIME'] = 'http://hq.sinajs.cn/?list=';
 
 $GLOBALS['IF_REALTIME_PREFIX'] = 'CFF_RE_';
 
-$GLOBALS['DATA_FOLDER'] = 'data/';
+$GLOBALS['DATA_FOLDER'] = 'data/FutureCache/';
 
 $GLOBALS['UPDATE_PERIOD_DATE'] = 3;
 

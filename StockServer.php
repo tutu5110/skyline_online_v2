@@ -10,7 +10,9 @@ this server will fetch and cache similar results
 
 
 
-$GLOBALS['DATA_FOLDER'] = 'data/';
+$GLOBALS['DATA_FOLDER'] = 'data/StockCache/';
+
+$GLOBALS['DATA_FUND_FOLDER'] = 'data/CNFundCache/';
 
 $GLOBALS['UPDATE_PERIOD_DATE'] = 3;
 
@@ -33,7 +35,6 @@ $begin = isset($_GET['begin']) ? $_GET['begin']: '';
 $end = isset($_GET['end']) ? $_GET['end']: '';
 
 $param = isset($_GET['param']) ? $_GET['param'] : NULL;
-
 // system check
 // check if the symbol is empty
 if($sym == ''){
@@ -67,14 +68,14 @@ $fileLen = count($file);
 // if no local or local.last day is not china day today
 if($fileLen==0) {
 	$rawData = fetchStock($sym,$begin,$end);
-	SaveFutureData2CSV($sym,$rawData);
+	SaveStockData2CSV($sym,$rawData);
 	echo $rawData;
 	exit();
 } else {
 // there is local file, check for update
 	if(!isUptoDate(time(), $file['lastestDay'])){
 		$file['rawData'] = fetchStock($sym,$begin,$end);
-		if(SaveFutureData2CSV($sym,$file['rawData']))
+		if(SaveStockData2CSV($sym,$file['rawData']))
 			echo $file['rawData'];
 	} else{
 	
@@ -134,10 +135,15 @@ function loadRawData($s){
 			$filename = $GLOBALS['DATA_FOLDER'].'ZJIHMI.csv';
 			break;
 		default:
-		   $filename = $GLOBALS['DATA_FOLDER'].'F_'.$s.'.rtu';
+			// check if it is fund
+			if(strpos($s, 'jj'))
+			$filename = $GLOBALS['DATA_FUND_FOLDER'].'F_'.$s.'.rtu';
+			else
+		   	$filename = $GLOBALS['DATA_FOLDER'].'F_'.$s.'.rtu';
 			# code...
 			break;
 	}
+
 
 	$file = @file_get_contents($filename);
 
@@ -146,7 +152,7 @@ function loadRawData($s){
 
 
 
-function SaveFutureData2CSV($symbol, $rawData){
+function SaveStockData2CSV($symbol, $rawData){
 	$filename = '';
 	switch ($symbol) {
 		case 'IF':
@@ -157,7 +163,11 @@ function SaveFutureData2CSV($symbol, $rawData){
 		$filename = $GLOBALS['DATA_FOLDER'].'ZJIHMI.csv';
 			break;
 		default:
-			$filename = $GLOBALS['DATA_FOLDER'].'F_'.$symbol.'.rtu';
+			if(strpos($symbol, 'jj'))
+			$filename = $GLOBALS['DATA_FUND_FOLDER'].'F_'.$symbol.'.rtu';
+			else
+		   	$filename = $GLOBALS['DATA_FOLDER'].'F_'.$symbol.'.rtu';
+			
 			# code...
 			break;
 	}

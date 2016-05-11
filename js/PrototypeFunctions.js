@@ -50,7 +50,8 @@ String.prototype.toTimeStamp = function (){
   }
 
   String.prototype.beginWith = function (target){
-       return (target === this.substring(0,1)) ? true : false;
+        var len = target.length;
+       return (target === this.substring(0,len)) ? true : false;
   }
 
   String.prototype.insertAfter = function(add, search){

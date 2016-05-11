@@ -94,6 +94,8 @@ class SKYDataLoader {
         // sanity check
         if(code.contains('F_'))
             var serverCode = code.substring(2,code.length);
+        else 
+            var serverCode = code;
         $.get("FutureServer.php?sym=" + serverCode, function(data) {
             var result = JSON.parse(data);
             var dataHolder = new Array();
@@ -110,7 +112,7 @@ class SKYDataLoader {
             var param = {};
             param['type'] = getStockType(serverCode);
             param['name'] = name;
-            param['code'] = serverCode;
+            param['code'] = code; // must use original code
             param['totalItems'] = totalItems;
             param['callFrom'] = callFrom;
             saveResults(graphID,dataHolder,param);
@@ -135,7 +137,7 @@ class SKYDataLoader {
                         // type is Chinese Fund
                         // remove header
                         if(USE_SKYLINE_CACHE_SERVICE){
-                        var server = SKYLINE_CACHE_SERVER.replace("#SYMBOL#", code);
+                        var server = SKYLINE_CACHE_SERVER.replace("#SYMBOL#", code).replace('#begin#','0').replace('#end#','1');
                         } else {
                         code =code.substring(2,code.length);
                         var server = "engine.php?cadd=" + encodeURIComponent(FUND_SERVER_TENCENT.replace("#fundcode#", code));
@@ -213,7 +215,8 @@ class SKYDataLoader {
                                 _cnStockContent = _cnStockContent.split("]");
                                 var name = data.substring(data.lastIndexOf("qt"),data.lastIndexOf("}")).split(",")[1]; 
                                 name = name.replaceAll('\"','');
-                                name =convert2UTF8(name)
+                                //name =convert2UTF8(name)
+                                name = JSON.parse(name);
                                 // packaging
                                 this.cnStockContent = new Array(_cnStockContent.length);
                                 var initialPrice = parseFloat(_cnStockContent[0].split(",")[2]);

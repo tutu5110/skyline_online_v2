@@ -37,6 +37,7 @@
     3. remove 30% of time stock not transacting!!!
     4. sample size less than average!(90%) must be removed!!!
     3. system one by one view and add!!!
+    5. divide data to 50-50 and calculate two skewness, compare those two
 
     1. 量价异动
     2. get expected return 
@@ -80,9 +81,12 @@
                         </div>
                    </div>
                </div>
-               <div id="mainBody"><input type="button" id="pro" value="proceed!" onclick="proceedAutomateHedgeCalculation();"></div>
+               <div id="mainBody">
+               <input type="button" id="pro" value="proceed!" onclick="proceedAutomateHedgeCalculation();">
+
+               </div>
                <div id="realtimeMonitor">
-                   <div id="rtmHeader"></div>
+                   <div id="rtmHeader"><div id="headerCommands">Load | NextPage | Save  &nbsp;&nbsp;&nbsp;<span>current:</span></div></div>
                    <div id="realtimeMonitorData"></div>
                    <div class="skyFooter"></div>
                </div>
@@ -253,21 +257,21 @@ $(document).ready(function(){
    //loadRealtimeStockPairs();
     
     //initialize realtime area
-   for(var i = 0 ; i < list.length; i ++){
-        var stockNames = list[i];
-        stockNames = formatStockNames(stockNames);
-        var s = new SKYDataLoader([stockNames[0],stockNames[1]],
-        {"duration":"2y",
-        "div":"realtimeMonitorData",
-        "showgraph" :  true,
-        "updateRealtime": false},i); 
-        graphData[i] = s;
-        graphData[i].load();    
-    }
+   // for(var i = 0 ; i < list.length; i ++){
+   //      var stockNames = list[i];
+   //      stockNames = formatStockNames(stockNames);
+   //      var s = new SKYDataLoader([stockNames[0],stockNames[1]],
+   //      {"duration":"2y",
+   //      "div":"realtimeMonitorData",
+   //      "showgraph" :  true,
+   //      "updateRealtime": true},i); 
+   //      graphData[i] = s;
+   //      graphData[i].load();    
+   //  }
 
 
      //initialize automate hedge
-    // automateHedge();
+     automateHedge();
 
   
 
@@ -299,7 +303,7 @@ $(document).ready(function(){
 
 
 function automateHedge(){
-  var filename = 'data/SystemLists/CN_Fundlist.csv';
+  var filename = 'data/SystemLists/CN_Fundlist_Complete.csv';
      var targetStock = 'chad';
     $.post( "load.php", { filename: filename }).done(function( data ) {
         var loadedListtmp = JSON.parse(data).split("\n");
@@ -307,7 +311,7 @@ function automateHedge(){
         var loadedList = new Array();
         for(var i = 0 ; i < len ; i ++){
           var _tmp = loadedListtmp[i].split(',');
-          loadedList.push([_tmp[0],_tmp[1]]);
+          loadedList.push([_tmp[1],_tmp[0]]);
         }
 
         for(var i = 0 ; i < loadedList.length; i ++){
@@ -318,7 +322,7 @@ function automateHedge(){
         "div":"realtimeMonitorData",
         "type": 'automateHedge',
         "showgraph" :  false,
-        "updateRealtime":true},i); 
+        "updateRealtime":false},i); 
         graphData[i] = s;
         //need a delayed load!!
         //graphData[i].load();    
@@ -330,7 +334,7 @@ function automateHedge(){
               i++;    
               if(i> graphData.length-1) 
                 clearInterval(delayLoading);
-        }, 100)
+        }, 150)
     });
 }
 function loadList(){
@@ -368,15 +372,19 @@ function formatStockNames(nameArr){
     for(var i =0 ; i < nameArr.length; i ++)
         if(nameArr[i].toLowerCase().beginWith('0') ||
            nameArr[i].toLowerCase().beginWith('3') ||
-           nameArr[i].toLowerCase().beginWith('5') ||
+           nameArr[i].toLowerCase().beginWith('9') ||
+           nameArr[i].toLowerCase().beginWith('51') ||
            nameArr[i].toLowerCase().beginWith('1'))
            nameArr[i] =  'sz'+nameArr[i];
         else if(nameArr[i].toLowerCase().beginWith('6'))
             nameArr[i] = 'sh'+ nameArr[i];
         else if(nameArr[i].toLowerCase().contains('if')||
             nameArr[i].toLowerCase().contains('ih') ||
+            nameArr[i].toLowerCase().contains('f_') ||
             nameArr[i].toLowerCase().contains('ic'))
             nameArr[i] = nameArr[i];
+        else if(nameArr[i].toLowerCase().beginWith('50'))
+            nameArr[i] = 'jj'+nameArr[i];
         else if(!isFinite(nameArr[i]))
             nameArr[i] = 'us_'+nameArr[i];
         else 
@@ -592,16 +600,22 @@ function saveResults(GRAPH_ID, results, param) {
         //console.log("lunching graphs");
         var systemVars = getSytemVariables(loadedResults[GRAPH_ID]);
         if(param['callFrom'] === false){
-            lunchGraphs(preflight(loadedResults[GRAPH_ID], GRAPH_ID), systemVars, GRAPH_ID);
-            if(graphData[GRAPH_ID].updateRealtime)
+            var data = preflight(loadedResults[GRAPH_ID], GRAPH_ID);
+            lunchGraphs(data, systemVars, GRAPH_ID);
+            if(data!== false)
+              if(graphData[GRAPH_ID].updateRealtime)
                 updateRealtime(graphData[GRAPH_ID]);
         } else {
             var t = preflight(loadedResults[GRAPH_ID], GRAPH_ID);
+            if(t === false){
+              console.log("{Warning: id: "+GRAPH_ID+" } "+systemVars.system[0].name + " & " + systemVars.system[1].name+ "("+param['code']+") flatten failed, this stock pair will be abandoned" )
+              return false;
+            }
             var statVars = t.pop();
             var tmp = {};
             tmp['ave'] = statVars['ave'];
             tmp['sd'] = statVars['sd'];
-            tmp['pairCode'] = systemVars.system[0]['code'];
+            tmp['pairCode'] = systemVars.system[0]['code']+"_" + systemVars.system[1]['code'];
             tmp['pairName'] = systemVars.system[0]['name']+"_" + systemVars.system[1]['name'];
             tmp['upperLimit'] = statVars['upperLimit'];
             tmp['lowerLimit'] = statVars['lowerLimit'];
@@ -619,6 +633,7 @@ function saveResults(GRAPH_ID, results, param) {
                 gDataHolder['automateHedge'] = new Array();
             gDataHolder['automateHedge'].push(tmp);
 
+            console.log("id: "+GRAPH_ID+" "+systemVars.system[0].name + " & " + systemVars.system[1].name+ "("+param['code']+") saved!" );
             //check call types
             if(param['callFrom'] == 'automateHedge'){
                 if(gDataHolder['automateHedge'].length == list.length){
@@ -784,6 +799,9 @@ function getStockType(type) {
 }
 
 function lunchGraphs(str, systemVars, GRAPH_ID) {
+    //sanitation
+    if(str === false)
+      return false;
     // get statistics
     var statVars = str.pop();
     // get system related statvars
@@ -884,9 +902,10 @@ function preflight(obj, GRAPH_ID) {
     // unify data
     obj = mkvalidate(obj, GRAPH_ID);
     // flatten data
-    obj = flattenData(obj, graphData[GRAPH_ID]._code);
-
-    return obj;
+    if(obj !== false)
+      obj = flattenData(obj, graphData[GRAPH_ID]._code);
+    
+     return obj;
     // 
 }
 
@@ -1176,9 +1195,39 @@ function mkvalidate(obj, GRAPH_ID) {
 
     //get latest first day
     var firstDay = new Date(obj[Object.keys(obj)[0]][0][0]);
+    var firstDayKey = Object.keys(obj)[0];
     for (key in obj) {
-        if (new Date(obj[key][0][0]) > firstDay)
+        if (new Date(obj[key][0][0]) > firstDay){
             firstDay = toUnivfiedMMDDYYYY(obj[key][0][0]);
+            firstDayKey = key;
+          }
+    }
+
+    // BUG_FIX_IN_FUTURE
+    // attention!!!
+    // this function only works for two key pairs, not multiples
+    var firstDayReady = false;
+    var tmpcounter = 0;
+    var tmpcounter_slave = 0;
+    for(key in obj){
+      if(key != firstDayKey){
+          // check if the stock has enough data points 
+          // if last day is smaller than master begin day, current section must fail
+          if(new Date(obj[key][obj[key].length-1][0]) <= new Date(firstDay))
+              return false;
+
+          while( firstDayReady === false &&  tmpcounter < obj[key].length){
+            while(new Date(obj[key][tmpcounter_slave][0]) <= new Date(firstDay) && firstDayReady === false){
+               if(new Date(obj[key][tmpcounter_slave][0]).getTime() === new Date(firstDay).getTime())
+                 firstDayReady= true;
+               tmpcounter_slave++;
+             }
+            if(firstDayReady === false)
+               tmpcounter++;
+            firstDay = obj[firstDayKey][tmpcounter][0];
+           
+          }
+       }
     }
 
     // unify firstday

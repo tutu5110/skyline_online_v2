@@ -65,7 +65,7 @@ function convertCP2Char ( argstr ) {
       n -= 0x10000
       outputString += String.fromCharCode(0xD800 | (n >> 10)) + String.fromCharCode(0xDC00 | (n & 0x3FF));
     } else {
-      outputString += 'convertCP2Char error: Code point out of range: '+dhex(n);
+      outputString += '';
     }
   }
   return( outputString );
@@ -83,7 +83,8 @@ function convertHexNCR2CP ( argstr ) {
 			&& argstr.charAt(i+3) in hexNum) { // &#x
 			tempString = '';
 			i += 3;
-			while (i<argstr.length-1 && argstr.charAt(i) in hexNum) { 
+      var maxi = i +4;
+			while (i<argstr.length-1 && argstr.charAt(i) in hexNum && i < maxi) { 
 				tempString += argstr.charAt(i); 
 				i++;
 				}
