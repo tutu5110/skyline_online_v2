@@ -1,0 +1,966 @@
+id, ratioMA5_MA30,ratio5, ratio30[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+[object Object],[object Object],function (){
+      return this.join(',');
+  },function (deleteValue) {
+  for (var i = 0; i < this.length; i++) {
+    if (this[i] == deleteValue) {         
+      this.splice(i, 1);
+      i--;
+    }
+  }
+  return this;
+},function (num){
+    for(var i = 0 ; i < num ; i ++){
+             this.splice(-1, 1);
+             this.join();
+    }
+    return this;
+},function (){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}

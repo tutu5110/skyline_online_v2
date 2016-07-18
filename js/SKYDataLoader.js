@@ -8,10 +8,12 @@ class SKYDataLoader {
     this.updateRealtime = params['updateRealtime'];
     this.resultType = params['type'];
     this.showgraph = params['showgraph'];
+    this.graphType = params['graphType'] || 'rtm';
     this.usStockReady = false;
     this.cnStockReady = false;
     this.usStockContent = [];
     this.cnStockContent = [];
+    this.consoleUpdateMode = params['consoleUpdateMode'];
     this.realtimeDataCache = {};
     this.realtimeDataCache['data'] = Array();
     this.realtimeDataCache['currentPrice'] = Array();
@@ -22,6 +24,17 @@ class SKYDataLoader {
     this.purchasePrice = {};
     this.purchaseDate = {};
  }
+
+    logMe(msg){
+        switch(this.consoleUpdateMode){
+            case 'alarmlog':
+            alarmLog(msg);
+            break;
+
+            default:
+            break;
+        }
+    }
 
     load(){
         if(this.showgraph)
@@ -42,6 +55,7 @@ class SKYDataLoader {
         var isCodeString = code instanceof String;
         if (!isCodeString) {
             var sortedCode = this.catagorizeCode(code);
+            //this.logMe("automateHedge Mode is On, Syncronizing...")
             this.loadData(sortedCode,'automateHedge');
         } 
         
@@ -54,16 +68,41 @@ class SKYDataLoader {
         // create empty div if not exist
         var currentGraphDiv = "graph_"+this.graphID;
         if($('#'+currentGraphDiv).length ==0){
-            // create graph
-             $('#'+this.graphDiv).append("<div class='stockHolder'><input class='iPhoneCheckContainer' type='checkbox' id='sd_"+this.graphID+"' checked = 'checked'>"+
+             // create graph    
+             var gdata = '';
+
+             if(this.graphType == 'rtm'){     
+                 gdata = htmlTemplate['rtm'];
+                 gdata = gdata.replaceAll('this.graphID',this.graphID).replaceAll('this._code',this._code)
+                 
+                 $('#'+this.graphDiv).append(gdata);
+                 var data = "T,C,T\nJan/01/2016,0.1,0.1";
+                 iniRTMgraph(data,currentGraphDiv,this.graphID);
+             
+             } else if(this.graphType == 'skylab'){
+                gdata = htmlTemplate['skylab'];
+                gdata = gdata.replaceAll('this.graphID',this.graphID).replaceAll('this._code',this._code);
+                
+                $('#'+this.graphDiv).append(gdata);
+                 var data = "T,C,T\nJan/01/2016,0.1,0.1";
+                 inigraph(data,currentGraphDiv,this.graphID);
+             }
+
+             // create graph
+             /*
+             $('#'+this.graphDiv).append("<div class='stockHolder' onmouseenter='toggleBigger("+this.graphID+")'><div class='biggerClass' id='biggerText_"+this.graphID+"'></div>"+
+                "<input class='removeSelections panelTransparentButtonSmall' type='button' value='-' onclick='removetoCustomQue(\""+this._code+"\");'>"+
+                "<input class='addSelections panelTransparentButtonSmall' type='button' value='+' onclick='addtoCustomQue(\""+this._code+"\");'>"+
+                "<input class='iPhoneCheckContainer' type='checkbox' id='sd_"+this.graphID+"' checked = 'checked'>"+
                 "<div class='stockHolderfonts' id='graphHolder_"+this.graphID+"'>#stocknames##sym#</div>"+
                 "<div class='chartlegend' id='g_legend_"+this.graphID+"'>haha</div>"+
                 "<div class='chartmsg' id='msg_"+this.graphID+"'>Test Message</div><br><div class='stockGraphs' id='"+currentGraphDiv+"'></div>"+
                 "<div class='chartDetails'><div class='chartDonnut'><div class='chartDonnutTitle'>Sucess</div><div class='chartDonnutLabel' id='g_label_"+this.graphID+"'>#su#</div><canvas id='chartDonutSuccess_"+this.graphID+"'></canvas></div>"+
                 "<div class= 'chartInfo' id='g_detail_"+this.graphID+"'><div class='chartDonnutTitle'>Statistics</div><div class='chartPriceClass' id='chartPrice_"+this.graphID+"'><span class='legend_label_color_0'>-99</span>&nbsp;&nbsp;&nbsp;<span class='legend_label_color_1'>-90</span></div>#stat#</div></div></div>");
-              var data = "T,C,T\nJan/01/2016,0.1,0.1";
+                */
+
+
             // begin DummyGraph
-            inigraph(data,currentGraphDiv,this.graphID);
         }
 
         $('.iPhoneCheckContainer').iphoneStyle({
@@ -81,6 +120,8 @@ class SKYDataLoader {
             this.loadData(sortedCode);
         } 
     }
+
+   
     /*
     
     Function used to fetch historical stock data for 
@@ -101,6 +142,7 @@ class SKYDataLoader {
             var dataHolder = new Array();
             var datalen = result.length;
             name = serverCode;
+            
             //start from 1, index 0 is for system 
             for (var i = 1; i < datalen; i++) {
                 //str += formatDate(pdata[0].data[i][0]) + "," + pdata[0].data[i][1] +  "," + pdata[2].data[i][1] + "," + (pdata[0].data[i][1] + pdata[2].data[i][1]) + "\n";
@@ -149,7 +191,8 @@ class SKYDataLoader {
                              // clean up
                              var _cnStockContent =  data.substring(data.lastIndexOf("[[")+1,data.lastIndexOf("]]")); 
                              var name = data.substring(data.lastIndexOf("name")+8,data.lastIndexOf("}")-1); 
-                             name = convert2UTF8(name);
+                             name = JSON.parse("\"" + name + "\"");
+                              
                              _cnStockContent = _cnStockContent.replaceAll("\"", '');
                              _cnStockContent = _cnStockContent.split("], [");
                             // packaging
@@ -216,8 +259,9 @@ class SKYDataLoader {
                                 var name = data.substring(data.lastIndexOf("qt"),data.lastIndexOf("}")).split(",")[1]; 
                                 name = name.replaceAll('\"','');
                                 //name =convert2UTF8(name)
-                                name = JSON.parse(name);
-                                // packaging
+                                name = JSON.parse("\"" + name + "\"");
+                                 
+                                   // packaging
                                 this.cnStockContent = new Array(_cnStockContent.length);
                                 var initialPrice = parseFloat(_cnStockContent[0].split(",")[2]);
                                 for(var i = 0 ; i < _cnStockContent.length; i ++){
@@ -254,11 +298,19 @@ class SKYDataLoader {
                     }
                      $.get(server, function(data) {
                         //parsing yahoo
-                         //console.log("loging raw data ------------ " + code+" :" + data);
-                        var _content = JSON.parse(data);
+                         //console.log("loging raw data ------------ " + code+" :" + data);                    
+                        var _content = '';
+                        try{
+                            _content = JSON.parse(data);
+
+                        } catch(e){
+                            smartLog(e.Message,'alarm');
+                            return;
+                        }
                         var len = _content.chart.result[0]['timestamp'].length;
                         var initialPrice = parseFloat(_content.chart.result[0]['indicators']['quote'][0]['close'][0]);
                         var name = code;
+                         
                         var temp = new Array();
                         for(var i = 0 ; i < len; i ++){
                             temp[i] = [];

@@ -2,15 +2,14 @@ String.prototype.replaceAll = function(search, replacement) {
     return this.replace(new RegExp(search, 'g'), replacement);
 };
 
-
 String.prototype.removeAllAfter = function (search){
 	var target = this;
 	return target.substring(0,target.indexOf(search));
 }
 
-      String.prototype.contains = function(search){
-          return (this.indexOf(search) != -1 ? true: false);
-      }
+String.prototype.contains = function(search){
+    return (this.indexOf(search) != -1 ? true: false);
+}
 
 String.prototype.toTimeStamp = function (){
       	return (new Date(this).getTime()/1000);
@@ -25,6 +24,7 @@ String.prototype.toTimeStamp = function (){
       return true;
     return false;
   }
+
   String.prototype.isFuture = function(search){
     return this.toLowerCase().indexOf(search) != -1 ? true : false;
   }
@@ -54,13 +54,39 @@ String.prototype.toTimeStamp = function (){
        return (target === this.substring(0,len)) ? true : false;
   }
 
+  String.prototype.endWith = function(key){
+      var len = key.length;
+      var sub = this.substring((this.length - len),this.length);
+      return key == sub ? true : false;
+  }
+
   String.prototype.insertAfter = function(add, search){
         var pos = a.indexOf(search) + search.length;
         pos =  (pos != -1) ? pos : this.length;
         return [this.slice(0, pos), add, this.slice(pos)].join('');  
   }
 
- 
+  String.prototype.convert2USDateFromCN = function(){
+    if(this.indexOf("-")){
+      var tmp = this.split("-");
+      if(tmp.length == 3)
+        return tmp[1]+"/" + tmp[2] + "/"+tmp[0];
+      else
+        return this;
+    }
+
+  }
+
+  Array.prototype.flatten = function(){
+      return this.join(',');
+  }
+
+  Array.prototype.resort = function(){
+      var t = new Array();
+      for(key in this)
+        t.push(this[key]);
+      return t;
+    }
 
   Array.prototype.clean = function(deleteValue) {
   for (var i = 0; i < this.length; i++) {
@@ -72,16 +98,6 @@ String.prototype.toTimeStamp = function (){
   return this;
 };
 
-String.prototype.convert2USDateFromCN = function(){
-	if(this.indexOf("-")){
-		var tmp = this.split("-");
-		if(tmp.length == 3)
-			return tmp[1]+"/" + tmp[2] + "/"+tmp[0];
-		else
-			return this;
-	}
-
-}
 Array.prototype.removeLastN = function(num){
     for(var i = 0 ; i < num ; i ++){
              this.splice(-1, 1);
@@ -89,6 +105,15 @@ Array.prototype.removeLastN = function(num){
     }
     return this;
 }
+
+Array.prototype.removeEmpty = function(){
+  var t = "";
+  while(t=="")
+    t = this.pop();
+  this.push(t);
+  return this;
+}
+
 Object.size = function(obj) {
     var size = 0, key;
     for (key in obj) {
@@ -96,4 +121,10 @@ Object.size = function(obj) {
     }
     return size;
 };
+
+Object.push = function (obj){
+    for (key in obj) {
+        this.key= obj.key;
+    }
+}
 

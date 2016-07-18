@@ -1,6 +1,6 @@
 html,
 body {
-background-color: #000000;
+   background-color: #000000;
    padding: 0;
    margin:0;
    font-family: Microsoft Yahei, Arial;
@@ -10,9 +10,28 @@ background-color: #000000;
    src: url(HelveticaNeueLTPro-UltLt.woff);
 }
 
+@font-face {
+   font-family: test;
+   src: url(msyhl.ttc);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
 img{ padding:0;
     margin: 0;}
 
+.red{
+  color: #F5055D;
+}
+
+.green{
+  color: #EDF781;
+}
 .dygraph-legend {
     background: #000000;
 }
@@ -23,7 +42,72 @@ img{ padding:0;
 	display: inline-block;
 	
 }
+html{
+  overflow-y: hidden;
+}
 
+/********** Portfolio Page *****************/
+.pf_list_detail{
+  display: none;
+}
+.pf_list_equity{
+  font-size: 18pt;
+}
+.pf_list_big{
+  font-family: Helvetica_Light, Microsoft JhengHei;
+  font-size: 32pt;
+}
+
+.pf_list_big a:link{
+  color:#FFF;
+}
+.pf_list_big a:visited{
+  color:#FFF;
+}
+.pf_list_big a:hover{
+  color:rgb(255,77,115);
+}
+
+
+.pf_list_modify{
+  font-style: italic;
+  height: 30pt;
+  padding: 0;
+  color: #fff;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  width: 45pt;
+  font-size: 18pt;
+}
+
+.pf_list{
+  margin: 0 0 20pt 0 ;
+  display: inline-block;
+  position: relative;
+}
+
+.pf_remove{
+  position: relative;
+  width: 25px;
+  height: 25px;
+  background-image: url('../img/delete.png');
+  cursor: pointer;
+  display: inline-block;;
+}
+
+.pf_sum{
+  font-size: 24pt;
+  margin: 0 0 20pt 0;
+}
+
+#pf_realtimeAlarmMaster{
+  font-size: 14pt;
+}
+
+#pf_realtimeAlarmMaster div{
+   display: inline-block;
+}
 /********** Realtime monitor page **********/
 
 .stockHolder{
@@ -31,7 +115,7 @@ img{ padding:0;
     padding: 20px;
     background-color: #26282f;
     opacity: 0.65;
-    margin: 0 0 90px 120px;
+    margin: 0 0 35pt 60pt;
     z-index: 1;
 }
 
@@ -45,9 +129,9 @@ img{ padding:0;
 
 #rtmHeader #headerCommands{
     color: #fff;
-    width: 300px;
+    width: 500pt;
     height: 100px;
-    margin: 0 300px 0 0;
+    margin: 0 100pt 0 0;
     float: right;
 
 }
@@ -68,18 +152,20 @@ img{ padding:0;
  }
 
 #realtimeMonitorData {
-   margin: 60px 0 0 0 ;
+   margin: 45pt 0 0 0 ;
+
  }
 
  .skyFooter{
     height: 80px;
     width: 100%;
+    margin: -37pt 0 0 0;
     font-family: Helvetica_Light;
  }
 
 .skyFooter #ft_Time{
     float:left;
-    margin: 30px 0 0 130px;
+    margin: 30px 0 0 70pt;
     font-size: 16pt;
     color: #fbd4d0;
     letter-spacing: 2pt;
@@ -87,7 +173,7 @@ img{ padding:0;
 
 .skyFooter #ft_cnTime{
     float:left;
-    margin: 30px 0 0 340px;
+    margin: 30px 0 0 210pt;
     font-size: 16pt;
     color: #fbd4d0;
     letter-spacing: 2pt;
@@ -98,8 +184,13 @@ img{ padding:0;
     color: #fff3c9;
     line-height: 15px;
     padding: 0 0 10px 10px;
-    height: 12px;
+    height: 25px;
     margin: 0 0 -10px 0;
+}
+
+.stockHolderfonts img{
+    position: absolute;
+    margin: -8pt 0 0 7pt;
 }
 
 .graphTitle_0{
@@ -147,7 +238,7 @@ div.dygraph-legend{ background-color: #000; }
     width: 100px;
     height: 100px;
     float: left;
-    background-image: url('../img/skyback.jpg');
+    background-image: url('../img/skyback_main.jpg');
     background-size: cover;
     border: none;
     margin:0;
@@ -157,18 +248,19 @@ div.dygraph-legend{ background-color: #000; }
 }
 
 #mainBody {
-    width: 100px;
-    height: 100px;
     float: left;
     border: none;
     margin:0;
-    padding: 15px;
-    padding-top: 40px;
+    padding: 50px 0 0 50px;
     background-color: rgb(0,0,0);
 }
 
-
-
+.mainbutton{
+  margin: 10pt 10pt 0 0 ;
+  width: 140pt;
+  height: 60pt;
+  font-size: 16pt;
+}
 #logoLeft{
     background-image: url('../img/skylab.png');
     width: 451px;
@@ -180,47 +272,60 @@ div.dygraph-legend{ background-color: #000; }
 }
 
 #logoRight{
-    background-image: url('../img/skylogo.png');
-    width: 151px;
+    background-image: url('../img/skylogo.png?123');
+    width: 152px;
     height: 425px;
     float: right;
-    margin: 20px 55px 0 0 ;
+    margin: 20px 75pt 0 0 ;
+}
+#mainGraphHolder_blur{
+     width: 1690px;
+     height: 682px;
+     zoom:0.8;
+     margin: 0 auto 0 auto;
+     background-image: url('../img/maingraphBack.png?id=112112');
 }
 
 #mainGraphHolder{
-    width: 1500px;
+    width: 100%;
     height: 720px;
-    position: absolute;
-    background-color: rgb(123,23,2);
-    margin: 0 auto 0 auto;
+    margin:0;
+    text-align: center;
 }
 
 #mainGraph{
-    width: 1500px;
+   
     height: 500px;
-    float: left;
-    background-color: rgb(150,23,100);
+    margin: 0 auto 0 auto;
+
 }
 
 #info{
-    width:1500px;
+     width: 85%;
+    height: 220px;
+    zoom:0.8;
+    margin: 20pt auto 0 auto;
+    
+}
+
+.infoPanel{
+    width: 25%;
     height: 220px;
     float: left;
-    background-color: rgb(20,100,10);
+    text-align: left;
+    font-size: 22px;
+    font-family: Helvetica_Light;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.7);
+    padding: 20px 0 0 135px;
 }
 
 #infoSub1{
-    width: 750px;
-    height: 220px;
-    float: left;
-    background-color: rgb(100,100,10);
+    
 }
 
 #infoSub2{
-    width: 750px;
-    height: 220px;
-    float: left;
-    background-color: rgb(200,100,10);
+    
 }
 
 
@@ -230,7 +335,6 @@ div.dygraph-legend{ background-color: #000; }
 
 .chartDetails{
     font-size: 12px;
-
     width: 450px;
     height: 120px;
     padding: 0;
@@ -248,18 +352,25 @@ div.dygraph-legend{ background-color: #000; }
 .chartDonnut{
     
     float: left;
-    width: 250px;
+    width: 220px;
     height: 100px;
     margin: 0;
     padding: 0;
 }
+.statsInfo{
+  width: 240px;
+  line-height: 24px;
+}
 .chartDonnut .chartDonnutLabel{
-     font-family: Helvetica_Light;
+    font-family: Helvetica_Light;
     letter-spacing: 1px;
     position: absolute;
+    width: 70px;
+    height: 25px;
     font-size: 22px;
     color:#ffabad;
-    margin: 39px 0 0 53px;
+    margin: 41px 0 0 39px;
+    text-align: center;
 }
 .chartSymbol{
     padding: 7px 0px 0px 0px;
@@ -304,4 +415,288 @@ div.dygraph-legend{ background-color: #000; }
 
 .legend_label_color_3{
     color:rgb(255,61,132);
+}
+
+.addSelections{
+    float: right;
+    margin: -6pt -35pt 0 0 ;
+    color:rgb(51,204,204);
+}
+.removeSelections{
+    float: right;
+    margin: -6pt 55pt 0 0 ;
+    color:rgb(51,204,204);
+}
+
+.period{
+  float: right;
+  margin: -6pt 10pt 0 0;
+  color:rgb(51,204,204);
+}
+.panelTransparentButtonSmall{
+    background:none;
+    border: none;
+    cursor: pointer;
+    font-size: 12pt;
+    padding: 5px;
+}
+
+.panelTransparentButtonSmall:hover{
+    box-shadow: 0px 0px 40px 1px rgba(120,228,255,0.75);
+}
+
+#checkedanim{
+   /* background-image: url('../img/checksmall.gif?do=12312321');*/
+    width: 355px;
+    height: 75px;
+}
+
+#checkedanim #msg{
+  position: absolute;
+  margin: 20pt 0 0 -205pt;
+  width: 350px;
+  text-align: right;
+}
+
+#checkedanim img{
+   display: none;
+}
+
+#headerMessage{
+    position: absolute;
+    width: 200pt;
+    margin: -11pt 0 0 -57pt;
+}
+.biggerClass{
+    position: absolute;
+    width: 340pt;
+    text-align: center;
+    font-size: 25pt;
+    height: 50pt;
+    z-index: 3;
+    background-color: #333;
+    color:#fff;
+    opacity: 1;
+    padding: 10pt 0 0 0 ;
+    margin: 0 0 0 0pt ;
+    display: none;
+}
+.skylabMain{
+    margin: 0 0 0 25pt;
+    padding: 70pt 0 0 0;
+}
+.skylabMain_g_legend{
+    color: #000;
+    margin: 15pt 15pt 0 0;
+    background-color: rgba(255,255,255,0.1);
+    padding: 15pt;
+    border-radius:5pt;   
+    color: rgba(255,255,255,1);
+    float: right;
+}
+.skylabMain_stockname{
+    float: left;
+    text-shadow: 1px 1px 1px #4d4d4d;
+    margin: 22pt 0 0 28pt;
+    font-size: 22px;
+    font: Helvetica_Light;
+    color: rgba(255,255,255,1);
+}
+.skylabGDetail{
+    position: absolute;
+    color:rgba(255,255,255,0.7);
+    width: 80%;
+}
+
+/* portfolio page */
+.portfolioMain{
+  color: #fff;
+  font-size: 18pt;
+  
+}
+
+/*** color ***/
+.skew{
+  font-style: italic;
+}
+.AlarmBlue{
+  color: rgb(96,210,247);
+}
+.AlarmRedLight{
+  color: rgb(219,132,148);
+}
+
+.AlarmRed2{
+  color: rgb(190,0,0);
+  background-color: #000;
+}
+.AlarmRed{
+  color: rgb(252,33,69);
+}
+
+.AlarmGreen{
+  color: rgb(131,255,36);
+  background-color: #000;
+}
+.AlarmGreenLight{
+  color: rgb(97,194,0);
+}
+
+.isBold{
+  font-weight: bold;
+}
+
+.isItalic{
+  font-style: italic;
+}
+
+#realtimeConsole #userinput{
+  width: 670pt;
+  height: 25pt;
+  position: absolute;
+  z-index: 5;
+  background:none;
+  color:rgb(200,200,200);
+  margin: 285pt 0 0 30pt;
+  border: none;
+}
+#realtimeConsole #content{
+  position: absolute;
+  margin: 30pt 0 30pt 30pt ;
+  height: 260pt;
+  width: 680pt;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+#realtimeConsole #cbutton{
+  z-index: 6;
+float: right;
+margin: 20pt 20pt 0 0 ;
+background-image: url('../img/on-off-button.png');
+width: 55px;
+height: 55px;
+}
+
+#realtimeConsole #cbutton:hover{
+background-position: 54px;
+cursor: pointer;
+}
+#realtimeConsole{
+  display: none;
+  position: absolute;
+  border-radius: 25px;
+  z-index: 5;
+  background-color: #000;
+  width: 855pt;
+  height: 330pt;
+  margin: 0pt 0 0 20pt;
+  opacity: 0.7;
+  color: rgb(207,239,250);
+}
+/* alarm **************/
+#alarmMaster{
+  width: 98%;
+  height: 500pt;
+  /*background-color: rgb(222,12,2);*/
+}
+#alarmsDetails{
+  padding: 10pt 0 0 10pt;
+  background-image: url('../img/leather4.jpg');
+  line-height: 17pt;
+  float: left;
+  width: 48%;
+  height: 500pt;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+#alarmConsole{
+  padding: 10pt 0 0 10pt;
+  background-image: url('../img/black-leather.jpg');
+  background-size: 0.1;
+  float: left;
+  width: 48%;
+  height: 500pt;
+  overflow-x: hidden;
+  overflow-y: visible;
+}
+.Alarms{
+  color: #fff;
+  font-size: 18pt;
+}
+
+.alarm_on{
+  background-color: rgb(32,250,148);
+  box-shadow:
+        0 0 35px 5px #0ff; /* outer cyan */
+  
+}
+#alarm_light{
+  display: none;
+  position: absolute;
+  width: 135pt;
+  height: 1pt;
+  background-color: none;
+  margin: 8px 0 0 772pt;
+}
+ul {
+  text-align: left;
+  display: inline;
+  margin: 0;
+  padding: 15px 4px 17px 0;
+  list-style: none;
+/*  -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);*/
+}
+ul li {
+  font: 18pt/18pt Helvetica_Light;
+  letter-spacing: 1pt;
+  display: inline-block;
+  margin-right: -4px;
+  position: relative;
+  z-index: 2;
+  padding: 15px 20px;
+  cursor: pointer;
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -ms-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
+}
+ul li:hover {
+  background: #333;
+  color: #fff;
+ }
+
+ul li ul {
+  padding: 0;
+  position: absolute;
+  top: 48px;
+  left: 0;
+  width: 200pt;
+   -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transiton: opacity 0.2s;
+  -moz-transition: opacity 0.2s;
+  -ms-transition: opacity 0.2s;
+  -o-transition: opacity 0.2s;
+  -transition: opacity 0.2s;
+}
+ul li ul li { 
+  background: #333; 
+  display: block; 
+  color: #fff;
+  height: 30pt;
+  padding: 20pt 0 10pt 10pt;
+   text-shadow: 0 -1px 0 #000;
+}
+ul li ul li:hover { background: #666; }
+ul li:hover ul {
+  display: block;
+  opacity: 1;
+  visibility: visible;
 }

@@ -28,7 +28,11 @@ $GLOBALS['CNSTOCK_HISTORY_SERVER'] = 'http://web.ifzq.gtimg.cn/appstock/app/fqkl
 
 $sym = isset($_GET['sym']) ? $_GET['sym'] : '';
 
+$GLOBALS['SHOW'] = isset($_GET['show']) ? $_GET['show'] : 0;
+
 $period = isset($_GET['p']) ? $_GET['p'] : 'y';
+
+$offline = isset($_GET['offline']) ? $_GET['offline'] : '0';
 
 $begin = isset($_GET['begin']) ? $_GET['begin']: '';
 
@@ -52,7 +56,9 @@ if($param){
 
 //load raw
 $rawData = loadRawData($sym);
-
+if($GLOBALS['SHOW']){
+	logMe('Raw data from Cache: '. strlen($rawData));
+}
 //parse
 $_file = explode('#cachVar#',$rawData);
 
@@ -64,30 +70,109 @@ if(isset($_file[1]) && is_array($_file)){
 
 $fileLen = count($file);
 
-
 // if no local or local.last day is not china day today
 if($fileLen==0) {
 	$rawData = fetchStock($sym,$begin,$end);
-	SaveStockData2CSV($sym,$rawData);
-	echo $rawData;
-	exit();
+	//validate data
+	logMe('rawdata fetch successfull, data length '.strlen($rawData));
+	if(validateData($rawData,$sym)){
+			logMe('Validating Successful');
+		if(SaveStockData2CSV($sym,$rawData)){
+			if($GLOBALS['SHOW']){
+				logMe('saving to '.$sym.' is compelte!');
+			}
+		echo $rawData;
+		exit();
+		}
+	}
 } else {
-// there is local file, check for update
-	if(!isUptoDate(time(), $file['lastestDay'])){
+// there is local file, ` for update
+	if(!isUptoDate(time(), $file['lastestDay']) && $offline == 0){
 		$file['rawData'] = fetchStock($sym,$begin,$end);
-		if(SaveStockData2CSV($sym,$file['rawData']))
-			echo $file['rawData'];
+		if(validateData($file['rawData'],$sym)){
+			if(SaveStockData2CSV($sym,$file['rawData'])){
+				if($GLOBALS['SHOW']){
+					logMe('saving to '.$sym.' is compelte!');
+				}
+				echo $file['rawData'];
+			}
+		}
 	} else{
-	
+		if(isEmpty($file['rawData'])){
+			if($GLOBALS['SHOW']){
+				logMe('Error With Cache for '.$sym.' due to empty cache, removing ....');
+			}
+
+			if(unlink(getFilePath($sym))){
+				if($GLOBALS['SHOW']){
+				logMe($sym.' Successfully Deleted ');
+				}	
+			}
+		}
 		echo $file['rawData'];
 	}
 }
 
+function validateData($raw,$sym){
+	if(strpos($sym,'us') !== false){
+		//check us stock conditions for empty
+		return validateUSStockData($raw);
+	} else if(strpos($sym,'sz') !== false ||strpos($sym,'sh') !== false){
+		// check cnstock conditions for empty
+		return validateCNStockData($raw);
+	} else if(strpos($sym,'jj') !== false){
+		return validateCNFund($raw);
+	} else if(strpos($sym, 'F_') !== false){
+		return validateCNFuture($raw);
+	}else {
+		if($GLOBALS['SHOW']){
+			logMe('unreconize symbol type for '.$sym);
+			return false;
+		}
+	}
+	return false;
+}
+
+function validateCNFund($raw){
+	if($raw == false)
+		return false;
+	return true;
+}
+function validateUSStockData($raw){
+	$t = parseJson($raw);
+	$sym = $t['chart']['result'][0]['meta']['symbol'];
+	if($sym == NULL){
+		if($GLOBALS['SHOW'])
+			echo 'No such data file on remote server, check your symbol!';
+		return false;
+	}
+	return true;
+}
+
+function parseJson($json){
+	
+    return json_decode($json, TRUE);
+}
+
+function validateCNStockData($raw){
+	// if return data contains a full YYYY-MM-DD format, then consider the data is valid
+	if(preg_match('/\b\d{4}-\d{2}-\d{2}\b/',$raw))
+		return true;
+	return false;
+ }
+
+function logMe($message){
+	if($GLOBALS['SHOW'])
+		echo $message.'<br>';
+}
 
 function fetchStock($sym, $begin = '', $end = ''){
 
     $url = getServerAdd($sym,$begin,$end);
- 
+ 	
+ 	if($GLOBALS['SHOW'])
+ 		logMe('fetching with url: '.$url);
+
 	$data = @file_get_contents($url);
 
 	return $data;
@@ -136,23 +221,25 @@ function loadRawData($s){
 			break;
 		default:
 			// check if it is fund
-			if(strpos($s, 'jj'))
+			if(strpos($s, 'jj') !== false)
 			$filename = $GLOBALS['DATA_FUND_FOLDER'].'F_'.$s.'.rtu';
 			else
 		   	$filename = $GLOBALS['DATA_FOLDER'].'F_'.$s.'.rtu';
 			# code...
 			break;
 	}
-
-
 	$file = @file_get_contents($filename);
 
 	return $file;
 }
 
+function isEmpty($data){
+	if(strlen($data) == 0 || $data == '')
+		return true;
+	return false;
+}
 
-
-function SaveStockData2CSV($symbol, $rawData){
+function getFilePath($symbol){
 	$filename = '';
 	switch ($symbol) {
 		case 'IF':
@@ -163,7 +250,7 @@ function SaveStockData2CSV($symbol, $rawData){
 		$filename = $GLOBALS['DATA_FOLDER'].'ZJIHMI.csv';
 			break;
 		default:
-			if(strpos($symbol, 'jj'))
+			if(strpos($symbol, 'jj') !== false)
 			$filename = $GLOBALS['DATA_FUND_FOLDER'].'F_'.$symbol.'.rtu';
 			else
 		   	$filename = $GLOBALS['DATA_FOLDER'].'F_'.$symbol.'.rtu';
@@ -171,11 +258,16 @@ function SaveStockData2CSV($symbol, $rawData){
 			# code...
 			break;
 	}
+	return $filename;
+}
 
+function SaveStockData2CSV($symbol, $rawData){
+	$filename = '';
+	$filename = getFilePath($symbol);
 	//add timestamp
 	$rawData.='#cachVar#'.date('m/d/Y');
 	$t =  file_put_contents($filename, $rawData);
-	chmod($filename, 777);
+	chmod($filename, 0777);
 	return $t;
 }
 

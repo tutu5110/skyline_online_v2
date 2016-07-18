@@ -285,7 +285,7 @@ function SaveFutureData2CSV($symbol, $jsonArr){
 		$str .= implode($jsonArr[$i], ',')."\n";
 
 	$t = file_put_contents($filename, $str);
-	chmod($filename, 777);
+	chmod($filename, 0777);
 	return $t;
 }
 

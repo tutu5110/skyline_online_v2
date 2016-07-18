@@ -130,19 +130,49 @@
     	$end = strlen($goldprice);
     	return floatval(substr($goldprice, $begin, $end));
     }
+	 你好
+
+	Dummy Data
+	echo 'v_s_sh601818="1~光大银行~601818~3.82~-0.02~-0.52~552356~21139~~1783.14";';
+
+	exit();
 
 	*/
-$add =  urldecode($_GET['cadd']);
 
-$result = file_get_contents($add);
+header("Content-Type: text/html; charset=utf-8");
+
+$cadd =  urldecode($_GET['cadd']);
+//$cadd = 'https://query1.finance.yahoo.com/v7/finance/chart/CHAD?range=1d&interval=1d&indicators=quote';
+
+$offline = isset($_GET['offline']) ? $_GET['offline'] : 0;
+
+if($offline != 0){
+	echo '';
+	exit();
+}
+
+$result = file_get_contents($cadd);
+
+$result = iconv("gbk","utf-8",$result);
 
 echo $result;
-
 exit();
+
+function file_get_contents_curl($url)
+{
+    $ch=curl_init();
+    curl_setopt($ch,CURLOPT_HEADER,0);
+    curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+    curl_setopt($ch,CURLOPT_URL,$url);
+    curl_setopt($ch,CURLOPT_FOLLOWLOCATION,1);
+    $data=curl_exec($ch);
+    curl_close($ch);
+    return $data;
+}
 
 function getYahoo($symbol){
 
-	$json = file_get_contents('http://finance.yahoo.com/webservice/v1/symbols/'.$symbol.'/quote?format=json&view=detail');
+	$json = file_get_contents('https://query1.finance.yahoo.com/v7/finance/chart/CHAD?range=1d&interval=1d&indicators=quote');
 
 	$jsonIterator = new RecursiveIteratorIterator(
     new RecursiveArrayIterator(json_decode($json, TRUE)),

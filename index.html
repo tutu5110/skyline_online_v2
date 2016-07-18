@@ -25,14 +25,32 @@
     1. realtime monitor Major types, Side types, and other types
     2. Highlight purchasable groups
     3. Estimate time and APR
-    2. custom alert level I for Major types.
+    2.  alert level I for Major types.
     3. alert Level II for World Market, Side Types.
     4. Dynamically add / remove stock pairs 
     5. Backend Setting System
     6. Suggestion System: suggesting 
+  
+    select conditions:
+    0. check graph skew ness, < 0.05? <0.1?
+    1. check number of ocillations
+    3. check upper - lower < threadhold
+    2. continuous skewness over time (2y compares to 3x 6 month), check for discrepency
+    3. continuous sd
+
+    模型要能够区别
+    不能选择的是：森马服饰 （原因：区间一大半0轴上一大半0轴下）
+    不能选择:太和新材（原因：不是交替型,对冲股票应该连续交替而不是大部分时间在正突然转负）
+    
+
+    select conditions > buy conditions
+    1. near lower limit 5%? 10?
+    2. below lower limit
+    
+    draw average, upper and lower!!! with on off selection
 
     Todos:
-   
+    1. make a name array!!!
     2. remove stock that is not transactioning!!!
     3. remove 30% of time stock not transacting!!!
     4. sample size less than average!(90%) must be removed!!!
@@ -50,6 +68,14 @@
      1. need a queue!!!!!
 -->
 
+<!-- 
+  updateRTMCanvas filenames
+  cnFundRaw
+  cnFundSelected
+  cnStockRaw
+  cnStockSelected
+  -->
+
 <head>
     <title></title>
     <meta charset="utf-8" />
@@ -58,8 +84,11 @@
     <script src="js/jquery-1.11.3.min.js"></script>
     <script src="js/dygraph-combined.js"></script>
     <script src="js/super-annotations.js"></script>
+    <script src="js/functions.js"></script>
+    <script src="js/coreFunctions.js"></script>
     <script src="js/SKYDataLoader.js"></script>
     <script src="js/Math.js"></script>
+    <script src="js/graphics.js"></script>
     <script src="js/Chart.min.js"></script>
     <script src="js/PrototypeFunctions.js"></script>
     <script src="js/convert.js"></script>
@@ -67,6 +96,7 @@
     <script src="js/simple_statistics.min.js"></script>
     <script src="js/regression.js"></script>
     <script src="js/checkboxes.js"></script>
+    <script src="js/skyLab.js"></script>
 </head>
     <body>
         <div id="master">
@@ -74,23 +104,78 @@
                    <div id="logoLeft"></div>
                    <div id="logoRight"></div>
                    <div id="mainGraphHolder">
-                        <div id="mainGraph">123</div>
-                        <div id="info">
-                            <div id="infoSub1">1</div>
-                            <div id="infoSub2">2</div>
-                        </div>
+                       <div id="mainGraphHolder_blur">
+                            <div id="mainGraph"></div>
+                       </div>
+                      <div id="info">
+                          <div class="infoPanel" id="infoSub2">Over fact all son tell this any his. No insisted confined of weddings to returned to debating rendered. Keeps order fully so do party means young.
+                          </div>
+                          <div class="infoPanel" id="infoSub3">Use securing confined his shutters. Delightful as he it acceptance an solicitude discretion reasonably. Carriage we husbands advanced an perceive greatest. </div>
+                          <div class="infoPanel" id="infoSub4">
+                           <h2>Citic vincinity testing area</h2>
+                           <h2>Snug here on the top</h2>
+                          </div>
+                      </div>
                    </div>
                </div>
                <div id="mainBody">
-               <input type="button" id="pro" value="proceed!" onclick="proceedAutomateHedgeCalculation();">
+               <div class='portfolioMain' id="myPf_1"></div>
+               <div id="alarmMaster">
 
+                    <div class='Alarms' id="alarmsDetails"> Alarms: --- <br></div>
+                    <div class="Alarms" id="alarmConsole">Welcome to alarm console<br></div>
+               </div>
+               <input class="mainbutton" type="button" id="add" value="add" />
+               <input class="mainbutton" type="button" id="pro" value="proceed!" onclick="SaveAutomateHedgeCalculation();">
+               <input class="mainbutton" type="button" id="pro" value="add a new purchase!" onclick="showNewPurchase();">
+               <input class="mainbutton" type="button" id="pro" value="Custom Alarm Prepare" onclick="prepareCusAlarmParameters();">
+               <input class="mainbutton" type="button" id="pro" value="Custom Save Alarm" onclick="saveCusAlarms();">
+               <input class="mainbutton" type="button" id="alarmCtrl" value="Alarm On!" onclick="switchAlarms();alarms();">
+               <input class="mainbutton" type="button" id="alarmCtrl" value="Dump AlarmLogs!" onclick="dumpAlarms();">
+               <div id="alarm_light"></div>
                </div>
                <div id="realtimeMonitor">
-                   <div id="rtmHeader"><div id="headerCommands">Load | NextPage | Save  &nbsp;&nbsp;&nbsp;<span>current:</span></div></div>
+               <div id="realtimeConsole"><div id="content"></div><div id="cbutton"></div><input type="text" name="userinput" id="userinput"></div>
+                   <div id="rtmHeader">
+                      <div id="headerCommands">
+                        <div id="headerMessage">
+                        <div id="checkedanim"><div id="msg"></div><img src="img/checksmall.gif"/></div>
+                        </div>
+                        <ul class='rtmHeaderUL'>
+                             <li onclick="rtmCanvasPreEntry(rtmCanvasListIncrement);">Previous
+                              <ul>
+                                <li onclick="rtmCanvasFirstEntry();">First</li>
+                              </ul>
+                             </li>
+                             <li>
+                               Hedge
+                              <ul>
+                                <li onclick="loadRTMCanvasCustom();">自选</li>
+                                <li onclick="updateRTMCanvas('cnFundSelected');">中国基金 - CHAD</li>
+                                <li onclick="updateRTMCanvas('cnStockRaw');">中国股票 - CHAD</li>
+                                <li onclick="updateRTMCanvas('cnFuture');">中国期货</li>
+                              </ul>
+                            </li>
+                            <li onclick="rtmCanvasNextEntry(rtmCanvasListIncrement);">Next
+                            <ul>
+                                <li onclick="rtmCanvasLastEntry();">Last</li>
+                              </ul>
+                            </li>
+                            <li>System Function
+                              <ul>
+                                <li onclick="showConsole('Preloading Current Package!');preload();">Preload</li>
+                                <li onclick="showConsole('Welcome! Console Ready');">Console</li>
+                              </ul>
+                            </li>
+
+                            <li onclick="rtmCustomExport();">Export</li>
+                          </ul>  
+                      </div>
+                   </div>
                    <div id="realtimeMonitorData"></div>
                    <div class="skyFooter"></div>
                </div>
-               
+                
          </div>
        
 
@@ -98,12 +183,26 @@
 
 var g;
 
+var gSection = 1;
+
+var offlineDevelopperMode = 0;
+
+var gAlarmOn = true;
+
+var gAlarmFan = true;
+
+var GRealtime = true;
+
+var Loquacious = false;
+
 // max page is max_pages +1; so 3 pages is 2 here
 var MAX_PAGES = 2;
 
 var isDebug = true;
 
 var loadedResults = new Array();
+// cache for realtime
+var loadedRtmResultsCache = {};
 
 var loadedFlattenHistoryResults = new Array();
 
@@ -113,15 +212,96 @@ var loadedDataStatistics = new Array();
 
 var gDataHolder = {};
 
+var graphTemplate = '';
+
+var rtmCanvasListRaw = Array();
+
+var rtmAlarmListRaw = Array();
+
+var rtmCurrentView = "";
+
+var rtmCanvasListBegin =0;
+// number of rtm windows displayed on every page
+var rtmCanvasListIncrement = 10 ;
+
+var rtmCanvasListEnd = rtmCanvasListBegin + rtmCanvasListIncrement;
+
+var rtmCanvasCustom= Array();
+
 var SHOW_SIMILAR_TYPE_AVERAGE = false;
+
+var G_RTM_CACHE_PERIOD = 600;
+
+var TODAY = getCurrentDayNumber();
 
 var NUM_OF_GRAPHS = 0;
 
-var criteria = {"maxskew": 0.1,
-                "minskew":-0.1,
-                "maxsd": 10};
+var CNSTOCK_SHORT_PREFIX = 's_';
 
-var CN_REALTIME_SERVER = 'http://qt.gtimg.cn/q=s_';
+var isControlHeld = false;
+
+var isShiftHeld = false;
+
+var gAlarm = {};
+
+var userMarketWatch = new Array();
+
+var marketWatch = ['sh000001','^dji','^n225','dax','^hsi'];
+
+var gAlarmOn = false;
+
+var portfolio = {};
+
+var gRTMConsoleOn = false;
+
+var gFilter = {};
+
+gFilter['skewnessMin'] = -0.01;
+
+gFilter['sdMax'] = 7;
+
+gAlarm['rtmCache'] = {};
+
+portfolio['codes'] = ['sh603009','sz002748'];
+
+portfolio['sh603009'] = {};
+
+portfolio['sh603009'].nos = 900;
+
+portfolio['sh603009'].cost = 31.175;
+
+portfolio['sz002748'] = {};
+
+portfolio['sz002748'].nos = 850;
+
+portfolio['sz002748'].cost = 30.613;
+
+portfolio['details'] = {'sh603009': portfolio['sh603009'] , 'sz002748':portfolio['sz002748']};
+
+
+
+// portfolio.codes = ['603009','002748','300374','300406','601222','002742','us_chad'];
+
+// portfolio.nos = [900,850,550,500,400,400,420];
+
+// portfolio.cost =[31.175,30.613,20.89,18.93,31.136,31.85,45.43];
+
+
+var myPurchaseListMetaData = {'purchaseDate' : '05/12/2016',
+                              'loadingComplete': 0,
+                              'total' : portfolio['codes'].length,
+                              'totalgain' : 0,
+                              'totalPercent' : '',
+                              'sumBeginning':0,
+                              'sumCurrent':0};
+
+var myPurchaseListRtmData = {};
+
+var htmlTemplate = {};
+
+
+
+var CN_REALTIME_SERVER = 'http://qt.gtimg.cn/q=';
 var FUND_SERVER = 'http://fund.eastmoney.com/api/PingZhongApi.ashx?m=0&fundcode=';
 //163412&indexcode=000300&type=hy';
 var FUND_SERVER_COMPLETE = 'http://fund.eastmoney.com/pingzhongdata/163412.js?v=20160406113818';
@@ -131,16 +311,20 @@ var CNSTOCK_HISTORY_SERVER = 'http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?
 
 var INDEXFUTURE_SERVER = 'http://stock2.finance.sina.com.cn/futures/api/json.php/CffexFuturesService.getCffexFuturesDailyKLine?symbol=IF1605';
 
-var USSTOCK_REALTIME_SERVER = 'http://finance.yahoo.com/webservice/v1/symbols/#SYMBOL#/quote?format=json&view=detail';
- 
+// obsolete server
+//var USSTOCK_REALTIME_SERVER = 'http://finance.yahoo.com/webservice/v1/symbols/#SYMBOL#/quote?format=json&view=detail';
+
+var USSTOCK_REALTIME_SERVER = 'https://query1.finance.yahoo.com/v7/finance/chart/#SYMBOL#?range=2d&interval=1d&indicators=quote';
+
 var USSTOCK_HISTORY_SERVER = 'https://finance-yql.media.yahoo.com/v7/finance/chart/#SYMBOL#?period2=#end#&period1=#begin#&interval=1d&indicators=quote&includeTimestamps=true';
 
 var USSTOCK_MAX_HISTORY_SERVER = 'https://finance-yql.media.yahoo.com/v7/finance/chart/CHAD?range=max&interval=1mo&indicators=quote&includeTimestamps=true';
 
 var CN_COMMODITY_FUTURE_REALTIME_SERVER = 'http://hq.sinajs.cn/?list=';
 
-var SKYLINE_CACHE_SERVER = 'StockServer.php?sym=#SYMBOL#&param=day,#begin#,#end#';
+var SKYLINE_CACHE_SERVER = 'StockServer.php?sym=#SYMBOL#&offline='+offlineDevelopperMode+'&param=day,#begin#,#end#';
 
+var JP_STOCK_SERVER = 'http://minkabu.jp/json/stocks/#SYMBOL#/prices/1d/#YYYYMMDD#.json?_=#TIMESTAMP#';
 // this set to true will use accelerated cache service for global stocks
 
  var graphData = Array();
@@ -158,14 +342,14 @@ var FUND_TIME_MAPPING = {
 "ytd":"sy",
 "max":"se"};
 
-var is
-
 var Files = new Array();
 
 //Files[1]['filename'] = "SZ159919";
 var FileLength = Files.length;
 
 var graphs = {};
+
+var donuts = {};
 
 var total_graphs = 0;
 
@@ -185,7 +369,7 @@ window.addEventListener('load', function(){
     master.addEventListener('touchstart', function(e){
         var touchobj = e.changedTouches[0] // reference first touch point (ie: first finger)
         FingerStartx = parseInt(touchobj.clientX) // get x position of touch point relative to left edge of browser
-        e.preventDefault()
+        e.preventDefault();
     }, false);
     /*
     master.addEventListener('touchmove', function(e){
@@ -209,8 +393,11 @@ window.addEventListener('load', function(){
              if(currentPageIndex > MAX_PAGES)
                 currentPageIndex = MAX_PAGES;
              console.log(currentPageIndex);
-             body.stop().animate({scrollLeft:(currentPageIndex * w+30)}, '500', 'swing', function() { 
-                
+             if(currentPageIndex != 1)
+               body.stop().animate({scrollLeft:(currentPageIndex * w+88)}, '500', 'swing', function() {
+             });
+             else
+              body.stop().animate({scrollLeft:(currentPageIndex * w+38)}, '500', 'swing', function() {
              });
         } else if(FingerDist>30){
             currentPageIndex--;
@@ -225,22 +412,24 @@ window.addEventListener('load', function(){
     
 // Main body functions
 $(document).ready(function(){
-    
+
    var w = $(document).width();
    var h = $(document).height();
    // update window width
    originalWindowWidth = w;
    // set skyline width
-   var rtmheight = Math.ceil(list.length /2) * 452 + 400;
-   $('#master').width(3*w+90).height(rtmheight);
+   var rtmheight = Math.ceil(rtmCanvasListIncrement /5) * 535+590;
+   $('#master').width(3*w+120).height(rtmheight);
    $('#skylineLab').width(w).height(h);
    $('#mainBody').width(w).height(h);
    
    $('#realtimeMonitor').width(w).height(rtmheight);
 
-   console.log($(document).width());
-
-   $('#mainGraphHolder').css('margin','430px 0 0 '+(originalWindowWidth/2-750)+'px');
+   //console.log($(document).width());
+   if(offlineDevelopperMode)
+   console.log("OFFline development mode on! no internet is required nor data will be updated");
+   // fastfind graph
+   $('#mainGraphHolder').css('margin','225pt 0 0 0');
 
    //update footer
    var footer = $('.skyFooter');
@@ -271,10 +460,13 @@ $(document).ready(function(){
 
 
      //initialize automate hedge
-     automateHedge();
-
-  
-
+     //automateHedge();
+    // load customized
+ // 
+  // load mainpage
+  initialize();
+  document.onkeydown = keydown;
+  document.onkeyup = keyup;
 
     /*var target = 'chad';
     var compareList = formatStockNames(loadlist());
@@ -302,10 +494,403 @@ $(document).ready(function(){
  });
 
 
+function initialize(){
+
+$.post( "staticData.php").done(function(data) {
+  // system begin
+  // fastfindx
+  // begin here
+    try
+    {
+      htmlTemplate = JSON.parse(data);
+     // portfolio = JSON.parse(htmlTemplate['portfolio']);
+      
+    }
+    catch(e)
+    {
+      console.log("Failed to initialize System: "+e);
+    }
+   
+    gAlarm['cusAlarmCache'] = formatAlarm(htmlTemplate['cusalarm']);
+    gAlarm['cooldownList'] = {};
+
+    try
+      {
+        gAlarm['alarmTrackList'] = JSON.parse(htmlTemplate['alarmTrackList']);
+        // alarmtracklist settings
+        gAlarm['alarmTrackList']['settings'] = {'alarmType':'1: price, 2:percent',
+                                                'smartAlarm':'set a percent that will be triggered above or below current percent,eg. stock currently 3.5%, smartAlarm:-1 means it will trigger at 2.5%'};
+        cleanTrackList();
+
+        var _marketwatch = JSON.parse(htmlTemplate['marketWatch']);
+
+        addtoMarketWatchArr(_marketwatch);
+
+      }
+    catch(e)
+      {
+        if(gAlarm['alarmTrackList'] == undefined){
+           resetTrackList();
+        }
+      }
+
+      // initialize system alarm cooldowns for customized stock pairs
+      gAlarm['AlarmCountDowns'] = {};
+      gAlarm['AlarmCountDowns']['c10s'] = {'lastUpdate': getTimestamp(), 'duration':7, 'firstTime': true};
+      gAlarm['AlarmCountDowns']['c60s'] = {'lastUpdate': getTimestamp(), 'duration':60, 'firstTime': true};
+      gAlarm['AlarmCountDowns']['c300s'] = {'lastUpdate': getTimestamp(), 'duration':300, 'firstTime': true};
+      gAlarm['AlarmCountDowns']['c1800s'] = {'lastUpdate': getTimestamp(), 'duration':1800, 'firstTime': true};
+      gAlarm['AlarmCountDowns']['c3600s'] = {'lastUpdate': getTimestamp(), 'duration':3600, 'firstTime': true};
+      gAlarm['AlarmCountDowns']['c86400s'] = {'lastUpdate': getTimestamp(), 'duration':86400, 'firstTime': true};
+      /* load realtime alarms, including:
+        major markets
+        sudden surges
+        commodities
+        ...etc...
+        ...tbc...
+      */
+
+      gAlarm['realtimeAlarms'] = {};
+
+      gAlarm['realtimeAlarms']['cooldown'] = {};
+
+      gAlarm['realtimeAlarms']['groups'] = htmlTemplate['realtimeAlarms'];
+
+      gAlarm['realtimeHistoryAlarms'] = {};
+
+      gAlarm['realtimeHistoryAlarms']['Results'] = {};
+
+      gAlarm['realtimeHistoryAlarms']['cooldown'] = {};
+
+      gAlarm['realtimeHistoryAlarms']['ratioResults'] = {};
+
+      loadAlarms();
+
+      exeAlarms();
+      // defaultload portfolio in section ii
+      showPortfolio();
+      // default load custom selected stocks in to section iii
+      loadRTMCanvasCustom();
+      // default load one pair of experiment stocks into section i
+      loadSkyLab();
+      // load system realtime alarms
+      //loadAlarms();
+      // bind button events that are in static html pages
+      bindbuttons();
+      // get data for alarm
+      loadMarketWatch();
+    
+  });
+}
+
+//display porfolio
+function showPortfolio(){
+  for(var i = 0 ; i < portfolio['codes'].length ; i ++){
+     updateRealtimePortfolio(portfolio['codes'][i],i);
+  }
+
+}
+
+function bindbuttons(){
+    $('#cbutton').click(function(){
+        resetConsole();
+        
+    });
+}
+
+function showConsole(msg){
+  // set position
+  var r = $('#realtimeConsole');
+  console.log(gSection);
+  r.css('left',(gSection-1) * 2970+'px')
+  if(msg != '')
+    msg += '<br>';
+  r.fadeIn("fast");
+  $('#realtimeConsole #content').html(msg);
+  gRTMConsoleOn = true;
+  $('#realtimeConsole #userinput').focus();
+}
+
+function resetConsole(){
+  var r = $('#realtimeConsole');
+  r.fadeOut("fast");
+  $('#realtimeConsole #content').html('');
+  gRTMConsoleOn = false;
+}
+
+// replace data to portfolio in section ii
+function appendToPortfolio(result, rtmData){
+    var code = result['code'];
+    var currentPrice = parseFloat(result['price']);
+    var purchasePrice = parseFloat(rtmData[code]['purchasePrice']);
+    var nos = parseInt(rtmData[code]['nos']);
+    var profit = (currentPrice - purchasePrice) * nos;
+    var name = result['name'] != undefined ? result['name'] : code;
+    var percentSince = (currentPrice - purchasePrice) / purchasePrice * 100;
+    var sumBeginning = nos * purchasePrice;
+    var sumCurrent = nos*currentPrice;
+
+    if(code.contains('us')){
+      profit *=6.5;
+      sumBeginning *= 6.5;
+      sumCurrent *= 6.5;
+    }
+
+    percentSince = percentSince.toFixed(2)+ "%";
+    profit = profit.toFixed(1);
+    myPurchaseListRtmData[code]['profit'] = profit;
+    myPurchaseListRtmData[code]['sumBeginning'] = sumBeginning;
+    myPurchaseListRtmData[code]['sumCurrent'] = sumCurrent;
+    myPurchaseListMetaData['loadingComplete']++;
+    myPurchaseListMetaData['totalgain']+= parseFloat(profit);
+    myPurchaseListMetaData['sumBeginning'] += sumBeginning;
+    
+    var str = htmlTemplate['pf_template_list'];
+    str = str.replaceAll('#code#',code).
+    replace('#name#',name).
+    replace('#PercentSince#', percentSince).
+    replace('#balance#',profit).
+    replace('#buyPrice#',purchasePrice).
+    replace('#currentPrice#',currentPrice).
+    replace('#nos#',nos).
+    replace('#initialValue#',sumBeginning).
+    replace('#currentValue#',sumCurrent);
+    ;
+
+    $('#myPf_1').append(str);
+
+
+    //color code 
+    colorCode("#pf_balance_"+code,profit);
+    colorCode("#pf_percent_"+code,parseFloat(percentSince));
+
+    if(myPurchaseListMetaData['loadingComplete'] == myPurchaseListMetaData['total']){
+      
+      var percent = (myPurchaseListMetaData['totalgain'] / myPurchaseListMetaData['sumBeginning'] * 100).toFixed(1);
+
+      var annualPercent = ((myPurchaseListMetaData['totalgain'] /  myPurchaseListMetaData['sumBeginning']) * 100 * (365 / getTimeDifferenceInDays(myPurchaseListMetaData['purchaseDate']))).toFixed(1)+"%";
+
+      str = htmlTemplate['pf_sum'];
+      str = str.replace('#overall#',myPurchaseListMetaData['totalgain'].toFixed(1)).
+      replace('#numDays#',getTimeDifferenceInDays(myPurchaseListMetaData['purchaseDate'])).
+      replace('#percent#',percent).
+      replace('#annualPercent#',annualPercent);
+
+      $('#myPf_1').append(str);
+      //create marketwatch  lists
+      createMarketWatchDivs(userMarketWatch);
+
+    }
+}
+
+function colorCode(div,val){
+  var p = $(div);
+  p.removeClass();
+  if(val >=0)
+    p.addClass('red');
+  else
+    p.addClass('green');
+}
+
+function updateRealtimePortfolio(code,i){
+    var server = getServer(code);
+    if(myPurchaseListRtmData[code] == undefined)
+        myPurchaseListRtmData[code] = {};
+
+    myPurchaseListRtmData[code]['purchasePrice'] = portfolio[code].cost;
+    myPurchaseListRtmData[code]['nos'] = portfolio[code].nos;
+    myPurchaseListRtmData[code]['profit'] = 0;
+
+    $.get(server, function(data) {
+      if (code.contains('us'))
+        // parse US STOCK realtime
+            try{
+              // data = JSON.parse(data);
+              // var result = {};
+              // result['name'] = data.chart.result[0].indicators.meta.symbol;
+              // result['price'] = data.chart.result[0].indicators.quote[0].close[1];
+              // result['percent'] = (data.chart.result[0].indicators.quote[0].close[1] - data.chart.result[0].indicators.quote[0].close[0]);
+              // data.chart.result[0].indicators.quote[0].close[1] * 100;
+              // result['percent'] = result['percent'].toFixed(1);
+              // result['priceincrement'] = (data.chart.result[0].indicators.quote[0].close[1] - data.chart.result[0].indicators.quote[0].close[0]).toFixed(1);
+              var result = parseUSRealtime(data);
+            } catch(e){
+              smartLog(e.Message);
+            }
+            
+        else if (code.toLowerCase().contains('f_'))
+        // parse CN FUTURE realtime
+            var result = parseFutureRealtime(data);
+        else
+        // parse CN STOCK realtime
+            var result = parseTencentRealtime(data);
+       result['code'] = code;
+       appendToPortfolio(result,myPurchaseListRtmData);
+         // end AJAX
+    });
+}
+
+window.onscroll = function (e) {  
+
+  var left = (window.pageXOffset || document.scrollLeft) - (document.clientLeft || 0);
+
+  if(left > 1700 && left < 4500)
+      gSection =2;
+  else if(left > 4500)
+      gSection = 3;
+  else if(left<1700)
+      gSection = 1;
+  else
+      gSection = 1;
+
+} 
+
+
+function keydown(evt) {
+//    if (!evt) evt = event;
+  //  if (evt.altKey) 
+    //    isControlHeld = true;
+} 
+
+function keyup(evt) {
+     if (!evt) evt = event;
+     if (evt.ctrlKey && evt.keyCode == 68) 
+        if(isControlHeld === false){
+            isControlHeld = true;
+            showMessage('DetailMode On!');
+        } else{
+            isControlHeld = false;
+            showMessage('DetailMode Off :)');
+        }
+
+     else if (evt.code == 'ShiftLeft') 
+        if(isShiftHeld === false){
+            isShiftHeld = true;
+            showMessage('Select All On!');
+            var tmp = $('.iPhoneCheckContainer input');
+            for(var i = 0 ; i < tmp.length; i ++){
+             //tmpisChecked =  ((i+1) != thisID) ? !this.elem[0].checked : this.elem[0].checked;
+             var cid = parseInt(tmp[i].id.toString().getAfter("_"));
+              setGraphValue("sd_"+cid,cid,true);  
+              $('#sd_'+cid).prop('checked',true);
+            }
+        } else{
+            isShiftHeld = false;
+            showMessage('Off - Select All');
+            var tmp = $('.iPhoneCheckContainer input');
+            for(var i = 0 ; i < tmp.length; i ++){
+             //tmpisChecked =  ((i+1) != thisID) ? !this.elem[0].checked : this.elem[0].checked;
+             var cid = parseInt(tmp[i].id.toString().getAfter("_"));
+              setGraphValue("sd_"+cid,cid,false);  
+              $('#sd_'+cid).prop('checked',false);
+            }
+        }
+  //check for enter key  
+    if (evt.keyCode == 67 && evt.ctrlKey) showConsole('Console Ready, type -help to see commands');
+
+  if(evt.keyCode == 13 && gRTMConsoleOn){
+      var t = $('#realtimeConsole #userinput').val();
+      ckcmd(t);
+      $('#realtimeConsole #userinput').val('');
+  }
+} 
+
+function reHedge(graphID,period){
+  console.log(graphID + " p is : "+period);
+  //get target date that is "period" ago
+  var targetDateObj;
+  switch(period){
+    case '3m':
+      targetDateObj = getTargetDate(-90);
+    break;
+
+    case '6m':
+      targetDateObj = getTargetDate(-180);
+    break;
+
+    case 'y':
+      targetDateObj = getTargetDate(-360);
+    break;
+
+    case 'all':
+      targetDateObj = getTargetDate(-9999);
+    break;
+
+    default:
+      targetDateObj = getTargetDate(-9999);
+      break;
+  }
+  
+  var data = clone(loadedResults[graphID]);
+  var dataRealtime = clone(graphData[graphID]);
+  //truncate firstday
+  var firstDay = "";
+  var dateIndex = 0;
+  var anycode = "";
+  var originalDateIndex = 0;
+  for(key in data){
+      if(new Date(data[key][0][0]) > targetDateObj)
+      targetDateObj = new Date(data[key][0][0]);
+    dateIndex = data[key].length-1;
+    originalDateIndex = data[key].length;
+    anycode = key;
+  }
+
+  //truncate data
+  while(new Date(data[anycode][dateIndex][0])> targetDateObj){
+      dateIndex--;  
+      if(dateIndex<0){
+        console.log("{error} reHedge(); unable to find target dateIndex");
+        return;
+      }
+  }
+
+  // truncate
+  for(key in data){
+    data[key] = data[key].slice(dateIndex,originalDateIndex);
+  }
+
+  //recalculate
+  for(key in data){
+    var len = data[key].length;
+    var purchasePrice = parseFloat(data[key][0][2]);
+    for(var i = 0 ; i < len; i ++){
+      if(i == 0 ){
+          data[key][i][1] = 0
+      } else {
+        var percent = ((parseFloat(data[key][i][2]) - purchasePrice) / purchasePrice * 100).toFixed(2);
+        data[key][i][1] = percent;
+      } 
+    }
+  }
+  //
+  data = flattenData(data,getCodeWithOrder(graphID));
+  
+  updateFullGraph(data, graphID);
+}
+
+function getCodeWithOrder(graphID){
+  var t = graphData[graphID];
+  return t._code;
+}
+
+function getCodeFromObj(data){
+    var codesWithOrder = '';
+    for(key in data){
+
+    }  
+}
+
+function getTargetDate(numdays){
+  var t = new Date();
+  t.setDate(t.getDate() + numdays);
+  return t;
+}
+
 function automateHedge(){
-  var filename = 'data/SystemLists/CN_Fundlist_Complete.csv';
+  var filename = 'data/SystemLists/CN_Stocklist.csv';
      var targetStock = 'chad';
-    $.post( "load.php", { filename: filename }).done(function( data ) {
+     $.post( "load.php", { filename: filename }).done(function( data ) {
         var loadedListtmp = JSON.parse(data).split("\n");
         var len = loadedListtmp.length;
         var loadedList = new Array();
@@ -327,7 +912,6 @@ function automateHedge(){
         //need a delayed load!!
         //graphData[i].load();    
       }
-
         var i = 0;
         var delayLoading = setInterval(function () {   
               graphData[i].load();                    
@@ -337,6 +921,280 @@ function automateHedge(){
         }, 150)
     });
 }
+
+
+function updateRTMCanvas(filename, SAVE_TO_CUTOME){
+      // save outcome?
+      SAVE_TO_CUTOME = SAVE_TO_CUTOME || false;
+
+      // check for realtime update
+      rtmCurrentView = filename.contains('custom') ? 'custom' : filename;
+
+      var temp = new Array();
+
+      if(filename.contains('.csv'))
+          filename = filename.substring(0,filename.length-4);
+      $.post( "load.php", { filename: "data/Statistics/"+filename+".csv" }).done(function( data ) {
+        //console.log( "Save Complete!:  " + filename );
+        // reset listraw
+        resetPage();
+        resetCanvasDataRaw();
+        try{
+        data = JSON.parse(data);
+        } catch(e){
+          showMessage(e.message+" : no data found! check filenames");
+          return;
+        }
+        data = data.split('\n');
+        for(var i = 0 ; i < data.length; i ++){
+          if(data[i] != ""){
+          rtmCanvasListRaw[i] = new Array();
+          rtmCanvasListRaw[i] = data[i].split(',');
+          // CHECK extra
+          if(parseFloat(rtmCanvasListRaw[i][5]) >gFilter['skewnessMin'] && parseFloat(rtmCanvasListRaw[i][2]) < gFilter['sdMax'])
+              temp.push(rtmCanvasListRaw[i]);
+          } else {
+          data.splice(i,1);
+          }
+        }
+
+        if(rtmCurrentView != 'custom'){
+          rtmCanvasListRaw = temp;
+          //reorder
+          rtmCanvasListRaw.sort(function(a,b){
+          return((parseFloat(a[5],10) - parseFloat(b[5],10)));
+          });
+        }
+        
+
+        if(SAVE_TO_CUTOME){
+          copytoCustomQue(data);
+        }
+
+        updateToRTMCanvas();
+      });
+}
+
+function rtmCanvasPreEntry(n){
+  var begin = rtmCanvasListBegin - n;
+  
+  begin = begin < 0 ? 0 : begin;
+  
+  var end = rtmCanvasListEnd - n;
+  
+  end = end < (begin + n) ? (begin + n) : end;
+
+  rtmCanvasListBegin = begin;
+  rtmCanvasListEnd = end;
+
+  console.log(rtmCanvasListBegin);
+  console.log(rtmCanvasListEnd);
+  showMessage(rtmCanvasListBegin+'/'+rtmCanvasListRaw.length);
+  updateToRTMCanvas();
+}
+
+
+function rtmCanvasNextEntry(n){
+  var begin = rtmCanvasListBegin+n;
+  
+  begin = begin < rtmCanvasListRaw.length ? begin : (rtmCanvasListRaw.length -n);
+  
+  var end = rtmCanvasListEnd + n;
+  
+  end = end < rtmCanvasListRaw.length ? end : rtmCanvasListRaw.length;
+
+  rtmCanvasListBegin = begin;
+  rtmCanvasListEnd = end;
+
+  console.log(rtmCanvasListBegin);
+  console.log(rtmCanvasListEnd);
+  showMessage(rtmCanvasListBegin+'/'+rtmCanvasListRaw.length);
+  updateToRTMCanvas();
+}
+
+function rtmCanvasFirstEntry(){
+  rtmCanvasListBegin = 0;
+  rtmCanvasListEnd = rtmCanvasListBegin + rtmCanvasListIncrement;
+  showMessage(rtmCanvasListBegin+'/'+rtmCanvasListRaw.length);
+}
+
+function rtmCanvasLastEntry(){
+  rtmCanvasListEnd = rtmCanvasListRaw.length;
+  rtmCanvasListBegin = rtmCanvasListEnd - rtmCanvasListIncrement;
+  showMessage(rtmCanvasListBegin+'/'+rtmCanvasListRaw.length);
+}
+
+function resetGraphdata(){
+  var tmps = graphData[99999];
+  graphData = new Array();
+  graphData[99999] = tmps;
+  return graphData;
+}
+
+function resetLoadedResults(){
+  var tmps = loadedResults[99999];
+  loadedResults = new Array();
+  loadedResults[99999] = tmps;
+  return loadedResults;
+}
+function updateToRTMCanvas(){
+  // clear graphdata array
+  // clear except the main timeline
+
+  graphData = resetGraphdata();
+
+  $('#realtimeMonitorData').html('');
+  // begin
+  var begin = rtmCanvasListBegin;
+  var end = rtmCanvasListEnd;
+  //sanitation
+  end = end > rtmCanvasListRaw.length ? rtmCanvasListRaw.length : end;
+  begin = begin > rtmCanvasListRaw.length ? rtmCanvasListRaw.length : begin;
+
+  var isRealtime = (rtmCurrentView == 'custom') ? true : false;
+  if(offlineDevelopperMode)
+      isRealtime = false;
+
+  for(var i = begin; i < end; i ++){
+    // line 0 is the heading line, doe not have data
+    if(i != 0){
+      //reset resource loader
+      loadedResults[i] = null;
+      stockNames = parseStockNames(rtmCanvasListRaw[i]);
+      stockNames = formatStockNames(stockNames);
+      var s = new SKYDataLoader([stockNames[0],stockNames[1]],
+      {"duration":"2y",
+      "div":"realtimeMonitorData",
+      "showgraph" :  true,
+      "updateRealtime": isRealtime},i); 
+      graphData[i] = s;
+      graphData[i].load();    
+    }
+  }
+}
+
+function parseStockNames(obj){
+     var stockNames = obj[0].split('&');
+      // sanitation, in case only a,b,c,d format rather than a&b,c,d
+      if(stockNames.length == 1)
+        stockNames = obj;
+      if(stockNames.length < 2){
+        console.log("{Error!} updateToRTMCanvas() stockNames.length is less than 2, sequence quitting now");
+        return;
+      }
+      return stockNames;
+}
+function preload(){
+    
+    //clear all loaded results
+    resetLoadedResults();
+
+    resetGraphdata();
+
+    // i = 0 is system variable
+    for(var i = 1 ; i < rtmCanvasListRaw.length; i ++){
+    stockNames = parseStockNames(rtmCanvasListRaw[i]);
+    stockNames = formatStockNames(stockNames);
+    var s = new SKYDataLoader([stockNames[0],stockNames[1]],
+    {"duration":"2y",
+    "div":"realtimeMonitorData",
+    "type": 'automateHedge',
+    "showgraph" :  false,
+    "updateRealtime":false},i); 
+     graphData[i] = s;
+    }
+
+    var i = 1;
+    var delayLoading = setInterval(function () {   
+         graphData[i].load();                    
+          i++;    
+          if(i> rtmCanvasListRaw.length-1) {
+            clearInterval(delayLoading);
+            console.log("Preloading Complete!")
+            $('#realtimeConsole #content').append("Preloading Complete!");
+          }
+    }, 150);
+}
+
+function addtoCustomQue(codes){
+  // do not insert duplicates
+for(var i = 0 ; i < rtmCanvasCustom.length ; i ++)
+if(codes == rtmCanvasCustom[i])
+  return false;
+rtmCanvasCustom.shift();
+rtmCanvasCustom.unshift(codes);
+rtmCanvasCustom.unshift('more,info');
+checkConfirm();
+return true;
+}
+
+function removetoCustomQue(codes){
+  for(var i = 0 ; i < rtmCanvasCustom.length ; i ++)
+    if(codes == rtmCanvasCustom[i]){
+      rtmCanvasCustom.splice(i,1);
+      showMessage(codes+' removed:)');
+      return;
+    }
+}
+
+
+function copytoCustomQue(arr){
+  rtmCanvasCustom = arr;
+}
+
+function rtmCustomExport(){
+  //fastfind
+
+  var filename = 'data/Statistics/custom.csv';
+  var str = "";
+  for(var i = 0 ; i < rtmCanvasCustom.length ; i ++)
+      str = str + rtmCanvasCustom[i]+"\n";
+  str = preflightForSave(str);
+   $.post( "save.php", { raw: str, filename: filename }).done(function( data ) {
+        //console.log( "Save Complete!:  " + filename );
+        smartLog(data);
+        saveConfirm();
+    });
+}
+
+function loadRTMCanvasCustom(){
+  resetPage();
+  resetCanvasDataRaw();
+  updateRTMCanvas('custom.csv',true);
+}
+
+function resetCanvasDataRaw(){
+   rtmCanvasListRaw = new Array();
+}
+
+function resetPage(){
+  rtmCanvasListBegin = 0 ;
+  rtmCanvasListEnd = rtmCanvasListBegin + rtmCanvasListIncrement;
+}
+
+function hideBigger(id){
+   $('#biggerText_'+id).fadeOut("fast");
+}
+
+function toggleBigger(id){
+  if(!isShiftHeld){
+   if(isControlHeld){
+     var tmp = $('#graphHolder_'+id);
+     var str = tmp.html();
+     $('#biggerText_'+id).html(str).fadeIn("fast");
+     setGraphValue('sd_'+id,id,true);
+   } else {
+     // check current day value
+     //var dayv = $('#sd_'+id).is(':checked');
+     $('.biggerClass').stop().fadeOut("fast");
+     // change setting only if default is 7, or in another word
+     // this is manual mode, when user select specific date
+       setGraphValue('sd_'+id,id,false);
+    }
+   }
+  //graphHolder_3
+}
+
 function loadList(){
     return ['159919','601328','000100','chad'];
 }
@@ -344,8 +1202,9 @@ function loadList(){
 function testScope(val){
     console.log(val);
 }
+// 1-7 checkbox
 function setGraphValue(div, GRAPH_ID,checked){
-    console.log(GRAPH_ID);
+    //console.log(GRAPH_ID+" div: "+div );
     var rp = 0;
     rp = checked ? 1: 7;
     graphs[GRAPH_ID].updateOptions({
@@ -368,59 +1227,53 @@ function loadRealtimeStockPairs(){
  });
 }
 
-function formatStockNames(nameArr){
-    for(var i =0 ; i < nameArr.length; i ++)
-        if(nameArr[i].toLowerCase().beginWith('0') ||
-           nameArr[i].toLowerCase().beginWith('3') ||
-           nameArr[i].toLowerCase().beginWith('9') ||
-           nameArr[i].toLowerCase().beginWith('51') ||
-           nameArr[i].toLowerCase().beginWith('1'))
-           nameArr[i] =  'sz'+nameArr[i];
-        else if(nameArr[i].toLowerCase().beginWith('6'))
-            nameArr[i] = 'sh'+ nameArr[i];
-        else if(nameArr[i].toLowerCase().contains('if')||
-            nameArr[i].toLowerCase().contains('ih') ||
-            nameArr[i].toLowerCase().contains('f_') ||
-            nameArr[i].toLowerCase().contains('ic'))
-            nameArr[i] = nameArr[i];
-        else if(nameArr[i].toLowerCase().beginWith('50'))
-            nameArr[i] = 'jj'+nameArr[i];
-        else if(!isFinite(nameArr[i]))
-            nameArr[i] = 'us_'+nameArr[i];
-        else 
-            nameArr[i] = nameArr[i];
-    return nameArr;
-}
-        
-        // main functions   
-function parseFutureRealtime(data) {
-    var temp = data.split(",");
-    var result = {};
-    if (temp) {
-        // index futures
-        if (data.contains("CFF_RE")) {
-            result['price'] = temp[3];
-        } else {
-            // commodity futures
-            result['price'] = temp[6];
-        }
-    }
-    return result;
+     
+
+//create graph
+function inigraph(data,divName,GRAPH_ID){
+   var g = new Dygraph(document.getElementById(divName), data,
+    {
+      drawPoints: false,
+      width:1600,
+      height:360,
+      showRoller: false,
+      rollPeriod: 14,
+      highlightCircleSize: 5,
+      strokeWidth: 1,
+      labelsDiv: 'g_legend_'+GRAPH_ID,
+      colors: ["rgba(255,255,255,0.2)",
+                "rgba(255,255,255,0.2)",
+                "rgba(255,255,255,0.8)",
+                "rgba(255,255,255,0.8)"
+          ],
+      axes : { 
+        x : { drawAxis:true,
+              drawGrid:true,
+              axisLabelColor:  "rgba(255,255,255,0.2)",
+              axisLineColor: "rgba(255,255,255,0.2)"},
+        y : {axisLineWidth : 0.01,
+             drawGrid:false,
+             axisLabelColor:  "rgba(255,255,255,0.2)"}
+      },
+      'Hedge': {
+          strokePattern:null,
+          strokeWidth: 2,
+          fillGraph: true,
+          drawPoints: false,
+        },
+      'MHedge': {
+          strokePattern: null,
+          strokeWidth: 2,
+          fillGraph: true,
+          drawPoints: false
+      },
+    });
+
+   graphs[GRAPH_ID] = g;
 }
 
-function parseTencentRealtime(data) {
-    var temp = data.split("~");
-    if (temp) {
-        var result = {};
-        result['price'] = temp[3];
-        result['priceIncrement'] = temp[4];
-        result['percent'] = temp[5];
-        return result;
-    }
-    return data;
-}
-
-function inigraph(data, divName, GRAPH_ID) {
+// create graph
+function iniRTMgraph(data, divName, GRAPH_ID) {
    
     var tempGraph = new Dygraph(
         document.getElementById(divName),
@@ -446,7 +1299,7 @@ function inigraph(data, divName, GRAPH_ID) {
             drawPoints: true,
             pointSize: 1.5,
             highlightCircleSize: 5,
-             axes : { 
+            axes : { 
                 x : { drawAxis:false,
                       drawGrid:false },
                 y : {axisLineWidth : 0.01,
@@ -488,8 +1341,7 @@ function inigraph(data, divName, GRAPH_ID) {
     );
     graphs[GRAPH_ID] = tempGraph;
     $('#' + divName).append("<div class='loading' id='loader_" + GRAPH_ID + "'></div>");
-
-        
+  //SUPERFAST        
         var data = [
            {
             value: 89,
@@ -512,6 +1364,8 @@ function inigraph(data, divName, GRAPH_ID) {
 
         var myChart = new Chart(ctx).Doughnut(data, options);
 
+        donuts[GRAPH_ID] = myChart;
+        
         $('#chartDonutSuccess_'+GRAPH_ID).width(200).height(100).css('margin','0 0 0 -30px');
    // get
     //add loadings
@@ -599,6 +1453,8 @@ function saveResults(GRAPH_ID, results, param) {
     if (objLength(loadedResults[GRAPH_ID]) == (param['totalItems'] + 1)) {
         //console.log("lunching graphs");
         var systemVars = getSytemVariables(loadedResults[GRAPH_ID]);
+        // format systemvar to code
+        systemVars = reorderSystemVar(systemVars,graphData[GRAPH_ID]);
         if(param['callFrom'] === false){
             var data = preflight(loadedResults[GRAPH_ID], GRAPH_ID);
             lunchGraphs(data, systemVars, GRAPH_ID);
@@ -615,8 +1471,12 @@ function saveResults(GRAPH_ID, results, param) {
             var tmp = {};
             tmp['ave'] = statVars['ave'];
             tmp['sd'] = statVars['sd'];
-            tmp['pairCode'] = systemVars.system[0]['code']+"_" + systemVars.system[1]['code'];
-            tmp['pairName'] = systemVars.system[0]['name']+"_" + systemVars.system[1]['name'];
+            tmp['purchaseDate'] = graphData[GRAPH_ID]['purchaseDate'][graphData[GRAPH_ID]._code[0]];
+            tmp['purchasePrice_'+graphData[GRAPH_ID]._code[0]] = graphData[GRAPH_ID]['purchasePrice'][graphData[GRAPH_ID]._code[0]];
+            tmp['purchasePrice_'+graphData[GRAPH_ID]._code[1]] = graphData[GRAPH_ID]['purchasePrice'][graphData[GRAPH_ID]._code[1]];
+            tmp['purchasePriceArr'] = graphData[GRAPH_ID]['purchasePrice'][graphData[GRAPH_ID]._code[0]]+"&"+graphData[GRAPH_ID]['purchasePrice'][graphData[GRAPH_ID]._code[1]];
+            tmp['pairCode'] = graphData[GRAPH_ID]._code[0]+"&" + graphData[GRAPH_ID]._code[1];
+            tmp['pairName'] = systemVars.system[0]['name']+"&" + systemVars.system[1]['name'];
             tmp['upperLimit'] = statVars['upperLimit'];
             tmp['lowerLimit'] = statVars['lowerLimit'];
             tmp['hedgeType'] = statVars['hedgeType'];
@@ -633,25 +1493,42 @@ function saveResults(GRAPH_ID, results, param) {
                 gDataHolder['automateHedge'] = new Array();
             gDataHolder['automateHedge'].push(tmp);
 
-            console.log("id: "+GRAPH_ID+" "+systemVars.system[0].name + " & " + systemVars.system[1].name+ "("+param['code']+") saved!" );
+            var consoleMsg = "id: "+GRAPH_ID+" "+systemVars.system[0].name + " & " + systemVars.system[1].name+" saved!" ;
+            //console.log(consoleMsg);
+            smartLog(consoleMsg,graphData[GRAPH_ID].consoleUpdateMode);
+
             //check call types
             if(param['callFrom'] == 'automateHedge'){
-                if(gDataHolder['automateHedge'].length == list.length){
-                    console.log("complete!");
-                    // sort by standard deviation
-                    
-                }
+                
             }
         }
     }
 }
 
+function smartLog(msg, type){
+  switch(type){
+    case 'alarmlog':
+      alarmLog(msg);
+    break;
 
-function proceedAutomateHedgeCalculation(){
+    case 'alarm':
+      alarmLog(msg);
+    break;
+
+    default:
+    log(msg);
+    break;
+  }
+}
+function SaveAutomateHedgeCalculation(){
 
   gDataHolder['automateHedge'].sort(function(a,b){
       return (parseFloat(a.sd,10) - parseFloat(b.sd,10));
   })
+
+  var criteria = {"maxskew": 0.1,
+                "minskew":-0.1,
+                "maxsd": 10};
 
    var selected = filterData(gDataHolder['automateHedge'], criteria);
   // //save
@@ -676,69 +1553,130 @@ function updateRealtime(obj) {
     var codes = obj._code;
     var len = codes.length;
     for (var i = 0; i < len; i++) {
-        fetchRealtime(codes[i], obj.purchasePrice[codes[i]], obj.graphID);
+        fetchRealtime(codes[i], obj.graphID);
     }
 }
 
-function saveResultsToServer(arr,filename){
-    var result = "Code, Name, Standard Deviation, Average, HedgeType, Skewness, latestValue, BuySuggestion\n"
-     for(var i = 0 ; i < arr.length; i ++){
-            result += arr[i]['pairCode']+','+
-                  arr[i]['pairName'] + ','+
-                  arr[i]['sd'] + ','+
-                  arr[i]['ave'] + ','+
-                  arr[i]['hedgeType'] + ','+
-                  arr[i]['skewness'] + ','+
-                  arr[i]['latestHedgeIndex'] + ','+
-                  arr[i]['opRecommand'] + "\n";
-     }
-     result = result.replaceAll('\r',"");
+function preflightForSave(result){
      var str = JSON.stringify(result);
      str = str.replaceAll('\r',"");
      str = encodeURIComponent(str);
-    $.post( "save.php", { raw: str, filename: "data/Statistics/"+filename+".csv" }).done(function( data ) {
-        //console.log( "Save Complete!:  " + filename );
-        console.log(data);
-      });
-
+     return str;
 }
 
-function fetchRealtime(code, purchasePrice, resourceID) {
+function _getCompareCodes(codes){
+    var t =codes.split(',');
+    t = t.slice(1,t.length);
+    return t.flatten();
+}
 
-    //ck type
-    if (code.contains('us')) {
-        var server = "engine.php?cadd=" + encodeURIComponent(USSTOCK_REALTIME_SERVER.replace("#SYMBOL#", code.substring(3, code.length)));
+// this function does not with futures, eg. m1605, jd1605...etc
+function getServer(code, type){
+
+  type = type || '';
+
+  /* for multiple stocks */
+  if(type != ''){
+    // a sample stock inside the group
+    var sample = code.split(',')[0];
+    if(sample.contains('us')){
+       // us stock, us fund
+        code = code.replaceAll('us_','');
+        //compareCodes = _getCompareCodes(code);
+        var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" + encodeURIComponent(USSTOCK_REALTIME_SERVER.replace("#SYMBOL#",'CHAD')+"&comparisons=")+code;
+    } else if(sample.contains('jp')){
+        code = code.replaceAll('jp_','');
+        var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" +
+        encodeURIComponent(JP_STOCK_SERVER.replace('#SYMBOL#',code).replace('#TIMESTAMP#',getTimestamp()).replace('#YYYYMMDD#',getCNFullYMD()));
+    } else {
+        //chinese stock, chinese fund
+        var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" + encodeURIComponent(CN_REALTIME_SERVER + code);
+    } 
+    return server;
+  /* for single stock only */  
+  } else {
+  if (code.contains('us')) {
+        var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" + encodeURIComponent(USSTOCK_REALTIME_SERVER.replace("#SYMBOL#", code.substring(3, code.length)));
 
     } else if (code.toLowerCase().contains('f_')) {
 
         var server = "FutureServer.php?sym=" + code.substring(2, code.length) + "&type=realtime";
         // continue here!!!e
 
+    }else if(code.contains('jp')){
+        code = code.replaceAll('jp_','');
+        var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" +
+        encodeURIComponent(JP_STOCK_SERVER.replace('#SYMBOL#',code).replace('#TIMESTAMP#',getTimestamp()).replace('#YYYYMMDD#',getCNFullYMD()));
     } else {
         //chinese stock, chinese fund
-        var server = "engine.php?cadd=" + encodeURIComponent(CN_REALTIME_SERVER + code);
+        var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" + encodeURIComponent(CN_REALTIME_SERVER + code);
     }
 
-    // begin AJAX
+    return server;
+  }
+}
+
+function fetchRealtime(code, resourceID, callbackDiv) {
+    callbackDiv = callbackDiv || 'rtmDivs';
+    // get purchase
+    var purchasePrice = graphData[resourceID].purchasePrice[code];
+    //ck type
+    var server = getServer(code);
+
+    //check realtime cache
+    var rtmResult = getRtmCache(code);
+    if(rtmResult){
+       data = rtmResult;
+       // parse result
+       if (code.contains('us'))
+        // parse US STOCK realtime
+            var result = parseUSRealtime(data);
+       else if (code.toLowerCase().contains('f_'))
+        // parse CN FUTURE realtime
+            var result = parseFutureRealtime(data);
+       else
+        // parse CN STOCK realtime
+            var result = parseTencentRealtime(data);
+
+       if(callbackDiv == "rtmDivs")
+          updateToRTMGraph(result['price'], code, purchasePrice, resourceID);
+       else if(callbackDiv == 'portfolio')
+          appendToPortfolio(result,purchasePrice);
+
+       return;
+    }
+
+
+    // no realtime cache found begin AJAX
     $.get(server, function(data) {
         if (code.contains('us'))
         // parse US STOCK realtime
-            var result = JSON.parse(data).list.resources[0].resource.fields;
-        else if (code.toLowerCase().contains('f_'))
+          var result = parseUSRealtime(data);
+         else if (code.toLowerCase().contains('f_'))
         // parse CN FUTURE realtime
             var result = parseFutureRealtime(data);
         else
         // parse CN STOCK realtime
             var result = parseTencentRealtime(data);
 
+        if(code.contains('jj519975'))
+          console.log("here");
 
-        updateToGraph(result['price'], code, purchasePrice, resourceID);
+        // inject realtime cache
+        saveRtmCache(code, data);
+
+       if(callbackDiv == "rtmDivs")
+          updateToRTMGraph(result['price'], code, purchasePrice, resourceID);
+       else if(callbackDiv == 'portfolio')
+          appendToPortfolio(result,code,purchasePrice);
         
         // end AJAX
     });
 }
 
-function updateToGraph(currentPrice, code, purchasePrice, resourceID) {
+
+//fastfind3
+function updateToRTMGraph(currentPrice, code, purchasePrice, resourceID) {
     // get latest percent
     var per = ((parseFloat(currentPrice) - parseFloat(purchasePrice)) / parseFloat(purchasePrice) * 100).toFixed(2);
     
@@ -768,6 +1706,7 @@ function updateToGraph(currentPrice, code, purchasePrice, resourceID) {
             var v = graphData[resourceID].realtimeDataCache['data'][graphData[resourceID]._code[i]];
             tmpPriceCache[i] = graphData[resourceID].realtimeDataCache['currentPrice'][graphData[resourceID]._code[i]];
             str += v + ",";
+              loadedResults[resourceID][graphData[resourceID]._code[i]].push([getDHMInChina(),v,tmpPriceCache[i]]);
             h += parseFloat(v);
             if (mh == 0)
                 mh = parseFloat(v);
@@ -783,6 +1722,13 @@ function updateToGraph(currentPrice, code, purchasePrice, resourceID) {
         loadedFlattenHistoryResults[resourceID] += str;
         loadedFlattenHistoryPriceResults[resourceID].push(tmpPriceCache);
         updateGraphRealtime(loadedFlattenHistoryResults[resourceID], resourceID);
+        //update donnut
+        var param = {'cpercent' : loadedDataStatistics[resourceID].latestHedgeIndex,
+                     'direction' : 1,
+                     'lowerLimit': loadedDataStatistics[resourceID].lowerLimit,
+                     'upperLimit': loadedDataStatistics[resourceID].upperLimit,
+                     } // 1 for buy, 2 for sell
+        updateDonut(param,resourceID);
     }
 }
 
@@ -807,14 +1753,14 @@ function lunchGraphs(str, systemVars, GRAPH_ID) {
     // get system related statvars
     var hedgeType = statVars['hedgeType'];
     // get statistics string
-    var stat = statVars['stat'];
+    var stat = (GRAPH_ID != 99999) ? statVars['stat'] : formatSkylabLegend(statVars);
     // backup globally
     loadedDataStatistics[GRAPH_ID]= statVars;
 
     var supercent = 89+'%';
     var sym = '';
     if (statVars['opRecommand'] == 1)
-        sym = '<a href="javascript:void(0);" onmouseover="showDetail(' + statVars['opRecommand'] + ',\'' + statVars['opRecommandDtl'] + '\',' + GRAPH_ID + ')"; onmouseout="hideDetail(' + GRAPH_ID + ')"><img src="img/buy.png?r=12243" /></a>';
+        sym = '<a href="javascript:void(0);" onmouseover="showDetail(' + statVars['opRecommand'] + ',\'' + statVars['opRecommandDtl'] + '\',' + GRAPH_ID + ')"; onmouseout="hideDetail(' + GRAPH_ID + ')"><img src="img/buy.png?r=121123243" /></a>';
     else if (statVars['opRecommand'] == 2)
         sym = '<a href="javascript:void(0);" onmouseover="showDetail(' + statVars['opRecommand'] + ', \'' + statVars['opRecommandDtl'] + '\',' + GRAPH_ID + ');" onmouseout="hideDetail(' + GRAPH_ID + ')"><img src="img/sell.png?r=12243" /></a>';
 
@@ -840,12 +1786,25 @@ function lunchGraphs(str, systemVars, GRAPH_ID) {
     updateGraph(str, GRAPH_ID, hedgeType);
 
 }
+function reorderSystemVar(systemVars, obj){
+    var code = obj._code;
+    var newSystemVars = new Array();
+    var csystem = systemVars.system;
+    for(var i = 0 ; i < code.length; i ++){
+        for(var j = 0 ; j < csystem.length; j ++){
+            if(code[i] == csystem[j].code){
+                newSystemVars.push(csystem[j]);
+                csystem.splice(j,1);
+            }
+        }
+    }
+    systemVars.system = newSystemVars;
+    return systemVars;
+}
 
 function showDetail(opID, msg, GRAPH_ID) {
     $('#msg_' + GRAPH_ID).html(msg).stop().fadeTo("slow", 0.85);
-    //console.log(obj);
-    //console.log(GRAPH_ID);
-}
+ }
 
 function hideDetail(GRAPH_ID) {
     $('#msg_' + GRAPH_ID).stop().fadeOut("slow");
@@ -857,13 +1816,84 @@ function updateGraphRealtime(data, GRAPH_ID) {
     graphs[GRAPH_ID].updateOptions({
         'file': data
     });
+  }
+
+function updateDonut(data,GRAPH_ID){
+    var currentHedgeIndex= data.cpercent;
+    //type ==1, buy long, ==2, sell short
+    if(data.direction == 1){
+      var lower = data.lowerLimit;
+      var upper = data.upperLimit;
+      var total = Math.abs(upper-lower);
+      var c = Math.abs(currentHedgeIndex - lower);
+      var r = 1 - (c / total);
+      r = parseInt((r * 100));
+      if(r <= 0 )
+        r = 0 ;
+      else if( r >= 100)
+        r = 100;
+      donuts[GRAPH_ID].segments[0].value = parseInt(r);
+      donuts[GRAPH_ID].segments[1].value = parseInt(100-r);
+      var donutlabel = $('#g_label_'+GRAPH_ID);
+      $(donutlabel).html(r+'%');
+      if(r>50)
+        donutlabel.css('color','#ffabad');
+      else
+        donutlabel.css('color','#6acae8');
+
+      donuts[GRAPH_ID].update();
+    }
 }
 
+function updateStats(data, graphID){
+   var graph = $('#chartStats_'+graphID);
+   var graphContent= htmlTemplate['rtm_statistics_template'];
+   data['lowerLimit'] = parseFloat(data['lowerLimit'].toFixed(2));
+   data['upperLimit'] = parseFloat(data['upperLimit'].toFixed(2));
+   //format skewness
+   if(Math.abs(data['skewness']) > 0.06)
+      graphContent = graphContent.replace('#skewness#', htmlAlarmRed(data['skewness']));
+   else
+       graphContent = graphContent.replace('#skewness#', data['skewness']);
+
+   // format upperlimit
+    if(data['latestHedgeIndex'] > data['upperLimit'])
+       graphContent = graphContent.replace('#upper#', htmlAlarmRed(data['upperLimit']));
+   else
+       graphContent = graphContent.replace('#upper#',data['upperLimit']);
+
+     // format lowerlimit
+    if(data['latestHedgeIndex']  < data['lowerLimit'])
+       graphContent = graphContent.replace('#lower#', htmlAlarmRed(data['lowerLimit']));
+    else
+       graphContent = graphContent.replace('#lower#',data['lowerLimit']);
+
+     //format others
+     graphContent = graphContent.replace('#ave#',data['ave']).replace('#sd#',data['sd']).replace('#price0#',data.priceCache[0][0]).replace('#price1#',data.priceCache[0][1]);
+     graph.html(graphContent);
+
+}
+// update graph with statistic values
+function updateFullGraph(strdata, graphID){
+      if(strdata == '')
+          return;
+      var t = strdata.pop();
+      strdata = strdata.join("\n");
+      updateGraph(strdata, graphID, t.hedgeType);
+      updateStats(t,graphID);
+}
+
+// update graph in the realtime plotting area
 function updateGraph(data, GRAPH_ID, hedgeType) {
-    
+
     graphs[GRAPH_ID].updateOptions({
         'file': data,
     });
+     // reset visibility of all curvers
+    for(var i = 2; i < 4; i ++){ // 4 is total number of lines, currently hardcoded
+       graphs[GRAPH_ID].setVisibility(i,true);
+    }
+
     if (hedgeType == 1)
         graphs[GRAPH_ID].setVisibility(3, false);
     else if (hedgeType == 2)
@@ -971,7 +2001,8 @@ function flattenData(obj, codesWithOrder) {
             // check if date is equal
             if (date != toUnivfiedMMDDYYYY(currentObject[i][0]) + ",") {
                 //console.log("Flatten failed due to date inconsistency!" +  Object.keys(obj)[j]);
-                console.log("Inconsistency Removed");
+                if(Loquacious)
+                  console.log("Inconsistency Removed");
                 inconsistencyCheck = true;
                 // check if price is zero
             } else if (currentObject[i][2] == 0) {
@@ -1045,6 +2076,7 @@ function flattenData(obj, codesWithOrder) {
         statVars['stat'] = "平均: " + m_ave + ", 标准差:" + m_sd + "<br>上限:" + m_upperLimit.toFixed(2) + ", 下限:" + m_lowerLimit.toFixed(2) +"<br>斜率: "+statVars['linear_regression_mhedge']['equation'][0].toFixed(2);
         statVars['hedgeType'] = 2;
         statVars['hedgeTypeStr'] = 'Substraction';
+        statVars['skewness'] = statVars['linear_regression_mhedge']['equation'][0].toFixed(2);
         statVars['ave'] = m_ave;
         statVars['sd'] = m_sd;
         statVars['upperLimit'] = m_upperLimit;
@@ -1055,6 +2087,7 @@ function flattenData(obj, codesWithOrder) {
         statVars['stat'] = "平均: " + ave + ", 标准差:" + sd + "<br>上限:" + upperLimit.toFixed(2) + ", 下限:" + lowerLimit.toFixed(2)+"<br>斜率: "+statVars['linear_regression_hedge']['equation'][0].toFixed(2);
         statVars['hedgeType'] = 1;
         statVars['hedgeTypeStr'] = 'Addition';
+        statVars['skewness'] = statVars['linear_regression_hedge']['equation'][0].toFixed(2);
         statVars['ave'] = ave;
         statVars['sd'] = sd;
         statVars['upperLimit'] = upperLimit;
@@ -1095,6 +2128,10 @@ function flattenData(obj, codesWithOrder) {
     return finalVar;
 }
 
+function removepflistentry(code){
+  //fast
+
+}
 
 function getopdetails(obj) {
     var str = '';
@@ -1149,6 +2186,9 @@ function getopdetails(obj) {
 /*
 function check whether latest price is
 with in purchase range
+core function for auto purchase,within range
+same to WithinRange
+price check 
 */
 function getopRecommand(obj) {
     // upper is 10% up the lower limit
@@ -1156,21 +2196,33 @@ function getopRecommand(obj) {
     // lower is 10% lower the lower limit
     var buyLower = obj['lowerLimit'] * 0.95;
 
+    if(obj.codePair[0].contains('300406'))
+    console.log("eh");
     //check case
-    if (Math.abs(obj['latestHedgeIndex']) > Math.abs(buyLower)  &&
-        Math.abs(obj['latestHedgeIndex']) < Math.abs(buyUpper) ||
-        (obj['latestHedgeIndex'] < buyLower))
-    // 1 for buy recommended condition
-        return 1;
+    // check for buy case
+    // // 1 for buy recommended condition
+    if(obj['lowerLimit'] < 0 ){
+        if(obj['latestHedgeIndex'] < obj['lowerLimit']*0.95)
+          return 1;
+    } else {
+        if(obj['latestHedgeIndex'] < obj['lowerLimit']*1.1)
+          return 1;
+    }
     // similar
     var sellUpper = obj['upperLimit'] * 1.1;
     var sellLower = obj['upperLimit'] * 0.9;
 
-    if (Math.abs(obj['latestHedgeIndex']) > Math.abs(sellLower) &&
-        Math.abs(obj['latestHedgeIndex']) < Math.abs(sellUpper) ||
-        obj['latestHedgeIndex'] > sellUpper)
-    // 2 for sell recommended condition
+   
+    if(sellLower > 0){
+      if(obj['latestHedgeIndex'] > sellLower)
+          return 2;
+    } else {
+      if(obj['latestHedgeIndex'] > sellLower)
         return 2;
+    }
+
+
+
     // general condition, nothing recommended
     return 0;
 }
@@ -1272,7 +2324,7 @@ function mkvalidate(obj, GRAPH_ID) {
             var currentDate = "";
             var lastEffectiveIndex = 0;
             for (var i = 0; i < masterLen; i++) {
-                if(i == 210)
+                if(i == 210 && Loquacious)
                     console.log(210);
                 masterDate = toUnivfiedMMDDYYYY(obj[masterkey][i][0]);
                 if(obj[key][cindex] != undefined){
@@ -1336,65 +2388,6 @@ function recalculatePercent(obj) {
     }
     return obj;
 }
-
-function toChineseYYYYMMDD(date) {
-    var date = new Date(date);
-    var yyyy = date.getFullYear().toString();
-    var mm = (date.getMonth() + 1).toString(); // getMonth() is zero-based
-    var dd = date.getDate().toString();
-    return yyyy + "-" + (mm[1] ? mm : "0" + mm[0]) + "-" + (dd[1] ? dd : "0" + dd[0]); // padding
-}
-
-function getFullYMDH() {
-    var date = new Date();
-    var t = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' +
-        date.getHours() + ':' + date.getMinutes();
-    return t;
-}
-
-function getCNFullYMDH(){
-    var offset = +16;
-    var d = new Date();
-    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
-    var nd = new Date(utc + (3600000 * offset));
-    var t = (nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear()+" "+
-    nd.getHours() + ":"+nd.getMinutes();
-    return t;   
-}
-
-function toUnivfiedMMDDYYYY(date) {
-    var date = new Date(date);
-    var t = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
-    return t;
-}
-
-
-function getDayInChina() {
-    return calcTime('beijing', '+8');
-}
-
-function getDHMInChina() {
-    var d = new Date();
-    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
-    var nd = new Date(utc + (3600000 * 16));
-    return ((nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear() + " " + nd.getHours() + ":" + nd.getMinutes());
-}
-
-function calcTime(city, offset) {
-    var d = new Date();
-    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
-    var nd = new Date(utc + (3600000 * offset));
-    return ((nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear());
-}
-
-function getDayOneYearAgo() {
-    var offset = +16;
-    var d = new Date();
-    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
-    var nd = new Date(utc + (3600000 * offset));
-    nd.setFullYear(nd.getFullYear() - 1);
-    return ((nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear());
-}    
 
 function getDataLength(dataLen) {
     var offset = +16;

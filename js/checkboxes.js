@@ -94,7 +94,18 @@
       x = event.pageX || event.originalEvent.changedTouches[0].pageX;
       iOSCheckbox.currentlyClicking = this.handle;
       iOSCheckbox.dragStartPosition = x;
-      setGraphValue(this.elem[0].id,this.elem[0].id.toString().getAfter("_"),this.elem[0].checked);
+      var tmp = $('.iPhoneCheckContainer input');
+     // var thisID = parseInt(this.elem[0].id.toString().getAfter("_"));
+     // var tmpisChecked = false;
+      if(isShiftHeld)
+        for(var i = 0 ; i < tmp.length; i ++){
+         //tmpisChecked =  ((i+1) != thisID) ? !this.elem[0].checked : this.elem[0].checked;
+         var cid = parseInt(tmp[i].id.toString().getAfter("_"));
+          setGraphValue("sd_"+cid,cid,this.elem[0].checked);  
+          $('#sd_'+cid).prop('checked',this.elem[0].checked);
+        }
+      else
+        setGraphValue(this.elem[0].id,this.elem[0].id.toString().getAfter("_"),this.elem[0].checked);
       return iOSCheckbox.handleLeftOffset = parseInt(this.handle.css('left'), 10) || 0;
     };
 

@@ -2,10 +2,15 @@
 
 $raw = isset($_POST['raw']) ? $_POST['raw'] : '';
 $filename = isset($_POST['filename']) ? $_POST['filename'] : '';
+$isJSONArr = isset($_POST['isJSONArr']) ? $_POST['isJSONArr'] : false;
 
-$data =json_decode(urldecode($raw));
+if(!$isJSONArr)
+	$data =json_decode(urldecode($raw));
+else
+	$data = $raw;
 
 $t =  file_put_contents($filename, $data);
 
-echo $t;
+if($t>0)
+	echo $filename.' save successful, new length: '. $t;
 ?>
