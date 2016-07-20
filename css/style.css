@@ -103,6 +103,17 @@ html{
 
 #pf_realtimeAlarmMaster{
   font-size: 14pt;
+  line-height: 25pt;
+  font-weight: bold;
+}
+
+#pf_tracklist{
+  font-size: 14pt;
+}
+
+#tracklistnum{
+  font-size: 14pt;
+  display: inline;
 }
 
 #pf_realtimeAlarmMaster div{
@@ -532,6 +543,11 @@ div.dygraph-legend{ background-color: #000; }
 }
 .AlarmRed{
   color: rgb(252,33,69);
+}
+
+.AlarmYellowGreen{
+  color:#EDF781;
+  margin: 5pt 0 -5pt 0 ;
 }
 
 .AlarmGreen{

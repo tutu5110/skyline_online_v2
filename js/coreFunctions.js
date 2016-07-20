@@ -76,6 +76,7 @@ function getName(code){
 
 function __SAVE_TO_SERVER(str, filename,isJSONArr,consoleUpdateMode){
 	consoleUpdateMode = consoleUpdateMode || '';
+  isJSONArr = isJSONArr || false;
 	$.post( "save.php", { raw: str, filename: filename, isJSONArr: isJSONArr }).done(function( data ) {
         //console.log( "Save Complete!:  " + filename );
         smartLog(data,consoleUpdateMode);

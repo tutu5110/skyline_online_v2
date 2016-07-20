@@ -189,7 +189,7 @@ var offlineDevelopperMode = 0;
 
 var gAlarmOn = true;
 
-var gAlarmFan = true;
+var gAlarmFan = 1;
 
 var GRealtime = true;
 
@@ -246,7 +246,7 @@ var gAlarm = {};
 
 var userMarketWatch = new Array();
 
-var marketWatch = ['sh000001','^dji','^n225','dax','^hsi'];
+var marketWatch = ['sh000001','^dji','^N225','dax','^hsi'];
 
 var gAlarmOn = false;
 
@@ -316,6 +316,8 @@ var INDEXFUTURE_SERVER = 'http://stock2.finance.sina.com.cn/futures/api/json.php
 
 var USSTOCK_REALTIME_SERVER = 'https://query1.finance.yahoo.com/v7/finance/chart/#SYMBOL#?range=2d&interval=1d&indicators=quote';
 
+var USSTOCK_REALTIME_SERVER_NOPERCENT = 'https://query2.finance.yahoo.com/v7/finance/chart/NTDOY?range=1d&interval=1d&indicators=quote&comparisons=';
+
 var USSTOCK_HISTORY_SERVER = 'https://finance-yql.media.yahoo.com/v7/finance/chart/#SYMBOL#?period2=#end#&period1=#begin#&interval=1d&indicators=quote&includeTimestamps=true';
 
 var USSTOCK_MAX_HISTORY_SERVER = 'https://finance-yql.media.yahoo.com/v7/finance/chart/CHAD?range=max&interval=1mo&indicators=quote&includeTimestamps=true';
@@ -324,7 +326,7 @@ var CN_COMMODITY_FUTURE_REALTIME_SERVER = 'http://hq.sinajs.cn/?list=';
 
 var SKYLINE_CACHE_SERVER = 'StockServer.php?sym=#SYMBOL#&offline='+offlineDevelopperMode+'&param=day,#begin#,#end#';
 
-var JP_STOCK_SERVER = 'http://minkabu.jp/json/stocks/#SYMBOL#/prices/1d/#YYYYMMDD#.json?_=#TIMESTAMP#';
+var JP_STOCK_SERVER = 'http://stocks.finance.yahoo.co.jp/stocks/detail/?code=#SYMBOL#.T';
 // this set to true will use accelerated cache service for global stocks
 
  var graphData = Array();
@@ -434,7 +436,7 @@ $(document).ready(function(){
    //update footer
    var footer = $('.skyFooter');
    var cd = getFullYMDH();
-   var cncd = getCNFullYMDH();
+   var cncd = getFullYMDH();
    footer.html("<div id='ft_Time'>Current: "+cd+"</div>"+"<div id='ft_cnTime'>China: "+cncd+"</div>")
    //var s = new SKYDataLoader(["sz002007", "us_CHAD"],"y",0);
    //var s = new SKYDataLoader(["jj161725", "us_CHAD"],"y",0);
@@ -511,7 +513,7 @@ $.post( "staticData.php").done(function(data) {
       console.log("Failed to initialize System: "+e);
     }
    
-    gAlarm['cusAlarmCache'] = formatAlarm(htmlTemplate['cusalarm']);
+    gAlarm['cusAlarmCache'] = formatLoadedCustomAlarm(htmlTemplate['cusalarm']);
     gAlarm['cooldownList'] = {};
 
     try
@@ -537,6 +539,7 @@ $.post( "staticData.php").done(function(data) {
       // initialize system alarm cooldowns for customized stock pairs
       gAlarm['AlarmCountDowns'] = {};
       gAlarm['AlarmCountDowns']['c10s'] = {'lastUpdate': getTimestamp(), 'duration':7, 'firstTime': true};
+      gAlarm['AlarmCountDowns']['c11s'] = {'lastUpdate': getTimestamp(), 'duration':11, 'firstTime': true};
       gAlarm['AlarmCountDowns']['c60s'] = {'lastUpdate': getTimestamp(), 'duration':60, 'firstTime': true};
       gAlarm['AlarmCountDowns']['c300s'] = {'lastUpdate': getTimestamp(), 'duration':300, 'firstTime': true};
       gAlarm['AlarmCountDowns']['c1800s'] = {'lastUpdate': getTimestamp(), 'duration':1800, 'firstTime': true};
@@ -579,7 +582,11 @@ $.post( "staticData.php").done(function(data) {
       bindbuttons();
       // get data for alarm
       loadMarketWatch();
-    
+
+      /**** After these code executed, jumps to 
+       POSTAJAX_INITIAL_LOADING
+      ****************************************/
+
   });
 }
 
@@ -677,8 +684,13 @@ function appendToPortfolio(result, rtmData){
       replace('#annualPercent#',annualPercent);
 
       $('#myPf_1').append(str);
+      
+      // POSTAJAX_INITIAL_LOADING
+      // execute following command after ajax
       //create marketwatch  lists
       createMarketWatchDivs(userMarketWatch);
+
+      $('#tracklistnum').html(getTrackListLen());
 
     }
 }
@@ -1520,6 +1532,7 @@ function smartLog(msg, type){
     break;
   }
 }
+
 function SaveAutomateHedgeCalculation(){
 
   gDataHolder['automateHedge'].sort(function(a,b){
@@ -1532,8 +1545,8 @@ function SaveAutomateHedgeCalculation(){
 
    var selected = filterData(gDataHolder['automateHedge'], criteria);
   // //save
-   saveResultsToServer(selected,'automateHedgeSelected');
-   saveResultsToServer(gDataHolder['automateHedge'],'automateHedgeStaRaw');
+   savePairedStatisticResultsToServer(selected,'automateHedgeSelected');
+   savePairedStatisticResultsToServer(gDataHolder['automateHedge'],'automateHedgeStaRaw');
 }
 
 function filterData(obj, criteria){
@@ -1583,11 +1596,11 @@ function getServer(code, type){
        // us stock, us fund
         code = code.replaceAll('us_','');
         //compareCodes = _getCompareCodes(code);
-        var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" + encodeURIComponent(USSTOCK_REALTIME_SERVER.replace("#SYMBOL#",'CHAD')+"&comparisons=")+code;
+        var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" + encodeURIComponent(USSTOCK_REALTIME_SERVER.replace("#SYMBOL#",'NTDOY')+"&comparisons=")+code;
     } else if(sample.contains('jp')){
         code = code.replaceAll('jp_','');
         var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" +
-        encodeURIComponent(JP_STOCK_SERVER.replace('#SYMBOL#',code).replace('#TIMESTAMP#',getTimestamp()).replace('#YYYYMMDD#',getCNFullYMD()));
+        encodeURIComponent(JP_STOCK_SERVER.replace('#SYMBOL#',code));
     } else {
         //chinese stock, chinese fund
         var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" + encodeURIComponent(CN_REALTIME_SERVER + code);
@@ -1606,7 +1619,7 @@ function getServer(code, type){
     }else if(code.contains('jp')){
         code = code.replaceAll('jp_','');
         var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" +
-        encodeURIComponent(JP_STOCK_SERVER.replace('#SYMBOL#',code).replace('#TIMESTAMP#',getTimestamp()).replace('#YYYYMMDD#',getCNFullYMD()));
+        encodeURIComponent(JP_STOCK_SERVER.replace('#SYMBOL#',code).replace('#TIMESTAMP#',getTimestamp()).replace('#YYYYMMDD#',getFullYMD()));
     } else {
         //chinese stock, chinese fund
         var server = "engine.php?offline="+offlineDevelopperMode+"&cadd=" + encodeURIComponent(CN_REALTIME_SERVER + code);

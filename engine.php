@@ -153,8 +153,38 @@ if($offline != 0){
 
 $result = file_get_contents($cadd);
 
-$result = iconv("gbk","utf-8",$result);
+// eliminate case for japanese stock
+if(floatval(strpos($cadd,'co.jp')) == 0)
+	$result = iconv("gbk","utf-8",$result);
+else {
+	// japan stocks
+	
+	
+	$code = get_string_between($cadd,'code=','.T');
 
+	$name = get_string_between($result,'symbol">','</th>');
+	$name = get_string_between($name,'h1>','<');
+	// extract price
+	$price = get_string_between($result,'class="stoksPrice">','<');
+	//	extract price and percent
+	$change = get_string_between($result,'<td class="change">','</td>');
+	// extrack price and percentage
+	$change = explode('">',$change);
+	// get price and percentage change
+	if(!isset($change[2])){
+		echo 'Wrong Number of results returned, please check the server availability';
+		exit();
+	}
+
+	$change = explode('（',$change[2]);
+	// get pricedd
+	$pricediff = floatval($change[0]);
+
+	$percentdiff = floatval($change[1]);
+	// sanitation check
+	$result = $name.','.$code.','.$price.','.$pricediff.','.$percentdiff;
+
+}
 echo $result;
 exit();
 
