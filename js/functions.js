@@ -1,60 +1,11 @@
+/*************** UTILITY FUNCTIONS  ***************/
 
-function getTimeDifferenceInDays(targetTime){
-	var date1 = new Date(targetTime);
-	var date2 = new Date();
-	var timeDiff = Math.abs(date2.getTime() - date1.getTime());
-	var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
-	return diffDays;
-}
+/** Keyword: UTILITY, log, 
+/** Desc: general data extraction, logging, 
 
-
-function setCoolDown(obj,key,duration){
-	if(obj == undefined){
-		smartLog('obj is undefined in setCooldown!','alarm');
-		return false;
-	}
-	// override everytime
-	obj[key] = {};
-	obj[key]['lastUpdate'] = getTimestamp();
-	obj[key]['duration'] = duration;
-	return true;
-}
-
-
-
-function alarmLog(msg,importance){
-	//console
-	importance = importance || 0;
-
-	console.log(msg);
-
-	switch(importance){
-		case 0:
-		break;
-
-		case 1:
-		msg = "<span class='AlarmRed2'>"+msg+"</span>";
-		break;
-
-		case 2:
-		msg = "<span class='AlarmRedLight'>"+msg+"</span>";
-		break;
-
-		case 3:
-		msg = "<span class='AlarmBlue'>"+msg+"</span>";
-		break;
-
-
-		default:
-		break;
-	}
-	var d = $('#alarmConsole');
-
-	d.append(msg+"<br>");
-	// scoll to bottom
-	d.scrollTop(d.prop("scrollHeight"));
-}
-/* this function logs for realtime */
+/*
+	this function logs for realtime
+*/
 function log(msg){
 	
 	//console
@@ -66,43 +17,44 @@ function log(msg){
 	d.scrollTop(d.prop("scrollHeight"));
 
 }
+
+/*
+	merges two obj
+*/
 function mergeOBJ(obj1,obj2){
 	for(key in obj2)
 		obj1[key] = obj2[key];
 	return obj1;
 }
 
-/* check if it is number */
+/*
+	check if it is number
+*/
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+/*
+	[OBSOLETE]
+	Convert to json for sending to remote server
+*/
 function packageSaveArr(obj){
 	var t = JSON.stringify(obj);
 	return t;
 }
 
+/*
+	[OBSOLETE]
+	clears an obj, set it to empty string
+*/
 function clearme(obj){
 	obj.value = "";
 }
 
-function updatePurchase(code, val){
-	portfolio[code].cost = val;
-	filename = 'data/SystemLists/portfolio.txt';
-	 $.post( "save.php", { raw: packageSaveArr(portfolio), isJSONArr: true, filename: filename }).done(function( data ) {
-        //console.log( "Save Complete!:  " + filename );
-        console.log(data);
-    });
-}
-
-function updateNos(code,val){
-	portfolio[code].nos = val;
-	filename = 'data/SystemLists/portfolio.txt';
-	$.post( "save.php", { raw: packageSaveArr(portfolio), isJSONArr: true,  filename: filename }).done(function( data ) {
-        //console.log( "Save Complete!:  " + filename );
-        smartLog(data,'alarm');
-    });
-}
+/*
+	[OBSOLETE]
+	get subset
+*/
 function subset(obj,keys){
 	var t = {};
 	for(var i =0  ; i < keys.length; i ++){
@@ -115,6 +67,9 @@ function subset(obj,keys){
 	return t;
 }
 
+/*
+	get a copy instead of reference of an obj
+*/
 function clone(obj) {
     var copy;
 
@@ -149,22 +104,28 @@ function clone(obj) {
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
 
-/***************    Utility Functions             ****************/
+/*
+	Array of Stock
+	format stock names for transfering between remote server and local variables
+*/
 function formatStockNames(nameArr){
   // check if the name is already formatted
-  if(nameArr.constructor !== Array)
+  	if(nameArr.constructor !== Array)
   		nameArr = nameArr.split(',');
-  if(nameArr.constructor !== Array){
+  	if(nameArr.constructor !== Array){
   		smartLog('error! formatStockNames() require an array! and the input cannot automatically convert into an array, function now exit with error')
   		return false;
-  }
-
-   for(var i =0 ; i < nameArr.length; i ++){
-      nameArr[i] = formatStockName(nameArr[i]);
-    }
+  	}
+	for(var i =0 ; i < nameArr.length; i ++){
+	  nameArr[i] = formatStockName(nameArr[i]);
+	}
     return nameArr;
 }
 
+/*
+	Single stock
+	format stock name for transfering between remote server and local variables
+*/
 function formatStockName(name, short){
 	if(name == undefined)
 		smartLog('undefined name found! please check in formatStockName()');
@@ -203,15 +164,249 @@ function formatStockName(name, short){
      return name;
 }
 
-function fetchGroupRealtimeN(codes,key){
+/*
+	get stock prices
+*/
+function getStockPriceFormat(num){
+	num = parseFloat(num).toFixed(1);
+	if(num < 0)
+		return "<font class='AlarmGreen'>"+num+"</font>";
+	else if(num > 0)
+		return "<font class='AlarmRed'>"+num+"</font>";
+	else 
+		return num;
+}
 
-	if(codes.constructor === Array && codes[0].contains('jp')){
-		// japan codes
-		for(var i = 0 ; i < codes.length; i ++){
-			fetchRealtimeN(codes[i],{returnResults:'marketWatch'});
-		}
+
+/*************** LOCAL CACHE SYSTEMS  ***************/
+
+/** Keyword: real purchase, portfolio,
+/** Desc: keeps track of the real user portfolio.
+
+/*
+	update purchase price of a certain stock
+*/
+function updatePurchase(code, val){
+	portfolio[code].cost = val;
+	filename = 'data/SystemLists/portfolio.txt';
+	 $.post( "save.php", { raw: packageSaveArr(portfolio), isJSONArr: true, filename: filename }).done(function( data ) {
+        //console.log( "Save Complete!:  " + filename );
+        console.log(data);
+    });
+}
+
+/*
+	update number of stocks of a certain stock
+*/
+function updateNos(code,val){
+	portfolio[code].nos = val;
+	filename = 'data/SystemLists/portfolio.txt';
+	$.post( "save.php", { raw: packageSaveArr(portfolio), isJSONArr: true,  filename: filename }).done(function( data ) {
+        //console.log( "Save Complete!:  " + filename );
+        smartLog(data,'alarm');
+    });
+}
+
+
+
+/*************** LOCAL CACHE SYSTEMS  ***************/
+
+/** Keyword: cache, cooldown, cache functions
+/** Desc: Functions that deals with improved performance for handling data
+
+/*
+	save data to cache fetched from remote server with expiration date
+*/
+function saveRtmCache(code, data, expire){
+	if(data == undefined || data == '')
+		return false;
+	expire = expire || G_RTM_CACHE_PERIOD;
+  if(loadedRtmResultsCache[code]){
+    if((getTimestamp() - loadedRtmResultsCache[code]['timestamp'])> expire){
+        loadedRtmResultsCache[code] = {};
+  		loadedRtmResultsCache[code]['timestamp'] = getTimestamp();
+  		loadedRtmResultsCache[code]['expire'] = expire;
+		loadedRtmResultsCache[code]['data'] = data;
+        return true;
+    } else{
+    	return true;
+    }
+  }
+  loadedRtmResultsCache[code] = {};
+  loadedRtmResultsCache[code]['timestamp'] = getTimestamp();
+  loadedRtmResultsCache[code]['data'] = data;
+  loadedRtmResultsCache[code]['expire'] = expire;
+  return true;
+  
+}
+
+/*
+	get data from cache fetch from remote server 
+*/
+function getRtmCache(code){
+  if(loadedRtmResultsCache[code] == undefined || loadedRtmResultsCache[code]['timestamp'] == undefined)
+    return false;
+
+  if((getTimestamp() - loadedRtmResultsCache[code]['timestamp'])< parseInt(loadedRtmResultsCache[code]['expire'])){
+    return loadedRtmResultsCache[code]['data'];
+  } else {
+    return false;
+  }
+}
+
+/*
+	Cooldown check, see if certain timestamps are met
+*/
+function coolDownReady(obj){
+	if ( ((getTimestamp() - parseInt(obj['lastUpdate'])) > parseInt(obj['duration'])) || obj.firstTime == true ) {
+		if(obj.firstTime != undefined)
+			obj.firstTime = false;
+		obj['lastUpdate'] = getTimestamp();
 		return true;
 	}
+	return false;
+}
+
+/*
+	set an object into cooldownlist
+*/
+function setCoolDown(obj,key,duration){
+	if(obj == undefined){
+		smartLog('obj is undefined in setCooldown!','alarm');
+		return false;
+	}
+	// override everytime
+	obj[key] = {};
+	obj[key]['lastUpdate'] = getTimestamp();
+	obj[key]['duration'] = duration;
+	return true;
+}
+
+/*
+	calculate how much time left for an obj in cooldown list
+*/
+function getCoolDownTimeinStr(obj){
+	var waiting = getTimestamp() - parseInt(obj['lastUpdate']);
+	var target = parseInt(obj['duration']);
+	return secondsToHMS((target - waiting));
+
+}
+
+
+
+
+
+/*************** REMOTE DATA AND PARSING FUNCTIONS  ***************/
+
+/** Keyword: alarms, parsing, data, fetch, groupfetch, group,realtime
+/** Desc: Functions that handles data collections,parsing, and validating.
+
+/*
+	save data clusters fetched from remote server
+*/
+function saveGroupAlarm(obj,key){
+	// save for realtime
+
+	if(gAlarm['realtimeAlarms']['Results'] == undefined)
+		gAlarm['realtimeAlarms']['Results'] = {};
+	gAlarm['realtimeAlarms']['Results'][key] = obj;
+	//save for realtime history
+	if(gAlarm['realtimeHistoryAlarms']['Results'][key] == undefined)
+		gAlarm['realtimeHistoryAlarms']['Results'][key] = new Array();
+	gAlarm['realtimeHistoryAlarms']['Results'][key].push(obj);
+	if(gAlarmFan > 1)
+	alarmLog('Saving History for ' + key + " done ( "+gAlarm['realtimeHistoryAlarms']['Results'][key].length+" )");
+	return true;
+}
+
+/*
+	Combines multiple similar request into one and fetch as a cluster
+*/
+function groupFetchStock(codes,key){
+	//filter and regroup codes, prepare for different type
+	codes = formatStockNames(codes,true);
+	var groupedCodes = catagorize(codes);
+	var param = {'groupFetch':  true,
+				 'type' : key};
+	for(key in groupedCodes){
+		fetchGroupRealtimeN(groupedCodes[key], param);	
+	}
+}
+
+/*
+	fetch data in realtime from various servers, based on the stock code pased in
+	param.returnResults is most important, indicating the callback
+
+	callback: param.returnResults;
+*/
+function fetchRealtimeN(code,param){
+
+	param = param || {};
+	//check for group fetch or single fetch
+	code = formatStockName(code);
+	//var purchasePrice = graphData[resourceID].purchasePrice[code];
+    //ck type
+    var server = getServer(code);
+
+    //check realtime cache
+    var rtmResult = getRtmCache(code);
+    if(rtmResult){
+    	
+        data = rtmResult;
+       
+        var result = parseRealtimeN(data,code);
+
+        param.result = result;  
+        param.code = code;
+        param.name = result.name;
+
+    	if(param.returnResults == 'cusAlarm'){
+    		// allocate space for alarm cache
+    		finalizeCUSAlarm(param);
+    	} else if(param.returnResults == 'trackList'){
+    		// dosomething here tomorrow for tracklist
+    		updateTrackListRtmResults(param.tid,result);
+    		trackListAlarmExec(param);
+    	} 
+       return;
+    }
+	  // no realtime cache found begin AJAX
+    $.get(server, function(data) {
+    	if(data == undefined || data== '')
+    		return false;
+        var result = parseRealtimeN(data,code);
+        param.result = result;
+        param.code = code;
+        param.name = result.name;
+        var expire = param.expire ? param.expire : G_RTM_CACHE_PERIOD;
+
+        if(param.returnResults == 'cusAlarm'){
+    		// allocate space for alarm cache
+    		finalizeCUSAlarm(param);
+    	} else if(param.returnResults == 'trackList'){
+    		updateTrackListRtmResults(param.tid,result);
+    		trackListAlarmExec(param);
+    	} else if(param.returnResults == 'marketWatch'){
+    		 // continue here
+	        if(saveGroupAlarm(result,'marketWatch')){
+	         	execSingleMarketWatch();
+	         	// marketwatch must not be cached, so no need to save cache
+	         	return;
+	        }
+    	}
+    	// inject realtime cache
+        saveRtmCache(code, data,expire);
+		// end AJAX
+    });
+}
+
+/*
+	fetch data in realtime from various servers, based on the stock codes pased
+	fetch clustered stocks, codes will be an array of all similar sorted stocks
+*/
+function fetchGroupRealtimeN(codes,key){
+	// deal with Japan speciall case, since japanese stock are not based on JSON
+	fetchGroupRealtimeN_JPONLY(codes);
 
 	codes = codes.flatten();
 
@@ -244,160 +439,27 @@ function fetchGroupRealtimeN(codes,key){
 
 }
 
-function addtoMarketWatchArr(obj){
-	for(var i = 0 ; i < obj.length ; i ++){
-		marketWatch.push(obj[i]);
-		userMarketWatch.push(obj[i]);
-	}
-}
-
-function createMarketWatchDivs(obj){
-	var div = $('#pf_rtmMaster_append');
-	for(var i = 0 ; i < obj.length ; i ++){
-		var code = obj[i].replace('^','');
-		// sanitate us codes
-		if(code.contains('us')){
-			code = code.replace('us_','');
-			code = code.toUpperCase();
+/*
+	Similar to fetchGroupRealtimeN, but only for japanese stocks
+*/
+function fetchGroupRealtimeN_JPONLY(codes){
+	if(codes.constructor === Array && codes[0].contains('jp')){
+		// japan codes
+		for(var i = 0 ; i < codes.length; i ++){
+			fetchRealtimeN(codes[i],{returnResults:'marketWatch'});
 		}
-		var add = "&nbsp;&nbsp;&nbsp;<div id='codename_"+code+"'>"+code+'</div>:&nbsp;<div id="'+code+'">获取中</div>&nbsp;';
-		if(i % 8 == 7)
-			div.append('<br>');
-		div.append(add);
+		return true;
 	}
+	// do nothing
 }
 
-function addToMarketWatch(code){
-	userMarketWatch.push(code);
-	marketWatch.push(code);
-	code = code.replace('^','');
-	var add = "&nbsp;&nbsp;&nbsp;<div id='codename_"+code+"'>"+code+':&nbsp;<div id="'+code+'">获取中</div>&nbsp;';
-	$('#pf_rtmMaster_append').append(add);
-	//save
-	saveMarketWatch();
-}
+/*************** REMOTE DATA AND PARSING FUNCTIONS - PARSING FUNCTIONS ***************/
+/** Keyword: alarms, parsing, data, fetch, groupfetch, group,realtime
+/** Desc: Functions that handles data collections,parsing, and validating.
 
-function saveMarketWatch(){
-	var data = userMarketWatch;
-	saveObj(data, 'data/MarketWatch.txt');	
-}
-
-function loadMarketWatch(){
-	groupFetchStock(marketWatch,'marketWatch');
-}
-
-function execSingleMarketWatch(){
-	var t = gAlarm['realtimeAlarms']['Results']['marketWatch'];
-	var code = (t.code).replace('^','');
-		
-		if(t.divCode != undefined){
-			var div = $('#'+t.divCode);
-			var nameDiv = $('#codename_'+t.divCode).html(t.name);
-		} else {
-			var div = $('#'+code);
-			var nameDiv = $('#codename_'+t.code).html(t.name);
-		}
-		var price = t.price;
-		var chg_percent = getStockPriceFormat(t.percent);
-		var chg_price = getStockPriceFormat(t.priceIncrement);
-		div.html(price + " ( "+chg_price+" / "+chg_percent+"% )");
-}
-
-function execMarketWatch(){
-	var t = gAlarm['realtimeAlarms']['Results']['marketWatch'];
-	for(var i = 0 ; i < t.length ; i ++){
-		//update values
-		var code = (t[i].code).replace('^','');
-		
-		if(t[i].divCode != undefined){
-			var div = $('#'+t[i].divCode);
-			var nameDiv = $('#codename_'+divCode).html(t[i].name);
-		} else {
-			var div = $('#'+code);
-			var nameDiv = $('#codename_'+code).html(t[i].name);
-		}
-		var price = t[i].price;
-		var chg_percent = getStockPriceFormat(t[i].chg_percent);
-		var chg_price = getStockPriceFormat(t[i].priceIncrement);
-		div.html(price + " ( "+chg_price+" / "+chg_percent+"% )");
-	}
-}
-
-function getStockPriceFormat(num){
-	num = parseFloat(num).toFixed(1);
-	if(num < 0)
-		return "<font class='AlarmGreen'>"+num+"</font>";
-	else if(num > 0)
-		return "<font class='AlarmRed'>"+num+"</font>";
-	else 
-		return num;
-}
-
-function fetchRealtimeN(code,param){
-
-	param = param || {};
-	//check for group fetch or single fetch
-	code = formatStockName(code);
-	//var purchasePrice = graphData[resourceID].purchasePrice[code];
-    //ck type
-    var server = getServer(code);
-
-    //check realtime cache
-    var rtmResult = getRtmCache(code);
-    if(rtmResult){
-    	
-        data = rtmResult;
-       
-        var result = parseRealtimeN(data,code);
-
-        param.result = result;  
-        param.code = code;
-        param.name = result.name;
-
-    	if(param.returnResults == 'cusAlarm'){
-    		// allocate space for alarm cache
-    		finalizeCUSAlarm(param);
-    	} else if(param.returnResults == 'trackList'){
-    		// dosomething here tomorrow for tracklist
-    		updateTrackListRtmResults(param.tid,result);
-    		trackListAlarmExec(param);
-    	} 
-       return;
-    }
-
-
-    // no realtime cache found begin AJAX
-    $.get(server, function(data) {
-    	if(data == undefined || data== '')
-    		return false;
-        var result = parseRealtimeN(data,code);
-        param.result = result;
-        param.code = code;
-        param.name = result.name;
-        var expire = param.expire ? param.expire : G_RTM_CACHE_PERIOD;
-
-        if(param.returnResults == 'cusAlarm'){
-    		// allocate space for alarm cache
-    		finalizeCUSAlarm(param);
-    	} else if(param.returnResults == 'trackList'){
-    		updateTrackListRtmResults(param.tid,result);
-    		trackListAlarmExec(param);
-    	} else if(param.returnResults == 'marketWatch'){
-    		 // continue here
-	        if(saveGroupAlarm(result,'marketWatch')){
-	         	execSingleMarketWatch();
-	         	// marketwatch must not be cached, so no need to save cache
-	         	return;
-	        }
-    	}
-    	// inject realtime cache
-        saveRtmCache(code, data,expire);
-		// end AJAX
-    });
-}
-
-/*************** 	Parsing Functions         ****************/
-
+/*
+	Parsing master function for realtime single stock
+*/
 function parseRealtimeN(data,code){
 		// parse result
        if (code.contains('us'))
@@ -414,6 +476,9 @@ function parseRealtimeN(data,code){
         return result;
 }
 
+/*
+	Parsing japanese stock realtime data
+*/
 function parseJPRealtime(data){
 	
 	if(data == "")
@@ -433,7 +498,61 @@ function parseJPRealtime(data){
 	return obj;
 }
 
+/*
+	Parsing US stock realtime data
+*/
+function parseUSRealtime(data){
+	try{
+	   	  data = JSON.parse(data);
+	  	  var result = {};
+		  result['name'] = data.chart.result[0].meta.symbol;
+		  result['price'] = data.chart.result[0].indicators.quote[0].close[1];
+		  result['percent'] = (data.chart.result[0].indicators.quote[0].close[1] - data.chart.result[0].indicators.quote[0].close[0])/data.chart.result[0].indicators.quote[0].close[1] * 100;
+		  result['percent'] = result['percent'].toFixed(1);
+		  result['priceIncrement'] = (data.chart.result[0].indicators.quote[0].close[1] - data.chart.result[0].indicators.quote[0].close[0]).toFixed(1);
+		  return result;
+	} catch(e){
+	  smartLog(e.Message);
+	}
+}
 
+/*
+	Parsing CN stock realtime data
+*/
+function parseTencentRealtime(data) {
+    var temp = data.split("~");
+    if (temp) {
+        var result = {};
+        result['name'] = temp[1];
+        result['price'] = temp[3];
+        result['priceIncrement'] = temp[4];
+        result['percent'] = temp[5];
+        return result;
+    }
+    return data;
+}
+
+/*
+	Parsing CN Future realtime data
+*/
+function parseFutureRealtime(data) {
+    var temp = data.split(",");
+    var result = {};
+    if (temp) {
+        // index futures
+        if (data.contains("CFF_RE")) {
+            result['price'] = temp[3];
+        } else {
+            // commodity futures
+            result['price'] = temp[6];
+        }
+    }
+    return result;
+}
+
+/*
+	Parsing chinese GROUP/CLUSTER stock in realtime
+*/
 function parseCNGroupRealtime(raw){
 	var temp = raw.split("\n");
 	temp = temp.removeEmpty();
@@ -452,6 +571,9 @@ function parseCNGroupRealtime(raw){
 	return obj;
  }
 
+/*
+	Parsing japanese GROUP/CLUSTER stock in realtime
+*/
 function parseJPGroupRealtime(data){
 	var result = {};
 	try{
@@ -483,6 +605,9 @@ function parseJPGroupRealtime(data){
 	return final;
 }
 
+/*
+	Parsing US GROUP/CLUSTER stock in realtime
+*/
 function parseUSGroupRealtime(raw){
 	var data = {};
 	try{
@@ -511,118 +636,12 @@ function parseUSGroupRealtime(raw){
 	return obj;
  }
 
-function parseUSRealtime(data){
-	try{
-	   	  data = JSON.parse(data);
-	  	  var result = {};
-		  result['name'] = data.chart.result[0].meta.symbol;
-		  result['price'] = data.chart.result[0].indicators.quote[0].close[1];
-		  result['percent'] = (data.chart.result[0].indicators.quote[0].close[1] - data.chart.result[0].indicators.quote[0].close[0])/data.chart.result[0].indicators.quote[0].close[1] * 100;
-		  result['percent'] = result['percent'].toFixed(1);
-		  result['priceIncrement'] = (data.chart.result[0].indicators.quote[0].close[1] - data.chart.result[0].indicators.quote[0].close[0]).toFixed(1);
-		  return result;
-	} catch(e){
-	  smartLog(e.Message);
-	}
-}
-
-// parses single stock future data
-function parseFutureRealtime(data) {
-    var temp = data.split(",");
-    var result = {};
-    if (temp) {
-        // index futures
-        if (data.contains("CFF_RE")) {
-            result['price'] = temp[3];
-        } else {
-            // commodity futures
-            result['price'] = temp[6];
-        }
-    }
-    return result;
-}
-
-// parses single cn stock data
-function parseTencentRealtime(data) {
-    var temp = data.split("~");
-    if (temp) {
-        var result = {};
-        result['name'] = temp[1];
-        result['price'] = temp[3];
-        result['priceIncrement'] = temp[4];
-        result['percent'] = temp[5];
-        return result;
-    }
-    return data;
-}
 
 
-/*************** 	RTM(realtime) Cache Functions ****************/
-// the save function now with expire time
-function saveRtmCache(code, data, expire){
-	if(data == undefined || data == '')
-		return false;
-	expire = expire || G_RTM_CACHE_PERIOD;
-  if(loadedRtmResultsCache[code]){
-    if((getTimestamp() - loadedRtmResultsCache[code]['timestamp'])> expire){
-        loadedRtmResultsCache[code] = {};
-  		loadedRtmResultsCache[code]['timestamp'] = getTimestamp();
-  		loadedRtmResultsCache[code]['expire'] = expire;
-		loadedRtmResultsCache[code]['data'] = data;
-        return true;
-    } else{
-    	return true;
-    }
-  }
-
-  loadedRtmResultsCache[code] = {};
-  loadedRtmResultsCache[code]['timestamp'] = getTimestamp();
-  loadedRtmResultsCache[code]['data'] = data;
-  loadedRtmResultsCache[code]['expire'] = expire;
-  return true;
-  
-}
-
-/* cache system need to rewrite
-*/
-
-
-/*
-	check if cooldown is ready
-*/
-function coolDownReady(obj){
-	if ( ((getTimestamp() - parseInt(obj['lastUpdate'])) > parseInt(obj['duration'])) || obj.firstTime == true ) {
-		if(obj.firstTime != undefined)
-			obj.firstTime = false;
-		obj['lastUpdate'] = getTimestamp();
-		return true;
-	}
-	return false;
-}
-
-function getCoolDownTimeinStr(obj){
-	var waiting = getTimestamp() - parseInt(obj['lastUpdate']);
-	var target = parseInt(obj['duration']);
-	return secondsToHMS((target - waiting));
-
-}
-
-
-function getRtmCache(code){
-  if(loadedRtmResultsCache[code] == undefined || loadedRtmResultsCache[code]['timestamp'] == undefined)
-    return false;
-
-  if((getTimestamp() - loadedRtmResultsCache[code]['timestamp'])< parseInt(loadedRtmResultsCache[code]['expire'])){
-    return loadedRtmResultsCache[code]['data'];
-  } else {
-    return false;
-  }
-}
 
 /*************** ALARM SYSTEMS - MAIN FUNCTIONS ***************/
 
-/** Keyword: alarms, track, custom, security
-
+/** Keyword: alarms, track, custom, security, alarm functions
 /** Desc: automated system that realtime check stocks, pairs, hedges to
 auto determine actions such as : buy, sell, hold, increase, attention...etc
 
@@ -778,6 +797,40 @@ function prepareCusAlarmParameters(){
 }  
 
 /*
+	re-call updater to update custom alarms
+*/
+function updateRTMCusAlarm(){
+	var list = gAlarm['cuslist'];
+	var listCache = gAlarm['cusAlarmCache'];
+	var listCacheSub = {};
+	
+	for(var i = 0 ; i < list.length; i ++){
+		listCacheSub = listCache[list[i]];
+		if(listCacheSub == undefined){
+			if(gAlarmFan >1)
+			  alarmLog("unabled to find pair "+ list[i] + " in gAlarm['cusAlarmCache']",2);
+		} else {
+			var t = list[i].split('&');
+			//check hedgetype, if = 1, addition, else, substraction
+			var param = {};
+			param.id = i;
+			param.codeLen = t.length;
+			param.name = listCacheSub.name;
+			param.codePair = list[i];
+			param.hedgeType = listCacheSub.hedgeType;
+			param.returnResults = 'cusAlarm';
+			// reset id
+			gAlarm['rtmCache'][param.id] = new Array();
+
+			for(var j = 0 ; j < t.length; j ++){
+				param.subid = j;
+				fetchRealtimeN(t[j],param);
+			}			
+		}
+	}
+}
+
+/*
 	saving back custom portfolio file back to server.
 */
 function saveCusAlarms(){
@@ -907,8 +960,6 @@ function formatLoadedCustomAlarm(alarmStr){
 	}
 	return result;
 }
-
-
 
 /*************** ALARM SYSTEMS - TRACKLIST ***************/
 
@@ -1046,6 +1097,111 @@ function saveTrackList(){
 		smartLog('tracklist updated, new length is '+gAlarm['alarmTrackList']['main'].length,'alarm');
 }
 
+
+/*************** ALARM SYSTEMS - TRACKLIST ***************/
+
+/** Key: tracklist, track list, trace,monitor
+/** Desc: monitor or track user pre-defined stocks, pairs and hedges
+
+/*
+	add to marketwatch que
+*/
+function addtoMarketWatchArr(obj){
+	for(var i = 0 ; i < obj.length ; i ++){
+		marketWatch.push(obj[i]);
+		userMarketWatch.push(obj[i]);
+	}
+}
+
+/*
+	generate DOM Elements needed for marketwatch
+*/
+function createMarketWatchDivs(obj){
+	var div = $('#pf_rtmMaster_append');
+	for(var i = 0 ; i < obj.length ; i ++){
+		var code = obj[i].replace('^','');
+		// sanitate us codes
+		if(code.contains('us')){
+			code = code.replace('us_','');
+			code = code.toUpperCase();
+		}
+		var add = "&nbsp;&nbsp;&nbsp;<div id='codename_"+code+"'>"+code+'</div>:&nbsp;<div id="'+code+'">获取中</div>&nbsp;';
+		if(i % 8 == 7)
+			div.append('<br>');
+		div.append(add);
+	}
+}
+
+/*
+	add to marketwatch que and add DOM Elements
+*/
+function addToMarketWatch(code){
+	userMarketWatch.push(code);
+	marketWatch.push(code);
+	code = code.replace('^','');
+	var add = "&nbsp;&nbsp;&nbsp;<div id='codename_"+code+"'>"+code+':&nbsp;<div id="'+code+'">获取中</div>&nbsp;';
+	$('#pf_rtmMaster_append').append(add);
+	//save
+	saveMarketWatch();
+}
+
+/*
+	save marketwatch results
+*/
+function saveMarketWatch(){
+	var data = userMarketWatch;
+	saveObj(data, 'data/MarketWatch.txt');	
+}
+
+/*
+	fetch marketwatch data from remote server
+*/
+function loadMarketWatch(){
+	groupFetchStock(marketWatch,'marketWatch');
+}
+
+/*
+	run marketwatch algorithms(L3) with single stock data from server
+*/
+function execSingleMarketWatch(){
+	var t = gAlarm['realtimeAlarms']['Results']['marketWatch'];
+	var code = (t.code).replace('^','');
+		
+		if(t.divCode != undefined){
+			var div = $('#'+t.divCode);
+			var nameDiv = $('#codename_'+t.divCode).html(t.name);
+		} else {
+			var div = $('#'+code);
+			var nameDiv = $('#codename_'+t.code).html(t.name);
+		}
+		var price = t.price;
+		var chg_percent = getStockPriceFormat(t.percent);
+		var chg_price = getStockPriceFormat(t.priceIncrement);
+		div.html(price + " ( "+chg_price+" / "+chg_percent+"% )");
+}
+
+/*
+	run marketwatch algorithms(L3) with clustered stock data from server
+*/
+function execMarketWatch(){
+	var t = gAlarm['realtimeAlarms']['Results']['marketWatch'];
+	for(var i = 0 ; i < t.length ; i ++){
+		//update values
+		var code = (t[i].code).replace('^','');
+		
+		if(t[i].divCode != undefined){
+			var div = $('#'+t[i].divCode);
+			var nameDiv = $('#codename_'+divCode).html(t[i].name);
+		} else {
+			var div = $('#'+code);
+			var nameDiv = $('#codename_'+code).html(t[i].name);
+		}
+		var price = t[i].price;
+		var chg_percent = getStockPriceFormat(t[i].chg_percent);
+		var chg_price = getStockPriceFormat(t[i].priceIncrement);
+		div.html(price + " ( "+chg_price+" / "+chg_percent+"% )");
+	}
+}
 
 /*************** ALARM SYSTEMS - ALGORITHMS AND EVENT WATCHER ***************/
 /** Key: event, ckdata, ckalarms, 
@@ -1193,91 +1349,9 @@ function _ckrealtime(obj, criteria){
 	}
 }
 
-
-function saveGroupAlarm(obj,key){
-	// save for realtime
-
-	if(gAlarm['realtimeAlarms']['Results'] == undefined)
-		gAlarm['realtimeAlarms']['Results'] = {};
-	gAlarm['realtimeAlarms']['Results'][key] = obj;
-	//save for realtime history
-	if(gAlarm['realtimeHistoryAlarms']['Results'][key] == undefined)
-		gAlarm['realtimeHistoryAlarms']['Results'][key] = new Array();
-	gAlarm['realtimeHistoryAlarms']['Results'][key].push(obj);
-	if(gAlarmFan > 1)
-	alarmLog('Saving History for ' + key + " done ( "+gAlarm['realtimeHistoryAlarms']['Results'][key].length+" )");
-	return true;
-}
-
-
-function groupFetchStock(codes,key){
-	//filter and regroup codes, prepare for different type
-	codes = formatStockNames(codes,true);
-	var groupedCodes = catagorize(codes);
-	var param = {'groupFetch':  true,
-				 'type' : key};
-	for(key in groupedCodes){
-		fetchGroupRealtimeN(groupedCodes[key], param);	
-	}
-}
-
-function updateRTMAlarm(type,criteria){
-	// fetch realtime parameter
-	var param ={
-		'returnResults' : 'RTMAlarm',
-		 code: ''
-	};
-
-	switch(type){
-		case 'COMMODITY':
-
-		break;
-
-		case 'MAJOR_MARKETS':
-		break;
-
-		default:
-		break;
-	}
-}
-
-function updateRTMCusAlarm(){
-	var list = gAlarm['cuslist'];
-	//var list = ["sh600566&us_chad"];
-	
-	var listCache = gAlarm['cusAlarmCache'];
-	var listCacheSub = {};
-	
-	for(var i = 0 ; i < list.length; i ++){
-		listCacheSub = listCache[list[i]];
-		if(listCacheSub == undefined){
-			if(gAlarmFan >1)
-			  alarmLog("unabled to find pair "+ list[i] + " in gAlarm['cusAlarmCache']",2);
-		} else {
-			var t = list[i].split('&');
-			//check hedgetype, if = 1, addition, else, substraction
-			var param = {};
-			param.id = i;
-			param.codeLen = t.length;
-			param.name = listCacheSub.name;
-			param.codePair = list[i];
-			param.hedgeType = listCacheSub.hedgeType;
-			param.returnResults = 'cusAlarm';
-			// reset id
-			gAlarm['rtmCache'][param.id] = new Array();
-
-			for(var j = 0 ; j < t.length; j ++){
-				param.subid = j;
-				fetchRealtimeN(t[j],param);
-			}			
-			
-		}
-	}
-
-}
-
 /*************** ALARM SYSTEMS - UTILITY FUNCTIONS ***************/
 
+/*  key: alarm utilities
 /*
 	short version to send an alarm
 */
@@ -1466,6 +1540,42 @@ function getImportance(msg, importance){
 		break;
 	}
 	return msg;
+}
+
+/*
+	this function will log alarm based on msg type
+*/
+function alarmLog(msg,importance){
+	//console
+	importance = importance || 0;
+
+	console.log(msg);
+
+	switch(importance){
+		case 0:
+		break;
+
+		case 1:
+		msg = "<span class='AlarmRed2'>"+msg+"</span>";
+		break;
+
+		case 2:
+		msg = "<span class='AlarmRedLight'>"+msg+"</span>";
+		break;
+
+		case 3:
+		msg = "<span class='AlarmBlue'>"+msg+"</span>";
+		break;
+
+
+		default:
+		break;
+	}
+	var d = $('#alarmConsole');
+
+	d.append(msg+"<br>");
+	// scoll to bottom
+	d.scrollTop(d.prop("scrollHeight"));
 }
 
 /*
@@ -1928,6 +2038,16 @@ function calcTime(city, offset) {
     return ((nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear());
 }
 
+/*
+	get number of days between target day(timestamp, MM-DD-YYYY,MM/DD/YYYY) and current day;
+*/
+function getTimeDifferenceInDays(targetTime){
+	var date1 = new Date(targetTime);
+	var date2 = new Date();
+	var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+	var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+	return diffDays;
+}
 
 
 /*********** Portfolio ******/
