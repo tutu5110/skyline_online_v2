@@ -262,23 +262,27 @@ gFilter['sdMax'] = 7;
 
 gAlarm['rtmCache'] = {};
 
-portfolio['codes'] = ['sh603009','sz002748'];
+// portfolio['codes'] = ['sh603009','sz002748'];
 
-portfolio['sh603009'] = {};
+// var _tmpPortfolio = {};
 
-portfolio['sh603009'].nos = 900;
+// _tmpPortfolio = {};
 
-portfolio['sh603009'].cost = 31.175;
+// _tmpPortfolio.nos = 900;
 
-portfolio['sz002748'] = {};
+// _tmpPortfolio.cost = 31.175;
 
-portfolio['sz002748'].nos = 850;
+// var _tmpPortfolio2 = {};
 
-portfolio['sz002748'].cost = 30.613;
+// _tmpPortfolio2 = {};
 
-portfolio['details'] = {'sh603009': portfolio['sh603009'] , 'sz002748':portfolio['sz002748']};
+// _tmpPortfolio2.nos = 850;
 
+// _tmpPortfolio2.cost = 30.613;
 
+// portfolio['details'] = {'sh603009': _tmpPortfolio , 'sz002748':_tmpPortfolio2};
+
+portfolio['details'] = {};
 
 // portfolio.codes = ['603009','002748','300374','300406','601222','002742','us_chad'];
 
@@ -289,7 +293,7 @@ portfolio['details'] = {'sh603009': portfolio['sh603009'] , 'sz002748':portfolio
 
 var myPurchaseListMetaData = {'purchaseDate' : '05/12/2016',
                               'loadingComplete': 0,
-                              'total' : portfolio['codes'].length,
+                              'total' : 0,
                               'totalgain' : 0,
                               'totalPercent' : '',
                               'sumBeginning':0,
@@ -531,10 +535,11 @@ $.post( "staticData.php").done(function(data) {
       }
     catch(e)
       {
-        if(gAlarm['alarmTrackList'] == undefined){
-           resetTrackList();
-        }
+        if(gAlarm['alarmTrackList'] == undefined)
+           resetTrackList();        
       }
+
+      portfolio = parsePortfolio(htmlTemplate['myPortfolio']);
 
       // initialize system alarm cooldowns for customized stock pairs
       gAlarm['AlarmCountDowns'] = {};
@@ -590,13 +595,11 @@ $.post( "staticData.php").done(function(data) {
   });
 }
 
-//display porfolio
-function showPortfolio(){
-  for(var i = 0 ; i < portfolio['codes'].length ; i ++){
-     updateRealtimePortfolio(portfolio['codes'][i],i);
-  }
-
+function POSTAJAXLoading(){
+  createMarketWatchDivs(userMarketWatch);
+  $('#tracklistnum').html(getTrackListLen());
 }
+
 
 function bindbuttons(){
     $('#cbutton').click(function(){
@@ -625,75 +628,6 @@ function resetConsole(){
   gRTMConsoleOn = false;
 }
 
-// replace data to portfolio in section ii
-function appendToPortfolio(result, rtmData){
-    var code = result['code'];
-    var currentPrice = parseFloat(result['price']);
-    var purchasePrice = parseFloat(rtmData[code]['purchasePrice']);
-    var nos = parseInt(rtmData[code]['nos']);
-    var profit = (currentPrice - purchasePrice) * nos;
-    var name = result['name'] != undefined ? result['name'] : code;
-    var percentSince = (currentPrice - purchasePrice) / purchasePrice * 100;
-    var sumBeginning = nos * purchasePrice;
-    var sumCurrent = nos*currentPrice;
-
-    if(code.contains('us')){
-      profit *=6.5;
-      sumBeginning *= 6.5;
-      sumCurrent *= 6.5;
-    }
-
-    percentSince = percentSince.toFixed(2)+ "%";
-    profit = profit.toFixed(1);
-    myPurchaseListRtmData[code]['profit'] = profit;
-    myPurchaseListRtmData[code]['sumBeginning'] = sumBeginning;
-    myPurchaseListRtmData[code]['sumCurrent'] = sumCurrent;
-    myPurchaseListMetaData['loadingComplete']++;
-    myPurchaseListMetaData['totalgain']+= parseFloat(profit);
-    myPurchaseListMetaData['sumBeginning'] += sumBeginning;
-    
-    var str = htmlTemplate['pf_template_list'];
-    str = str.replaceAll('#code#',code).
-    replace('#name#',name).
-    replace('#PercentSince#', percentSince).
-    replace('#balance#',profit).
-    replace('#buyPrice#',purchasePrice).
-    replace('#currentPrice#',currentPrice).
-    replace('#nos#',nos).
-    replace('#initialValue#',sumBeginning).
-    replace('#currentValue#',sumCurrent);
-    ;
-
-    $('#myPf_1').append(str);
-
-
-    //color code 
-    colorCode("#pf_balance_"+code,profit);
-    colorCode("#pf_percent_"+code,parseFloat(percentSince));
-
-    if(myPurchaseListMetaData['loadingComplete'] == myPurchaseListMetaData['total']){
-      
-      var percent = (myPurchaseListMetaData['totalgain'] / myPurchaseListMetaData['sumBeginning'] * 100).toFixed(1);
-
-      var annualPercent = ((myPurchaseListMetaData['totalgain'] /  myPurchaseListMetaData['sumBeginning']) * 100 * (365 / getTimeDifferenceInDays(myPurchaseListMetaData['purchaseDate']))).toFixed(1)+"%";
-
-      str = htmlTemplate['pf_sum'];
-      str = str.replace('#overall#',myPurchaseListMetaData['totalgain'].toFixed(1)).
-      replace('#numDays#',getTimeDifferenceInDays(myPurchaseListMetaData['purchaseDate'])).
-      replace('#percent#',percent).
-      replace('#annualPercent#',annualPercent);
-
-      $('#myPf_1').append(str);
-      
-      // POSTAJAX_INITIAL_LOADING
-      // execute following command after ajax
-      //create marketwatch  lists
-      createMarketWatchDivs(userMarketWatch);
-
-      $('#tracklistnum').html(getTrackListLen());
-
-    }
-}
 
 function colorCode(div,val){
   var p = $(div);
@@ -709,8 +643,8 @@ function updateRealtimePortfolio(code,i){
     if(myPurchaseListRtmData[code] == undefined)
         myPurchaseListRtmData[code] = {};
 
-    myPurchaseListRtmData[code]['purchasePrice'] = portfolio[code].cost;
-    myPurchaseListRtmData[code]['nos'] = portfolio[code].nos;
+    myPurchaseListRtmData[code]['purchasePrice'] = portfolio['details'][code].cost;
+    myPurchaseListRtmData[code]['nos'] = portfolio['details'][code].nos;
     myPurchaseListRtmData[code]['profit'] = 0;
 
     $.get(server, function(data) {

@@ -8,8 +8,8 @@
 	update purchase price of a certain stock
 */
 function updatePurchase(code, val){
-	portfolio[code].cost = val;
-	filename = 'data/SystemLists/portfolio.txt';
+	portfolio['details'][code].cost = val;
+	filename = 'data/myPortfolio.txt';
 	 $.post( "save.php", { raw: packageSaveArr(portfolio), isJSONArr: true, filename: filename }).done(function( data ) {
         //console.log( "Save Complete!:  " + filename );
         console.log(data);
@@ -17,11 +17,109 @@ function updatePurchase(code, val){
 }
 
 /*
+	Main function runs portfolio loading;
+*/
+function showPortfolio(){
+  for(var i = 0 ; i < portfolio['codes'].length ; i ++){
+     updateRealtimePortfolio(portfolio['codes'][i],i);
+  }
+}
+
+/*
+	add entry to pf, must contain purchase price, nos, and code, also purchase date
+*/
+function addEntryToPortfolio(obj){
+	portfolio['codes'].push(obj.code);
+	portfolio['details'][obj.code] = obj;
+	savePortfolio();
+}
+
+/*
+	update results to portfolio (L3)
+*/
+function appendToPortfolio(result, rtmData){
+
+    var code = result['code'];
+    var currentPrice = parseFloat(result['price']);
+    var purchasePrice = parseFloat(rtmData[code]['purchasePrice']);
+    var nos = parseInt(rtmData[code]['nos']);
+    var profit = (currentPrice - purchasePrice) * nos;
+    var name = result['name'] != undefined ? result['name'] : code;
+    var percentSince = (currentPrice - purchasePrice) / purchasePrice * 100;
+    var sumBeginning = nos * purchasePrice;
+    var sumCurrent = nos*currentPrice;
+
+    if(code.contains('us')){
+      profit *=6.5;
+      sumBeginning *= 6.5;
+      sumCurrent *= 6.5;
+    }
+
+    percentSince = percentSince.toFixed(2)+ "%";
+    profit = profit.toFixed(1);
+    myPurchaseListRtmData[code]['profit'] = profit;
+    myPurchaseListRtmData[code]['sumBeginning'] = sumBeginning;
+    myPurchaseListRtmData[code]['sumCurrent'] = sumCurrent;
+    myPurchaseListMetaData['loadingComplete']++;
+    myPurchaseListMetaData['totalgain']+= parseFloat(profit);
+    myPurchaseListMetaData['sumBeginning'] += sumBeginning;
+    
+    var str = htmlTemplate['pf_template_list'];
+    str = str.replaceAll('#code#',code).
+    replace('#name#',name).
+    replace('#PercentSince#', percentSince).
+    replace('#balance#',profit).
+    replace('#buyPrice#',purchasePrice).
+    replace('#currentPrice#',currentPrice).
+    replace('#nos#',nos).
+    replace('#initialValue#',sumBeginning).
+    replace('#currentValue#',sumCurrent);
+    $('#myPf_1').append(str);
+    //color code 
+    colorCode("#pf_balance_"+code,profit);
+    colorCode("#pf_percent_"+code,parseFloat(percentSince));
+
+    if(myPurchaseListMetaData['loadingComplete'] == myPurchaseListMetaData['total']){
+      var percent = (myPurchaseListMetaData['totalgain'] / myPurchaseListMetaData['sumBeginning'] * 100).toFixed(1);
+      var annualPercent = ((myPurchaseListMetaData['totalgain'] /  myPurchaseListMetaData['sumBeginning']) * 100 * (365 / getTimeDifferenceInDays(myPurchaseListMetaData['purchaseDate']))).toFixed(1)+"%";
+      str = htmlTemplate['pf_sum'];
+      str = str.replace('#overall#',myPurchaseListMetaData['totalgain'].toFixed(1)).
+      replace('#numDays#',getTimeDifferenceInDays(myPurchaseListMetaData['purchaseDate'])).
+      replace('#percent#',percent).
+      replace('#annualPercent#',annualPercent);
+      // append to portfolio
+      $('#myPf_1').append(str);
+   	  // execute after pf is loaded
+      POSTAJAXLoading();
+    }
+}
+
+/*
+	saving portfolio to disk
+*/
+function savePortfolio(){
+	saveObj(portfolio, 'data/myPortfolio.txt');
+}
+
+/*
+	saving portfolio to disk
+*/
+function parsePortfolio(data){
+	try{
+		var t = JSON.parse(data);
+		myPurchaseListMetaData.total = t.codes.length;
+		return t;
+	} catch(e){
+		return smartAlarm('{parsePortfolio} Unabled to parse JSON data of myPortfolio.txt','alarm');
+	}
+}
+
+/*
 	update number of stocks of a certain stock
 */
 function updateNos(code,val){
-	portfolio[code].nos = val;
-	filename = 'data/SystemLists/portfolio.txt';
+	portfolio['details'][code].nos = val;
+	filename = 'data/myPortfolio.txt';
 	$.post( "save.php", { raw: packageSaveArr(portfolio), isJSONArr: true,  filename: filename }).done(function( data ) {
         //console.log( "Save Complete!:  " + filename );
         smartLog(data,'alarm');
@@ -1684,6 +1782,26 @@ function ckcmd(cmdraw){
 			smartLog(" -save (save stock stacks after added to custome que)");
 			smartLog(" -filter minSkewness maxStandardDeviation");
 			smartLog(" -marketwatch stock1");
+			smartLog(" -pf stockcode purchasePrice nos");
+		break;
+
+		case 'pf':
+			if(param.length != 4 && param.length != 3)
+				return returnLog("-pf requires 4 or 3 parameters, check -help for details");
+			// adding new codes
+			if(param.length == 4){
+				// getting
+				var code = param[1];
+				var purchasePrice = parseFloat(param[2]);
+				var nos = parseFloat(param[3]);
+				// formatting
+				code = formatStockName(code);
+				var obj = {'code':code, 
+						   'cost':purchasePrice,
+							'nos' : nos};
+				addEntryToPortfolio(obj);
+			}
+
 		break;
 
 		case 'marketwatch':
