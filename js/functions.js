@@ -26,6 +26,21 @@ function showPortfolio(){
 }
 
 /*
+	remove entry based on code
+*/
+function removeEntryFromPortfolio(code){
+	// delete one in detil
+	delete portfolio['details'][code];
+	// delete one in codes
+	for(var i = 0 ; i < portfolio.codes.length; i ++)
+		if(portfolio.codes[i] == code){
+			portfolio.codes.splice(i,1);
+			savePortfolio();
+			return true;
+		}
+}
+
+/*
 	add entry to pf, must contain purchase price, nos, and code, also purchase date
 */
 function addEntryToPortfolio(obj){
@@ -68,6 +83,7 @@ function appendToPortfolio(result, rtmData){
     str = str.replaceAll('#code#',code).
     replace('#name#',name).
     replace('#PercentSince#', percentSince).
+    replace('#CODE#', code).
     replace('#balance#',profit).
     replace('#buyPrice#',purchasePrice).
     replace('#currentPrice#',currentPrice).
@@ -1800,7 +1816,13 @@ function ckcmd(cmdraw){
 						   'cost':purchasePrice,
 							'nos' : nos};
 				addEntryToPortfolio(obj);
+			} else if(param.length == 3){
+				if(param[1] == '-d'){
+					var code = formatStockName(param[2]);
+					removeEntryFromPortfolio(code);
+				}
 			}
+
 
 		break;
 
