@@ -1,0 +1,30 @@
+<div class='stockHolder' onmouseenter='toggleBigger("this.graphID")'>
+	<div class='biggerClass' id='biggerText_this.graphID'></div>
+	<input class='removeSelections panelTransparentButtonSmall' type='button' value='-' onclick='removetoCustomQue("this._code")'>
+	<input class='addSelections panelTransparentButtonSmall' type='button' value='+' onclick='addtoCustomQue("this._code");'>
+	<input class='period panelTransparentButtonSmall' type='button' value='3m' onclick='reHedge("this.graphID","3m");'>
+	<input class='period panelTransparentButtonSmall' type='button' value='6m' onclick='reHedge("this.graphID","6m")'>
+	<input class='period panelTransparentButtonSmall' type='button' value='y' onclick='reHedge("this.graphID","y")'>
+	<input class='period panelTransparentButtonSmall' type='button' value='all' onclick='reHedge("this.graphID","all")'>
+	
+	<input class='iPhoneCheckContainer' type='checkbox' id='sd_this.graphID' checked = 'checked'>
+	<div class='stockHolderfonts' id='graphHolder_this.graphID'>#stocknames##sym#</div>
+	<div class='chartlegend' id='g_legend_this.graphID'>haha</div>
+	<div class='chartmsg' id='msg_this.graphID'>Test Message</div><br>
+	<div class='stockGraphs' id='graph_this.graphID'></div>
+	
+	<div class='chartDetails'>
+		<div class='chartDonnut'>
+			<div class='chartDonnutTitle'>Sucess</div>
+			<div class='chartDonnutLabel' id='g_label_this.graphID'>#su#</div>
+			<canvas id='chartDonutSuccess_this.graphID'></canvas>
+		</div>
+    
+    	<div class= 'chartInfo' id='g_detail_this.graphID'>
+     		<div class='chartDonnutTitle'>Statistics</div>
+     		<div class='chartPriceClass' id='chartPrice_this.graphID'><span class='legend_label_color_0'>-99</span>&nbsp;&nbsp;&nbsp;<span class='legend_label_color_1'>-90</span>
+     		</div>
+     		<div class='statsInfo' id="chartStats_this.graphID">#stat#</div>
+        </div>
+    </div>
+</div>

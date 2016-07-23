@@ -1,0 +1,14 @@
+<div class='pf_list' id="pf_#code#">
+  <span class="pf_list_big"><a onclick="showpflistDetail('pf_list_detail_#code#');" href="javascript:void(0);">#name#</a>/<span>
+  浮盈: <span id="pf_balance_#code#">#balance#</span>&nbsp;  
+  <span id="pf_percent_#code#"><i>(#PercentSince#)</i></span>
+  <br>
+  <div class='pf_list_detail' id="pf_list_detail_#code#">
+	  当前价: <span>#currentPrice#</span> | 当前股数: 
+	  <input type="textfield" class="pf_list_modify" id="pf_nos_#code#" ondblclick="clearme(this)" onchange="updateNos('#code#',this.value);" value="#nos#">
+	  <br>
+	  <div class="pf_list_equity">买入价: <input type="textfield" class="pf_list_modify" id="pf_buy_#code#" ondblclick="clearme(this)" onchange="updatePurchase('#code#',this.value);" value="#buyPrice#"> | 期初价值: <span>#initialValue#<span> | 期末价值: <span>#currentValue#<span>&nbsp;<div class="pf_remove" id="pf_remove_#code#" onclick="removeEntryFromPortfolio('#code#')"></div><br>
+    <div>股票代码: #CODE#</div>
+    </div> 
+  </div>
+</div>
