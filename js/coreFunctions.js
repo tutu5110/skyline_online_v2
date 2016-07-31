@@ -77,6 +77,14 @@ function subset(obj,keys){
 }
 
 /*
+  turn graph on and off
+*/
+function toggleGraphPeriod(GRAPH_ID){
+  var val = (graphData[GRAPH_ID].zoomLevel == 1) ? 7 : 1;
+  setGraphValueN(GRAPH_ID,val);
+}
+
+/*
   get a copy instead of reference of an obj
 */
 function clone(obj) {
@@ -155,7 +163,7 @@ function formatStockName(name, short){
             name.toLowerCase().contains('f_') ||
             name.toLowerCase().contains('ic'))
             name = name;
-        else if(name.toLowerCase().beginWith('50'))
+        else if(name.toLowerCase().beginWith('50') || name.toLowerCase().beginWith('70'))
             name = 'jj'+name;
         else if(!isFinite(name))
             name = 'us_'+name;
@@ -202,6 +210,12 @@ function catagorize(codes){
 	return obj;
 }
 
+function sum(nums){
+  var total = 0;
+  for(var i = 0; i < nums.length; i ++)
+    total += nums[i];
+  return total;
+}
 /*
 	get type of code, for instance 600050 return shanghai
 */

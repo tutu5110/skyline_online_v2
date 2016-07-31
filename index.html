@@ -82,6 +82,7 @@
     <link rel="stylesheet" type="text/css" href="css/checkbox.css?123"/>
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
     <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/jquery-ui.js"></script>
     <script src="js/dygraph-combined.js"></script>
     <script src="js/super-annotations.js"></script>
     <script src="js/functions.js"></script>
@@ -97,10 +98,14 @@
     <script src="js/regression.js"></script>
     <script src="js/checkboxes.js"></script>
     <script src="js/skyLab.js"></script>
+    <script src="js/rainyday.min.js"></script>
 </head>
     <body>
         <div id="master">
                <div id="skylineLab">
+               <div id="skylineLabBackground">
+                  <img id="rainDay" style="width:1440px; height:900px;" />
+               </div>
                    <div id="logoLeft"></div>
                    <div id="logoRight"></div>
                    <div id="mainGraphHolder">
@@ -121,7 +126,6 @@
                <div id="mainBody">
                <div class='portfolioMain' id="myPf_1"></div>
                <div id="alarmMaster">
-
                     <div class='Alarms' id="alarmsDetails"> Alarms: --- <br></div>
                     <div class="Alarms" id="alarmConsole">Welcome to alarm console<br></div>
                </div>
@@ -191,6 +195,12 @@ var gAlarmOn = true;
 
 var gAlarmFan = 1;
 
+var P_DATE_AGO = 90;
+
+var C_MOUSEON_GRAPHID = -1;
+
+var PREVIOUS_MOUSEON_GRAPHID = -2;
+
 var GRealtime = true;
 
 var Loquacious = false;
@@ -222,7 +232,7 @@ var rtmCurrentView = "";
 
 var rtmCanvasListBegin =0;
 // number of rtm windows displayed on every page
-var rtmCanvasListIncrement = 10 ;
+var rtmCanvasListIncrement = 8 ;
 
 var rtmCanvasListEnd = rtmCanvasListBegin + rtmCanvasListIncrement;
 
@@ -283,6 +293,10 @@ gAlarm['rtmCache'] = {};
 // portfolio['details'] = {'sh603009': _tmpPortfolio , 'sz002748':_tmpPortfolio2};
 
 portfolio['details'] = {};
+
+portfolio['stats'] = {};
+
+portfolio['stats']['totalBalanceRaw']= new Array();
 
 // portfolio.codes = ['603009','002748','300374','300406','601222','002742','us_chad'];
 
@@ -367,6 +381,7 @@ var FingerStartx = 0
 
 var FingerDist = 0
 
+
 // add window listeners 
 window.addEventListener('load', function(){
 
@@ -437,7 +452,7 @@ $(document).ready(function(){
    if(offlineDevelopperMode)
    console.log("OFFline development mode on! no internet is required nor data will be updated");
    // fastfind graph
-   $('#mainGraphHolder').css('margin','225pt 0 0 0');
+   $('#mainGraphHolder').css('margin','117pt 0 0 0');
 
    //update footer
    var footer = $('.skyFooter');
@@ -528,6 +543,18 @@ $.post( "staticData.php").done(function(data) {
         // alarmtracklist settings
         gAlarm['alarmTrackList']['settings'] = {'alarmType':'1: price, 2:percent',
                                                 'smartAlarm':'set a percent that will be triggered above or below current percent,eg. stock currently 3.5%, smartAlarm:-1 means it will trigger at 2.5%'};
+        if(gAlarm['alarmTrackList']['globals'] == undefined){
+           // ck time
+           if(!isWeekendChina() && getHourChina() == 9 && getMinutesChina() > 15 && getMinutesChina() < 30){
+                sendTocellphone('Skyline天际短信服务器正常!当前时间:'+getFullYMDH());
+                // add globals, for system status check
+              gAlarm['alarmTrackList']['globals'] = {};
+                gAlarm['alarmTrackList']['globals']['dailyCommunication'] = {'lastUpdate' : getTimestamp(), 'lastUpdateTime' : getFullYMDH
+                ()};
+           }
+           //superfast
+        }
+
         cleanTrackList();
 
         var _marketwatch = JSON.parse(htmlTemplate['marketWatch']);
@@ -542,7 +569,10 @@ $.post( "staticData.php").done(function(data) {
       }
 
       portfolio = parsePortfolio(htmlTemplate['myPortfolio']);
-
+      if(portfolio['stats'] == undefined)
+        portfolio['stats'] = {};
+      if(portfolio['stats']['totalBalanceRaw'] == undefined)
+        portfolio['stats']['totalBalanceRaw']  = new Array();
       // initialize system alarm cooldowns for customized stock pairs
       gAlarm['AlarmCountDowns'] = {};
       gAlarm['AlarmCountDowns']['c10s'] = {'lastUpdate': getTimestamp(), 'duration':7, 'firstTime': true};
@@ -580,7 +610,9 @@ $.post( "staticData.php").done(function(data) {
       // defaultload portfolio in section ii
       showPortfolio();
       // default load custom selected stocks in to section iii
-      loadRTMCanvasCustom();
+      //loadRTMCanvasCustom();
+      setTimeout(loadRTMCanvasCustom,5000);
+
       // default load one pair of experiment stocks into section i
       loadSkyLab();
       // load system realtime alarms
@@ -593,8 +625,14 @@ $.post( "staticData.php").done(function(data) {
       /**** After these code executed, jumps to 
        POSTAJAX_INITIAL_LOADING
       ****************************************/
+      //dbclick
+      $('#mainGraph').dblclick(function(){
+          toggleGraphPeriod(99999);
+      });
 
+     
   });
+
 }
 
 function POSTAJAXLoading(){
@@ -614,7 +652,7 @@ function showConsole(msg){
   // set position
   var r = $('#realtimeConsole');
   console.log(gSection);
-  r.css('left',(gSection-1) * 2970+'px')
+  r.css('left',(gSection-1) * 1122+'pt');
   if(msg != '')
     msg += '<br>';
   r.fadeIn("fast");
@@ -640,51 +678,13 @@ function colorCode(div,val){
     p.addClass('green');
 }
 
-function updateRealtimePortfolio(code,i){
-    var server = getServer(code);
-    if(myPurchaseListRtmData[code] == undefined)
-        myPurchaseListRtmData[code] = {};
-
-    myPurchaseListRtmData[code]['purchasePrice'] = portfolio['details'][code].cost;
-    myPurchaseListRtmData[code]['nos'] = portfolio['details'][code].nos;
-    myPurchaseListRtmData[code]['profit'] = 0;
-
-    $.get(server, function(data) {
-      if (code.contains('us'))
-        // parse US STOCK realtime
-            try{
-              // data = JSON.parse(data);
-              // var result = {};
-              // result['name'] = data.chart.result[0].indicators.meta.symbol;
-              // result['price'] = data.chart.result[0].indicators.quote[0].close[1];
-              // result['percent'] = (data.chart.result[0].indicators.quote[0].close[1] - data.chart.result[0].indicators.quote[0].close[0]);
-              // data.chart.result[0].indicators.quote[0].close[1] * 100;
-              // result['percent'] = result['percent'].toFixed(1);
-              // result['priceincrement'] = (data.chart.result[0].indicators.quote[0].close[1] - data.chart.result[0].indicators.quote[0].close[0]).toFixed(1);
-              var result = parseUSRealtime(data);
-            } catch(e){
-              smartLog(e.Message);
-            }
-            
-        else if (code.toLowerCase().contains('f_'))
-        // parse CN FUTURE realtime
-            var result = parseFutureRealtime(data);
-        else
-        // parse CN STOCK realtime
-            var result = parseTencentRealtime(data);
-       result['code'] = code;
-       appendToPortfolio(result,myPurchaseListRtmData);
-         // end AJAX
-    });
-}
 
 window.onscroll = function (e) {  
 
   var left = (window.pageXOffset || document.scrollLeft) - (document.clientLeft || 0);
-
-  if(left > 1700 && left < 4500)
+  if(left > 1010 && left < 2290)
       gSection =2;
-  else if(left > 4500)
+  else if(left > 2290)
       gSection = 3;
   else if(left<1700)
       gSection = 1;
@@ -734,17 +734,35 @@ function keyup(evt) {
             }
         }
   //check for enter key  
-    if (evt.keyCode == 67 && evt.ctrlKey) showConsole('Console Ready, type -help to see commands');
+  if (evt.keyCode == 67 && evt.ctrlKey) showConsole('Console Ready, type -help to see commands');
 
   if(evt.keyCode == 13 && gRTMConsoleOn){
       var t = $('#realtimeConsole #userinput').val();
       ckcmd(t);
       $('#realtimeConsole #userinput').val('');
   }
+
+  //check main keyboard entries
+  if(evt.keyCode == 87){
+    // case 'w'
+    if(PREVIOUS_MOUSEON_GRAPHID != C_MOUSEON_GRAPHID) {
+      PREVIOUS_MOUSEON_GRAPHID =  C_MOUSEON_GRAPHID;
+      //reset days ago
+      P_DATE_AGO = 90;
+    }
+    if(C_MOUSEON_GRAPHID != -1) reHedge(C_MOUSEON_GRAPHID,'w');
+  } else if (evt.keyCode == 83){
+    // case 's';
+     if(PREVIOUS_MOUSEON_GRAPHID != C_MOUSEON_GRAPHID) {
+      PREVIOUS_MOUSEON_GRAPHID =  C_MOUSEON_GRAPHID;
+      //reset days ago
+      P_DATE_AGO = 90;
+    }
+    if(C_MOUSEON_GRAPHID != -1) reHedge(C_MOUSEON_GRAPHID,'s');
+  }
 } 
 
 function reHedge(graphID,period){
-  console.log(graphID + " p is : "+period);
   //get target date that is "period" ago
   var targetDateObj;
   switch(period){
@@ -762,6 +780,18 @@ function reHedge(graphID,period){
 
     case 'all':
       targetDateObj = getTargetDate(-9999);
+    break;
+
+    case 'w':
+      targetDateObj = getTargetDate(-P_DATE_AGO);
+      P_DATE_AGO -=10;
+      if(P_DATE_AGO < 90) P_DATE_AGO = 90;
+    break;
+
+    case 's':
+      targetDateObj = getTargetDate(-P_DATE_AGO);
+      P_DATE_AGO +=10;
+      if(P_DATE_AGO > 400) P_DATE_AGO = 400;
     break;
 
     default:
@@ -835,40 +865,6 @@ function getTargetDate(numdays){
   return t;
 }
 
-function automateHedge(){
-  var filename = 'data/SystemLists/CN_Stocklist.csv';
-     var targetStock = 'chad';
-     $.post( "load.php", { filename: filename }).done(function( data ) {
-        var loadedListtmp = JSON.parse(data).split("\n");
-        var len = loadedListtmp.length;
-        var loadedList = new Array();
-        for(var i = 0 ; i < len ; i ++){
-          var _tmp = loadedListtmp[i].split(',');
-          loadedList.push([_tmp[1],_tmp[0]]);
-        }
-
-        for(var i = 0 ; i < loadedList.length; i ++){
-        var stockNames = [loadedList[i][0],targetStock];
-        stockNames = formatStockNames(stockNames);
-        var s = new SKYDataLoader([stockNames[0],stockNames[1]],
-        {"duration":"2y",
-        "div":"realtimeMonitorData",
-        "type": 'automateHedge',
-        "showgraph" :  false,
-        "updateRealtime":false},i); 
-        graphData[i] = s;
-        //need a delayed load!!
-        //graphData[i].load();    
-      }
-        var i = 0;
-        var delayLoading = setInterval(function () {   
-              graphData[i].load();                    
-              i++;    
-              if(i> graphData.length-1) 
-                clearInterval(delayLoading);
-        }, 150)
-    });
-}
 
 
 function updateRTMCanvas(filename, SAVE_TO_CUTOME){
@@ -1014,6 +1010,7 @@ function updateToRTMCanvas(){
       {"duration":"2y",
       "div":"realtimeMonitorData",
       "showgraph" :  true,
+      "zoomLevel": 7,
       "updateRealtime": isRealtime},i); 
       graphData[i] = s;
       graphData[i].load();    
@@ -1045,6 +1042,7 @@ function preload(){
     stockNames = formatStockNames(stockNames);
     var s = new SKYDataLoader([stockNames[0],stockNames[1]],
     {"duration":"2y",
+    "zoomLevel": 7,
     "div":"realtimeMonitorData",
     "type": 'automateHedge',
     "showgraph" :  false,
@@ -1121,7 +1119,7 @@ function resetPage(){
 }
 
 function hideBigger(id){
-   $('#biggerText_'+id).fadeOut("fast");
+   $('#biggerTexcd_'+id).fadeOut("fast");
 }
 
 function toggleBigger(id){
@@ -1150,6 +1148,13 @@ function loadList(){
 function testScope(val){
     console.log(val);
 }
+
+function setGraphValueN(graphID, val){
+   graphs[graphID].updateOptions({
+    'rollPeriod': val
+   });
+   graphData[graphID].zoomLevel = val;
+}
 // 1-7 checkbox
 function setGraphValue(div, GRAPH_ID,checked){
     //console.log(GRAPH_ID+" div: "+div );
@@ -1159,6 +1164,7 @@ function setGraphValue(div, GRAPH_ID,checked){
         'rollPeriod': rp
     });
 }
+
 function loadRealtimeStockPairs(){
  $.get("settings.tu", function(data){
     var list = data.split("\n");
@@ -1167,6 +1173,7 @@ function loadRealtimeStockPairs(){
         stockNames = formatStockNames(stockNames);
         var s = new SKYDataLoader([stockNames[0],stockNames[1]],
         {"duration":"2y",
+        "zoomLevel": 7,
         "div":"realtimeMonitorData",
         "updateRealtime":true},i); 
         graphData[i] = s;
@@ -1175,52 +1182,8 @@ function loadRealtimeStockPairs(){
  });
 }
 
-     
-
-//create graph
-function inigraph(data,divName,GRAPH_ID){
-   var g = new Dygraph(document.getElementById(divName), data,
-    {
-      drawPoints: false,
-      width:1600,
-      height:360,
-      showRoller: false,
-      rollPeriod: 14,
-      highlightCircleSize: 5,
-      strokeWidth: 1,
-      labelsDiv: 'g_legend_'+GRAPH_ID,
-      colors: ["rgba(255,255,255,0.2)",
-                "rgba(255,255,255,0.2)",
-                "rgba(255,255,255,0.8)",
-                "rgba(255,255,255,0.8)"
-          ],
-      axes : { 
-        x : { drawAxis:true,
-              drawGrid:true,
-              axisLabelColor:  "rgba(255,255,255,0.2)",
-              axisLineColor: "rgba(255,255,255,0.2)"},
-        y : {axisLineWidth : 0.01,
-             drawGrid:false,
-             axisLabelColor:  "rgba(255,255,255,0.2)"}
-      },
-      'Hedge': {
-          strokePattern:null,
-          strokeWidth: 2,
-          fillGraph: true,
-          drawPoints: false,
-        },
-      'MHedge': {
-          strokePattern: null,
-          strokeWidth: 2,
-          fillGraph: true,
-          drawPoints: false
-      },
-    });
-
-   graphs[GRAPH_ID] = g;
-}
-
-// create graph
+// initialize graph
+// fastfind 
 function iniRTMgraph(data, divName, GRAPH_ID) {
    
     var tempGraph = new Dygraph(
@@ -1228,8 +1191,8 @@ function iniRTMgraph(data, divName, GRAPH_ID) {
         data, {
             fractions: false,
             errorBars: false,
-            width: 450,
-            height:225,
+            width: 280,
+            height:120,
             showRoller: false,
             legend: 'follow',
             labelsDiv: 'g_legend_'+GRAPH_ID,
@@ -1237,8 +1200,8 @@ function iniRTMgraph(data, divName, GRAPH_ID) {
                 'background': 'none',
                 'color': '#fff'
             },
-            colors: ["rgb(51,204,204)",
-                "rgb(220,100,100)",
+            colors: ["rgba(51,204,204,0.2)",
+                "rgba(220,100,100,0.2)",
                 "rgb(200,255,69)",
                 "rgb(255,61,132)"
             ],
@@ -1251,7 +1214,11 @@ function iniRTMgraph(data, divName, GRAPH_ID) {
                 x : { drawAxis:false,
                       drawGrid:false },
                 y : {axisLineWidth : 0.01,
-                     axisLabelColor:  "rgb(135,142,167)"}
+                     axisLabelFontSize:10,
+                     axisTickSize: 5,
+                     pixelsPerLabel: 15,
+                     axisLabelColor: "rgb(135,142,167)",
+                     gridLineColor: "rgba(255,255,255,0.1)"}
             },
             
             'Hedge': {
@@ -1281,6 +1248,7 @@ function iniRTMgraph(data, divName, GRAPH_ID) {
                       str +='<span class="legend_label_color_'+i+'">'+loadedFlattenHistoryPriceResults[GRAPH_ID][row][i].toFixed(2)+'</span>&nbsp;&nbsp;&nbsp;';
                         }
                     }
+                  C_MOUSEON_GRAPHID = GRAPH_ID;
                  $('#chartPrice_'+GRAPH_ID).html(str);
               },
 
@@ -1314,7 +1282,7 @@ function iniRTMgraph(data, divName, GRAPH_ID) {
 
         donuts[GRAPH_ID] = myChart;
         
-        $('#chartDonutSuccess_'+GRAPH_ID).width(200).height(100).css('margin','0 0 0 -30px');
+        $('#chartDonutSuccess_'+GRAPH_ID).width(130).height(65).css('margin','5px 0 0 -14px');
    // get
     //add loadings
 }
@@ -1724,7 +1692,12 @@ function lunchGraphs(str, systemVars, GRAPH_ID) {
     $('#g_detail_'+GRAPH_ID).html(t.replace('#stat#', stat));
     var t = $('#g_label_'+GRAPH_ID).html();
     $('#g_label_'+GRAPH_ID).html(t.replace('#su#',supercent));
-    //inigraph(str,currentGraphDiv);
+
+    //update for 99999 skylab
+    if(GRAPH_ID == 99999){
+        $('#graphHolder_' + GRAPH_ID).html(stockNames);
+    }
+    //iniSkylabGraph(str,currentGraphDiv);
 
     loadedFlattenHistoryResults[GRAPH_ID] = str;
 
@@ -2022,7 +1995,7 @@ function flattenData(obj, codesWithOrder) {
     // check hedge of mhedge
     if (Math.abs(m_diff) < Math.abs(diff)) {
         //display minus hedge
-        statVars['stat'] = "平均: " + m_ave + ", 标准差:" + m_sd + "<br>上限:" + m_upperLimit.toFixed(2) + ", 下限:" + m_lowerLimit.toFixed(2) +"<br>斜率: "+statVars['linear_regression_mhedge']['equation'][0].toFixed(2);
+        statVars['stat'] = "平均: " + m_ave + ", 标准差:" + m_sd + "<br>上限:" + m_upperLimit.toFixed(2) + ", 下限:" + m_lowerLimit.toFixed(2) +", SL: "+statVars['linear_regression_mhedge']['equation'][0].toFixed(2);
         statVars['hedgeType'] = 2;
         statVars['hedgeTypeStr'] = 'Substraction';
         statVars['skewness'] = statVars['linear_regression_mhedge']['equation'][0].toFixed(2);
@@ -2033,7 +2006,7 @@ function flattenData(obj, codesWithOrder) {
         statVars['latestHedgeIndex'] = minusHedgeArr[minusHedgeArr.length - 1].toFixed(2);
     } else if(Math.abs(m_diff) > Math.abs(diff)) {
         //
-        statVars['stat'] = "平均: " + ave + ", 标准差:" + sd + "<br>上限:" + upperLimit.toFixed(2) + ", 下限:" + lowerLimit.toFixed(2)+"<br>斜率: "+statVars['linear_regression_hedge']['equation'][0].toFixed(2);
+        statVars['stat'] = "平均: " + ave + ", 标准差:" + sd + "<br>上限:" + upperLimit.toFixed(2) + ", 下限:" + lowerLimit.toFixed(2)+", SL: "+statVars['linear_regression_hedge']['equation'][0].toFixed(2);
         statVars['hedgeType'] = 1;
         statVars['hedgeTypeStr'] = 'Addition';
         statVars['skewness'] = statVars['linear_regression_hedge']['equation'][0].toFixed(2);
@@ -2364,8 +2337,23 @@ function getDataLength(dataLen) {
     return ((nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear());
 }    
 
+var image = document.getElementById('rainDay');
+image.onload = function() {
+    var engine = new RainyDay({
+        image: this,
+        gravityAngle: Math.PI / 3,
+        opacity:0.8,
+        blur:0
+    });
+//    engine.rain([ [1, 2, 200] ]);
+    engine.trail = engine.TRAIL_SM0E;
+    engine.rain([ [12, 0.005, 0.005],[6, 0.005, 0.015],[1, 0, 10],[1, 0.002, 0.005],[3, 0.002, 0.005] ], 10);
+};
+image.crossOrigin = 'anonymous';
+image.src = 'img/skyback_main.jpg';
 
-        </script>
+
+</script>
         <!-- content -->
         
 

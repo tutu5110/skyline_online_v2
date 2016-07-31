@@ -1,3 +1,149 @@
+/***************	 Skylab 	  ***************/
+/** Keyword: skylab, initialize graph
+/** Desc: keeps track of the real user portfolio.
+
+/*
+	initialize skylab graph
+*/
+function iniSkylabGraph(data,divName,GRAPH_ID){
+	
+   var g = new Dygraph(document.getElementById(divName), data,
+    {
+      drawPoints: false,
+      width: 780,
+      height: 160,
+      showRoller: false,
+      rollPeriod: 14,
+      legend: "always",
+      highlightCircleSize: 5,
+      strokeWidth: 1,
+      labelsDiv: 'g_legend_'+GRAPH_ID,
+  	  colors: ["rgba(51,204,204,0.2)",
+                "rgba(219,132,148,0.2)",
+                "rgba(255,255,255,0.8)",
+                "rgba(255,255,255,0.8)"
+          ],
+      axes : { 
+        x : { drawAxis:true,
+              drawGrid:true,
+              pixelsPerLabel: 15,
+              axisLabelFontSize:10,
+              axisLabelColor:  "rgba(255,255,255,0.3)",
+              gridLineColor: "rgba(255,255,255,0.1)",
+              axisLineColor: "rgba(255,255,255,0.2)"},
+        y : {axisLineWidth : 0.01,
+             drawGrid:false,
+             pixelsPerLabel: 15,
+             axisLabelFontSize:10,
+             axisLabelColor:  "rgba(255,255,255,0.2)"}
+      },
+      'Hedge': {
+          strokePattern:null,
+          strokeWidth: 2,
+          fillGraph: true,
+          drawPoints: false,
+        },
+      'MHedge': {
+          strokePattern: null,
+          strokeWidth: 2,
+          fillGraph: true,
+          drawPoints: false
+      },
+      highlightCallback: function(e) {
+	      	var allSpans = $('#g_legend_99999').find("span");
+			var masterSpan = $('#g_legend_99999');
+	  	 	masterSpan.find(allSpans[1]).css('color','rgb(51,204,204)');
+	   		masterSpan.find(allSpans[3]).css('color','rgb(219,132,148)');
+      	}
+    });
+
+  
+   graphs[GRAPH_ID] = g;
+}
+
+
+/*************** Automate Hedge SYSTEM  ***************/
+/** Keyword: autohedge, automate
+/** Desc: keeps track of the real user portfolio.
+
+/*
+	use this version
+*/
+function automateHedgeN(filename, output){
+  if(filename == undefined || 
+  	 output	  == undefined)
+  	return false;
+
+     var targetStock = '';
+     $.post( "load.php", { filename: filename }).done(function( data ) {
+        var loadedListtmp = JSON.parse(data).split("\n");
+        var len = loadedListtmp.length;
+        var loadedList = new Array();
+        for(var i = 0 ; i < len ; i ++){
+          var _tmp = loadedListtmp[i].split(',');
+          loadedList.push([_tmp[1],_tmp[0]]);
+        }
+
+        for(var i = 0 ; i < loadedList.length; i ++){
+        var stockNames = [loadedList[i][0],targetStock];
+        stockNames = formatStockNames(stockNames);
+        var s = new SKYDataLoader([stockNames[0],stockNames[1]],
+        {"duration":"2y",
+        "div":"realtimeMonitorData",
+        "type": 'automateHedge',
+        "showgraph" :  false,
+        "updateRealtime":false},i); 
+        graphData[i] = s;
+        //need a delayed load!!
+        //graphData[i].load();    
+      }
+        var i = 0;
+        var delayLoading = setInterval(function () {   
+              graphData[i].load();                    
+              i++;    
+              if(i> graphData.length-1) 
+                clearInterval(delayLoading);
+        }, 150)
+    });
+}
+
+/*
+	[OBSOLETE] THIS function is obsolete;
+*/
+function automateHedge(){
+  var filename = 'data/SystemLists/CN_Stocklist.csv';
+     var targetStock = 'chad';
+     $.post( "load.php", { filename: filename }).done(function( data ) {
+        var loadedListtmp = JSON.parse(data).split("\n");
+        var len = loadedListtmp.length;
+        var loadedList = new Array();
+        for(var i = 0 ; i < len ; i ++){
+          var _tmp = loadedListtmp[i].split(',');
+          loadedList.push([_tmp[1],_tmp[0]]);
+        }
+
+        for(var i = 0 ; i < loadedList.length; i ++){
+        var stockNames = [loadedList[i][0],targetStock];
+        stockNames = formatStockNames(stockNames);
+        var s = new SKYDataLoader([stockNames[0],stockNames[1]],
+        {"duration":"2y",
+        "div":"realtimeMonitorData",
+        "type": 'automateHedge',
+        "showgraph" :  false,
+        "updateRealtime":false},i); 
+        graphData[i] = s;
+        //need a delayed load!!
+        //graphData[i].load();    
+      }
+        var i = 0;
+        var delayLoading = setInterval(function () {   
+              graphData[i].load();                    
+              i++;    
+              if(i> graphData.length-1) 
+                clearInterval(delayLoading);
+        }, 150)
+    });
+}
 
 /*************** PORTFOLIO TRACKING SYSTEM  ***************/
 
@@ -38,6 +184,7 @@ function removeEntryFromPortfolio(code){
 			savePortfolio();
 			return true;
 		}
+		return false;
 }
 
 /*
@@ -47,6 +194,94 @@ function addEntryToPortfolio(obj){
 	portfolio['codes'].push(obj.code);
 	portfolio['details'][obj.code] = obj;
 	savePortfolio();
+}
+
+/*
+	update results to portfolio (L3)
+*/
+function updateRealtimePortfolio(code,i){
+    var server = getServer(code);
+    if(myPurchaseListRtmData[code] == undefined)
+        myPurchaseListRtmData[code] = {};
+
+    myPurchaseListRtmData[code]['purchasePrice'] = portfolio['details'][code].cost;
+    myPurchaseListRtmData[code]['nos'] = portfolio['details'][code].nos;
+    myPurchaseListRtmData[code]['profit'] = 0;
+
+    $.get(server, function(data) {
+      if (code.contains('us'))
+            try{              
+              var result = parseUSRealtime(data);
+            } catch(e){
+              smartLog(e.Message);
+            }
+            
+        else if (code.toLowerCase().contains('f_'))
+        // parse CN FUTURE realtime
+            var result = parseFutureRealtime(data);
+        else
+        // parse CN STOCK realtime
+            var result = parseTencentRealtime(data);
+       result['code'] = code;
+       appendToPortfolio(result,myPurchaseListRtmData);
+         // end AJAX
+    });
+}
+
+/*
+	fetch realtime portfolio in group (L1)
+*/
+function fetchRealtimePortfolio(){
+	groupFetchStock(portfolio.codes,'portfolio');
+}
+
+/*
+	fetch realtime portfolio in group (L2)
+*/
+function updateFetchedRealtimePortfolio(){
+	var t = getGroupFetchData('portfolio');
+	for(var i = 0 ; i < t.length ; i ++){
+		t[i]['code'] = formatStockName(t[i]['code'].toLowerCase());
+			var codeData = getPortfolioData(t[i]['code']);
+		if(codeData){
+			var latestBalance = (t[i].price - codeData.cost) * codeData.nos;
+			if(t[i].code.contains('us_'))
+				latestBalance *= 6.5;
+			if(t[i].price == 0)
+				latestBalance = 0;
+			//continue here tomorrow to fixs the loaded stats format difference problem
+
+			portfolio['stats']['totalBalanceRaw'].push(latestBalance);
+			var pf_balance = $('#pf_balance_'+t[i]['code']);
+			pf_balance.html(latestBalance.toFixed(0));
+			pf_balance.effect("highlight", {}, 1200);
+
+		} else {
+			// could not find 
+		}
+	}
+
+	// check if totalbalance is ready
+	if(portfolio['stats']['totalBalanceRaw'].length == getPortfolioLength())
+		updatePortfolioBalance(sum(portfolio['stats']['totalBalanceRaw']));
+	//pf_balance_us_chad
+}
+
+function updatePortfolioBalance(balance){
+	var div= $('#pf_overall_balance');
+	div.html(balance.toFixed(1));
+	div.effect("highlight", {}, 1200);
+	// reset
+	portfolio['stats']['totalBalanceRaw'] = new Array();
+	smartLog('System updated at: '+getFullYMDH(),'alarm');
+}
+
+function getPortfolioLength(){
+	return portfolio['codes'].length;
+}
+
+function getPortfolioData(code){
+	return portfolio['details'][code];
 }
 
 /*
@@ -255,7 +490,21 @@ function saveGroupAlarm(obj,key){
 }
 
 /*
+	get the latest single group alarm realtime data 
+*/
+function getGroupFetchData(key){
+	return gAlarm['realtimeAlarms']['Results'][key];
+}
+
+/*
+	get the latest single group alarm realtime data 
+*/
+function getGroupFetchDataFullHistory(key){
+	return gAlarm['realtimeHistoryAlarms']['Results'][key];
+}
+/*
 	Combines multiple similar request into one and fetch as a cluster
+	input: codes = string array, e.g [stockcode1, stockcode2, stockcode3]
 */
 function groupFetchStock(codes,key){
 	//filter and regroup codes, prepare for different type
@@ -341,7 +590,7 @@ function fetchRealtimeN(code,param){
 */
 function fetchGroupRealtimeN(codes,key){
 	// deal with Japan speciall case, since japanese stock are not based on JSON
-	fetchGroupRealtimeN_JPONLY(codes);
+	if(fetchGroupRealtimeN_JPONLY(codes)) return true;
 
 	codes = codes.flatten();
 
@@ -356,20 +605,21 @@ function fetchGroupRealtimeN(codes,key){
         // parse CN FUTURE realtime
             //var result = parseFutureRealtime(data);
             console.log("future group load not supported yet");
-        else if(codes.contains('jp'))
-        	var result = parseJPGroupRealtime(data);
         else
         // parse CN Group using Tencent API in realtime
             var result = parseCNGroupRealtime(data);
 
         // continue here
-        if(saveGroupAlarm(result,key.type))
+        if(saveGroupAlarm(result,key.type)){
          	if(key.type == "marketWatch"){
          		execMarketWatch();
+         	}else if(key.type =="portfolio"){
+         		updateFetchedRealtimePortfolio();
+         	}
          }
 
-         if(coolDownReady(gAlarm['AlarmCountDowns']['c11s']))
-         	smartLog('System updated at: '+getFullYMDH(),'alarm');
+         
+         	
     });
 
 }
@@ -437,6 +687,10 @@ function parseJPRealtime(data){
 	Parsing US stock realtime data
 */
 function parseUSRealtime(data){
+	//check already json type
+	if(data.price != undefined && data.priceIncrement != undefined && data.name != undefined)
+		return data;
+	// parse if not
 	try{
 	   	  data = JSON.parse(data);
 	  	  var result = {};
@@ -567,6 +821,14 @@ function parseUSGroupRealtime(raw){
 		t['Volume'] = 1;
 		t['lastUpdate'] = getTimestamp();
 		obj.push(t);
+
+		// make exception for chad
+		if(t['code'].toLowerCase().contains('chad'))
+			saveRtmCache('us_chad',t,300);
+		else
+			saveRtmCache(t['code'],t,30);
+		
+
 	}
 	return obj;
  }
@@ -582,6 +844,8 @@ auto determine actions such as : buy, sell, hold, increase, attention...etc
 
 /*
 	user event to turn on/off alarm system
+	alarm toggle
+	alarmswitch
 */
 function switchAlarms(){
 	gAlarmOn = (gAlarmOn == true) ? false : true;
@@ -601,7 +865,7 @@ function alarms(){
 
 	ckOnline();
 	if(gAlarmOn)
-		var t = window.setTimeout(alarms,5000);
+		var t = window.setTimeout(alarms,15000);
 	// load alarms for custom stock pairs, update every 30 minuts
 	if(coolDownReady(gAlarm['AlarmCountDowns']['c1800s'])){
 		var filename = 'data/Statistics/custom.csv';
@@ -616,16 +880,23 @@ function alarms(){
 	    });
 	}
 
-	if(coolDownReady(gAlarm['AlarmCountDowns']['c10s'])){
+	if(coolDownReady(gAlarm['AlarmCountDowns']['c11s'])){
 		
 		// load custom hedge pairs, load default system tracking stocks, including online and offline ones
 		loadAlarms();
 		// check all loaded alarms
 		exeAlarms();
-
-      	loadMarketWatch();
-
 	}
+
+	if(coolDownReady(gAlarm['AlarmCountDowns']['c60s'])){
+
+	loadMarketWatch();
+
+  	fetchRealtimePortfolio();
+
+  	}
+
+
 }
 
 /*
@@ -1003,6 +1274,12 @@ function trackListDone(tid){
 	saveTrackList();
 }
 
+/*
+	remove from tracklist 
+*/
+function formatTracklistPrice(val,type){
+	return (type == 1) ?  ('$'+ val) : (val + '%');
+}
 /*
 	get total length of current tracklist
 */
@@ -1707,6 +1984,20 @@ function ckcmd(cmdraw){
 		else
 			smartLog("No Duplicates: "+ codes + " already added");
 		break;
+
+		// command to deal with tracklist
+		case 'tracklist':
+			if(param.length != 2)
+				return returnLog('tracklist require 2 inputs, check -help for details');
+			if(param[1].toLowerCase() == 'show'){
+				var codes = gAlarm['alarmTrackList']['main'];
+				smartLog('Showing trackList Details: ...');
+				for(var i = 0 ; i < codes.length; i ++)
+				smartLog(codes[i].code + codes[i].condition + formatTracklistPrice(codes[i].priceOrNumber, codes[i].alarmType));
+			}
+			
+		break;
+
 		// command to deal with tracklist
 		case 'track':
 		if(param.length ==2){
@@ -1799,6 +2090,7 @@ function ckcmd(cmdraw){
 			smartLog(" -filter minSkewness maxStandardDeviation");
 			smartLog(" -marketwatch stock1");
 			smartLog(" -pf stockcode purchasePrice nos");
+			smartLog(" -comp stock1 stock2");
 		break;
 
 		case 'pf':
@@ -1824,6 +2116,12 @@ function ckcmd(cmdraw){
 			}
 
 
+		break;
+
+		case 'comp':
+			if(param.length != 3)
+				return returnLog("to compare two stocks you need at least two input, check help for details");
+			updateSkyLab([param[1],param[2]]);
 		break;
 
 		case 'marketwatch':
@@ -1998,6 +2296,59 @@ function getDHMInChina() {
 }
 
 /*
+	getCurrentTimeInChina()
+*/
+function getHourChina(){
+	var d = new Date();
+    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
+    var nd = new Date(utc + (3600000 * 16));
+    return nd.getHours();
+}
+
+/*
+	getCurrentTimeInChina()
+*/
+function getMinutesChina(){
+	var d = new Date();
+    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
+    var nd = new Date(utc + (3600000 * 16));
+    return nd.getMinutes();
+}
+
+/*
+	get current day number in the week
+	0 = sunday
+	1 = monday
+*/
+function isWeekendChina(){
+	var d = getDayInWeek();
+	return (d != 0 && d!= 1) ? false : true;
+}
+
+/*
+	get current day number in the week
+	0 = sunday
+	1 = monday
+*/
+function isWeekend(){
+	var d = new Date();
+	var day = d.getDay();
+	return (day != 0 && day != 1) ? false : true;
+}
+
+/*
+	get current day number in the week
+	0 = sunday
+	1 = monday
+*/
+function getDayInWeek(){
+	var d = new Date();
+    var utc = d.getTime() - (d.getTimezoneOffset() * 60000);
+    var nd = new Date(utc + (3600000 * 16));
+    return nd.getDay();
+}
+
+/*
 	PRIVATE
 	get mm/dd/yyyy in local china time
 */
@@ -2018,6 +2369,7 @@ function getTimeDifferenceInDays(targetTime){
 	var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
 	return diffDays;
 }
+
 
 
 /*********** Portfolio ******/

@@ -1,7 +1,14 @@
-<div class="skylabMain_stockname"id="graphHolder_this.graphID">#stocknames#</div>
-<div class="skylabMain_g_legend" id="g_legend_this.graphID">123</div>
-<div class="skylabMain" id="graph_this.graphID">
-
+<div id="skylabTopNav">
+	<div class="skylabMain_stockname" id="graphHolder_this.graphID">#stocknames#</div>
+	<div id = "skylabControls"><input class='panelTransparentButtonSmall  lessGrey' type='button' value='-' onclick='removetoCustomQue("this._code")'>
+	<input class='panelTransparentButtonSmall  lessGrey' type='button' value='+' onclick='addtoCustomQue("this._code");'>
+		<input class='panelTransparentButtonSmall lessGrey' type='button' value='all' onclick='reHedge("this.graphID","all")'>
+		<input class='panelTransparentButtonSmall lessGrey' type='button' value='y' onclick='reHedge("this.graphID","y")'>
+		<input class='panelTransparentButtonSmall lessGrey' type='button' value='6m' onclick='reHedge("this.graphID","6m")'>
+		<input class='panelTransparentButtonSmall lessGrey' type='button' value='3m' onclick='reHedge("this.graphID","3m");'>
+	</div>
 </div>
+<div class="skylabMain_g_legend" id="g_legend_this.graphID">1253</div>
+<div class="skylabMain" id="graph_this.graphID"></div>
 <div class="skylabGDetail" id="g_detail_this.graphID">#stat#</div>
 <div id="g_label_this.graphID">123</div>

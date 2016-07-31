@@ -25,6 +25,10 @@ button:focus {
 img{ padding:0;
     margin: 0;}
 
+#skylineLabBackground{
+  position: absolute;;
+  z-index: 0;
+}
 .red{
   color: #F5055D;
 }
@@ -55,7 +59,7 @@ html{
 }
 .pf_list_big{
   font-family: Helvetica_Light, Microsoft JhengHei;
-  font-size: 32pt;
+  font-size: 14pt;
 }
 
 .pf_list_big a:link{
@@ -82,7 +86,7 @@ html{
 }
 
 .pf_list{
-  margin: 0 0 20pt 0 ;
+  margin: 0 0 8pt 0 ;
   display: inline-block;
   position: relative;
 }
@@ -97,18 +101,22 @@ html{
 }
 
 .pf_sum{
-  font-size: 24pt;
+  font-size: 9pt;
   margin: 0 0 20pt 0;
+  line-height: 6pt;
+}
+
+#pf_overall_balance{
+  display: inline-block;
 }
 
 #pf_realtimeAlarmMaster{
-  font-size: 14pt;
-  line-height: 25pt;
+  font-size: 9pt;
+  line-height: 18pt;
   font-weight: bold;
 }
 
 #pf_tracklist{
-  font-size: 14pt;
 }
 
 #tracklistnum{
@@ -123,26 +131,28 @@ html{
 
 .stockHolder{
     display: inline-block;
-    padding: 20px;
+    padding: 20px 10px 2px 10px;
     background-color: #26282f;
     opacity: 0.65;
-    margin: 0 0 35pt 60pt;
+    margin: 0 0 11pt 30pt;
     z-index: 1;
+    font-size: 12pt;
 }
 
 #rtmHeader{
     background-image: url('../img/rtmheader.png');
     background-repeat: no-repeat;
     width: 100%;
-    height: 93px;
-    margin: 30px 0 0 37pt;
+    height: 80px;
+    margin: -15px 0 0 35pt;
+    background-size: 202pt 45pt;
 }
 
 #rtmHeader #headerCommands{
     color: #fff;
-    width: 500pt;
-    height: 100px;
-    margin: 0 100pt 0 0;
+    width: 400pt;
+    height: 50pt;
+    margin: 0 60pt 0 0;
     float: right;
 
 }
@@ -163,7 +173,8 @@ html{
  }
 
 #realtimeMonitorData {
-   margin: 45pt 0 0 0 ;
+   margin: -1pt 0 0 0 ;
+   padding:  0 0 0 6pt;
 
  }
 
@@ -175,28 +186,28 @@ html{
  }
 
 .skyFooter #ft_Time{
-    float:left;
-    margin: 30px 0 0 70pt;
-    font-size: 16pt;
+    float: left;
+    margin: 42px 0 0 58pt;
+    font-size: 8pt;
     color: #fbd4d0;
     letter-spacing: 2pt;
 }
 
 .skyFooter #ft_cnTime{
-    float:left;
-    margin: 30px 0 0 210pt;
-    font-size: 16pt;
+    float: left;
+    margin: 42px 0 0 104pt;
+    font-size: 8pt;
     color: #fbd4d0;
     letter-spacing: 2pt;
 }
 
 .stockHolderfonts{
-    font-size: 14px;
+    font-size: 10px;
     color: #fff3c9;
     line-height: 15px;
     padding: 0 0 10px 10px;
     height: 25px;
-    margin: 0 0 -10px 0;
+    margin: -5px 0 -20px 0;
 }
 
 .stockHolderfonts img{
@@ -215,9 +226,9 @@ html{
 .loading{
     background-image: url('../img/loading.gif');
     background-repeat: no-repeat;
-    width: 490px;
-    height: 320px;
-    margin: -270px 0 0 -20px;
+    width: 300px;
+    height: 283px;
+    margin: -110px 0 0 -10px;
     background-size: 100%;
     background-position: 0px -50px;
     opacity: .6;
@@ -246,14 +257,14 @@ div.dygraph-legend{ background-color: #000; }
 }
 
 #skylineLab {
-    width: 100px;
-    height: 100px;
+    width: 1440px;
+    height: 800px;
     float: left;
-    background-image: url('../img/skyback_main.jpg');
     background-size: cover;
     border: none;
     margin:0;
-    padding: 15px;
+    padding: 0
+    padding-right: 0px;
     padding-top: 40px;
     background-color: rgb(0,0,0);
 }
@@ -262,39 +273,62 @@ div.dygraph-legend{ background-color: #000; }
     float: left;
     border: none;
     margin:0;
-    padding: 50px 0 0 50px;
+    padding: 25pt 0 0 25pt;
     background-color: rgb(0,0,0);
 }
 
 .mainbutton{
-  margin: 10pt 10pt 0 0 ;
-  width: 140pt;
-  height: 60pt;
-  font-size: 16pt;
+  margin: 14pt 4pt 0 0;
+  width: 100pt;
+  height: 160pt;
+  font-size: 10pt;
 }
+
+#skylabTopNav{
+  text-align: left;
+  position: absolute;
+  z-index: 1;
+}
+
+#skylabTopNav div{
+  display: inline-block;
+}
+
+#skylabControls{
+  text-align: left;
+  margin: 0 0 0 20pt;
+}
+
 #logoLeft{
     background-image: url('../img/skylab.png');
-    width: 451px;
-    height: 91px;
+    width: 200pt;
+    height: 41pt;
     background-repeat: no-repeat;
     float: left;
     position: absolute;
-    margin: 10px 0 0 55px;
+    margin: 5pt 0 0 16pt;
+    background-size: 200pt 40pt;
+    z-index: 1;
 }
 
 #logoRight{
     background-image: url('../img/skylogo.png?123');
-    width: 152px;
-    height: 425px;
+    width: 76pt;
+    height: 212pt;
+    background-size: 76pt 212pt;
+    position: relative; 
     float: right;
-    margin: 20px 75pt 0 0 ;
+    margin: -14px 35pt 0 0;
+    z-index: 2;
 }
 #mainGraphHolder_blur{
-     width: 1690px;
-     height: 682px;
-     zoom:0.8;
+     width: 620pt;
+     height: 250pt;
      margin: 0 auto 0 auto;
      background-image: url('../img/maingraphBack.png?id=112112');
+     background-size: 620pt 250pt;
+     position: relative;
+     z-index: 1;
 }
 
 #mainGraphHolder{
@@ -310,25 +344,28 @@ div.dygraph-legend{ background-color: #000; }
     margin: 0 auto 0 auto;
 
 }
+#rainDay{
+  opacity: 0;
+}
 
 #info{
-     width: 85%;
-    height: 220px;
-    zoom:0.8;
-    margin: 20pt auto 0 auto;
-    
+     width: 72%;
+    height: 100px;
+    margin: 15pt 0 0 245pt;
+    position: relative;
+    z-index: 2;
 }
 
 .infoPanel{
-    width: 25%;
+    width: 24%;
     height: 220px;
     float: left;
     text-align: left;
-    font-size: 22px;
+    font-size: 8pt;
     font-family: Helvetica_Light;
     letter-spacing: 2px;
     color: rgba(255,255,255,0.7);
-    padding: 20px 0 0 135px;
+    padding: 0px 0 0px 12pt;
 }
 
 #infoSub1{
@@ -346,42 +383,43 @@ div.dygraph-legend{ background-color: #000; }
 
 .chartDetails{
     font-size: 12px;
-    width: 450px;
-    height: 120px;
+    height: 101px;
     padding: 0;
-    margin:15px 0;
+    margin: 5px 0 0 0;
 }
 .chartInfo{
     float: left;
-    width: 150px;
+    width: 100px;
     height: 100px;
     margin: 0;
     padding:0;
     color:#96bfcd;
-    line-height: 20px;
+    line-height: 18px;
+    font-size: 10px;
 }
 .chartDonnut{
-    
     float: left;
-    width: 220px;
+    width: 105px;
     height: 100px;
-    margin: 0;
+    margin: 0 0 0 5px;
     padding: 0;
 }
 .statsInfo{
-  width: 240px;
-  line-height: 24px;
+  width: 175px;
+  line-height: 22px;
+  margin: 0 0 0 10px;
 }
 .chartDonnut .chartDonnutLabel{
     font-family: Helvetica_Light;
     letter-spacing: 1px;
     position: absolute;
-    width: 70px;
+    width: 54px;
     height: 25px;
-    font-size: 22px;
-    color:#ffabad;
-    margin: 41px 0 0 39px;
+    font-size: 14px;
+    color: #ffabad;
+    margin: 32px -1px 0 28px;
     text-align: center;
+
 }
 .chartSymbol{
     padding: 7px 0px 0px 0px;
@@ -389,10 +427,10 @@ div.dygraph-legend{ background-color: #000; }
 }
 .chartDonnutTitle{
     color: #7ea4b1;
-    font-size: 12px;
-    margin: 0 0 18px 0;
+    font-size: 10px;
+    margin: 0 0 2px 10px;
     padding: 0;
-    line-height: 20px;
+    line-height: 18px;
 }
 
 .chartlegend{
@@ -410,7 +448,7 @@ div.dygraph-legend{ background-color: #000; }
 }
 
 .chartPriceClass{
-    margin: 0 0 10px 0;
+    margin: 0 0 5px 10px;
 }
 .legend_label_color_0{
     color:rgb(51,204,204);
@@ -430,25 +468,30 @@ div.dygraph-legend{ background-color: #000; }
 
 .addSelections{
     float: right;
-    margin: -6pt -35pt 0 0 ;
+    margin: -6pt -26pt 0 0 ;
     color:rgb(51,204,204);
 }
 .removeSelections{
     float: right;
-    margin: -6pt 55pt 0 0 ;
+    margin: -6pt 42pt 0 0 ;
     color:rgb(51,204,204);
+}
+
+.lessGrey{
+  color:rgb(80,80,80);
 }
 
 .period{
   float: right;
-  margin: -6pt 10pt 0 0;
+  margin: -6pt 3pt 0 0;
   color:rgb(51,204,204);
 }
+
 .panelTransparentButtonSmall{
     background:none;
     border: none;
     cursor: pointer;
-    font-size: 12pt;
+    font-size: 10px;
     padding: 5px;
 }
 
@@ -478,6 +521,7 @@ div.dygraph-legend{ background-color: #000; }
     width: 200pt;
     margin: -11pt 0 0 -57pt;
 }
+
 .biggerClass{
     position: absolute;
     width: 340pt;
@@ -493,23 +537,24 @@ div.dygraph-legend{ background-color: #000; }
     display: none;
 }
 .skylabMain{
-    margin: 0 0 0 25pt;
-    padding: 70pt 0 0 0;
+    margin: 0 0 0 15pt;
+    padding: 44pt 0 0 0;
+    position: absolute;
 }
 .skylabMain_g_legend{
     color: #000;
-    margin: 15pt 15pt 0 0;
+    font-size: 8pt;
+    margin: 14pt 12pt 0 0;
     background-color: rgba(255,255,255,0.1);
-    padding: 15pt;
+    padding: 4pt 16pt 5pt 12pt;
     border-radius:5pt;   
     color: rgba(255,255,255,1);
     float: right;
 }
 .skylabMain_stockname{
-    float: left;
     text-shadow: 1px 1px 1px #4d4d4d;
-    margin: 22pt 0 0 28pt;
-    font-size: 22px;
+    margin: 15pt 0 0 16pt;
+    font-size: 9pt;
     font: Helvetica_Light;
     color: rgba(255,255,255,1);
 }
@@ -522,7 +567,7 @@ div.dygraph-legend{ background-color: #000; }
 /* portfolio page */
 .portfolioMain{
   color: #fff;
-  font-size: 18pt;
+  font-size: 8pt;
   
 }
 
@@ -573,16 +618,17 @@ div.dygraph-legend{ background-color: #000; }
   z-index: 5;
   background:none;
   color:rgb(200,200,200);
-  margin: 285pt 0 0 30pt;
+  margin: 206pt 0 0 19pt;
   border: none;
 }
 #realtimeConsole #content{
   position: absolute;
-  margin: 30pt 0 30pt 30pt ;
-  height: 260pt;
-  width: 680pt;
+  margin: 30pt 0 30pt 30pt;
+  height: 170pt;
+  width: 400pt;
   overflow-x: hidden;
   overflow-y: visible;
+  font-size: 9pt;
 }
 #realtimeConsole #cbutton{
   z-index: 6;
@@ -603,8 +649,8 @@ cursor: pointer;
   border-radius: 25px;
   z-index: 5;
   background-color: #000;
-  width: 855pt;
-  height: 330pt;
+  width: 500pt;
+  height: 250pt;
   margin: 0pt 0 0 20pt;
   opacity: 0.7;
   color: rgb(207,239,250);
@@ -612,16 +658,17 @@ cursor: pointer;
 /* alarm **************/
 #alarmMaster{
   width: 98%;
-  height: 500pt;
   /*background-color: rgb(222,12,2);*/
 }
 #alarmsDetails{
   padding: 10pt 0 0 10pt;
   background-image: url('../img/leather4.jpg');
-  line-height: 17pt;
+  line-height: 8.5pt;
+  font-size: 9pt;
   float: left;
   width: 48%;
-  height: 500pt;
+  height: 250pt;
+  background-size: auto 250pt;
   overflow-x: hidden;
   overflow-y: visible;
 }
@@ -631,7 +678,9 @@ cursor: pointer;
   background-size: 0.1;
   float: left;
   width: 48%;
-  height: 500pt;
+  font-size: 9pt;
+  height: 250pt;
+  background-size: auto 250pt;
   overflow-x: hidden;
   overflow-y: visible;
 }
@@ -643,16 +692,16 @@ cursor: pointer;
 .alarm_on{
   background-color: rgb(32,250,148);
   box-shadow:
-        0 0 35px 5px #0ff; /* outer cyan */
+  0 0 35px 5px #0ff; /* outer cyan */
   
 }
 #alarm_light{
   display: none;
   position: absolute;
-  width: 135pt;
+  width: 98pt;
   height: 1pt;
   background-color: none;
-  margin: 8px 0 0 772pt;
+  margin: -2pt 0 0 539pt;
 }
 ul {
   text-align: left;
@@ -665,7 +714,7 @@ ul {
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);*/
 }
 ul li {
-  font: 18pt/18pt Helvetica_Light;
+  font: 12pt/12pt Helvetica_Light;
   letter-spacing: 1pt;
   display: inline-block;
   margin-right: -4px;
@@ -689,7 +738,7 @@ ul li ul {
   position: absolute;
   top: 48px;
   left: 0;
-  width: 200pt;
+  width: 150pt;
    -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
@@ -707,7 +756,7 @@ ul li ul li {
   display: block; 
   color: #fff;
   height: 30pt;
-  padding: 20pt 0 10pt 10pt;
+  padding: 20pt 0 0pt 10pt;
    text-shadow: 0 -1px 0 #000;
 }
 ul li ul li:hover { background: #666; }

@@ -13,6 +13,7 @@ class SKYDataLoader {
     this.cnStockReady = false;
     this.usStockContent = [];
     this.cnStockContent = [];
+    this.updateOnly = params['updateOnly'];
     this.consoleUpdateMode = params['consoleUpdateMode'];
     this.realtimeDataCache = {};
     this.realtimeDataCache['data'] = Array();
@@ -84,8 +85,10 @@ class SKYDataLoader {
                 gdata = gdata.replaceAll('this.graphID',this.graphID).replaceAll('this._code',this._code);
                 
                 $('#'+this.graphDiv).append(gdata);
-                 var data = "T,C,T\nJan/01/2016,0.1,0.1";
-                 inigraph(data,currentGraphDiv,this.graphID);
+                if(!this.updateOnly){
+                var data = "T,C,T\nJan/01/2016,0.1,0.1";
+                iniSkylabGraph(data,currentGraphDiv,this.graphID);
+                }
              }
 
              // create graph
@@ -117,6 +120,8 @@ class SKYDataLoader {
         var isCodeString = code instanceof String;
         if (!isCodeString) {
             var sortedCode = this.catagorizeCode(code);
+            // reset data before load???
+            loadedResults[this.graphID] = {};
             this.loadData(sortedCode);
         } 
     }
