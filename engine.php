@@ -18,13 +18,15 @@ if(floatval(strpos($cadd,'co.jp')) == 0)
 	$result = iconv("gbk","utf-8",$result);
 else {
 	// japan stocks
-	
-	
+
+
 	$code = get_string_between($cadd,'code=','.T');
 
 	$name = get_string_between($result,'symbol">','</th>');
+
 	$name = get_string_between($name,'h1>','<');
 	// extract price
+
 	$price = get_string_between($result,'class="stoksPrice">','<');
 	//	extract price and percent
 	$change = get_string_between($result,'<td class="change">','</td>');
@@ -42,7 +44,7 @@ else {
 
 	$percentdiff = floatval($change[1]);
 	// sanitation check
-	$result = $name.','.$code.','.$price.','.$pricediff.','.$percentdiff;
+	$result = $name.'#tu#'.$code.'#tu#'.$price.'#tu#'.$pricediff.'#tu#'.$percentdiff;
 
 }
 echo $result;
@@ -83,7 +85,7 @@ function getYahoo($symbol){
 
 function toFixed($num){
 	//if($num > 0 )
-		//return '+'.number_format($num,2,'.',','); 
+		//return '+'.number_format($num,2,'.',',');
 	return number_format($num,2,'.',',');
 }
 

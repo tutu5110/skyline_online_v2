@@ -1,13 +1,13 @@
 /*************** UTILITY FUNCTIONS  ***************/
 
-/** Keyword: UTILITY, log, 
-/** Desc: general data extraction, logging, 
+/** Keyword: UTILITY, log,
+/** Desc: general data extraction, logging,
 
 /*
   this function logs for realtime
 */
 function sklog(msg){
-  
+
   //console
   console.log(msg);
 
@@ -148,7 +148,7 @@ function formatStockName(name, short){
     smartLog('undefined name found! please check in formatStockName()');
 
   short = short || false;
-  if(!name.contains('us_') && !name.contains('sh') && 
+  if(!name.contains('us_') && !name.contains('sh') &&
       !name.contains('sz') && !name.contains('jj') && !name.contains('jp') && !name.contains('hk')){
         if(name.toLowerCase().beginWith('0') ||
            name.toLowerCase().beginWith('3') ||
@@ -167,10 +167,10 @@ function formatStockName(name, short){
             name = 'jj'+name;
         else if(!isFinite(name))
             name = 'us_'+name;
-        else 
+        else
             name = name;
      } else {
-      
+
       if(name.contains('sh') || name.contains('sz'))
         return (short ? CNSTOCK_SHORT_PREFIX + name : name);
       else if(name.contains('jj') || name.contains('us'))
@@ -190,13 +190,13 @@ function getStockPriceFormat(num){
     return "<font class='AlarmGreen'>"+num+"</font>";
   else if(num > 0)
     return "<font class='AlarmRed'>"+num+"</font>";
-  else 
+  else
     return num;
 }
 
 function catagorize(codes){
 	var obj = {};
-	// seperate 
+	// seperate
 	if(codes.constructor !== Array)
 		var _codes = codes.split(",");
 	else
@@ -221,7 +221,7 @@ function sum(nums){
 */
 
 function getCodeType(code){
-	if(!code.contains('us_') && !code.contains('sh') && 
+	if(!code.contains('us_') && !code.contains('sh') &&
       !code.contains('sz') && !code.contains('jj') && !code.contains('jp')){
         if(code.toLowerCase().beginWith('0') ||
            code.toLowerCase().beginWith('3') ||
@@ -240,7 +240,7 @@ function getCodeType(code){
             return 'CN_FUND';
         else if(!isFinite(code))
             return 'US_YAHOO';
-        else 
+        else
             return 'UNDEFINED';
     } else {
       if(code.contains('us_'))

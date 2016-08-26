@@ -6,7 +6,7 @@
 	initialize skylab graph
 */
 function iniSkylabGraph(data,divName,GRAPH_ID){
-	
+
    var g = new Dygraph(document.getElementById(divName), data,
     {
       drawPoints: false,
@@ -23,7 +23,7 @@ function iniSkylabGraph(data,divName,GRAPH_ID){
                 "rgba(255,255,255,0.8)",
                 "rgba(255,255,255,0.8)"
           ],
-      axes : { 
+      axes : {
         x : { drawAxis:true,
               drawGrid:true,
               pixelsPerLabel: 15,
@@ -57,7 +57,7 @@ function iniSkylabGraph(data,divName,GRAPH_ID){
       	}
     });
 
-  
+
    graphs[GRAPH_ID] = g;
 }
 
@@ -70,7 +70,7 @@ function iniSkylabGraph(data,divName,GRAPH_ID){
 	use this version
 */
 function automateHedgeN(filename, output){
-  if(filename == undefined || 
+  if(filename == undefined ||
   	 output	  == undefined)
   	return false;
 
@@ -92,16 +92,16 @@ function automateHedgeN(filename, output){
         "div":"realtimeMonitorData",
         "type": 'automateHedge',
         "showgraph" :  false,
-        "updateRealtime":false},i); 
+        "updateRealtime":false},i);
         graphData[i] = s;
         //need a delayed load!!
-        //graphData[i].load();    
+        //graphData[i].load();
       }
         var i = 0;
-        var delayLoading = setInterval(function () {   
-              graphData[i].load();                    
-              i++;    
-              if(i> graphData.length-1) 
+        var delayLoading = setInterval(function () {
+              graphData[i].load();
+              i++;
+              if(i> graphData.length-1)
                 clearInterval(delayLoading);
         }, 150)
     });
@@ -130,16 +130,16 @@ function automateHedge(){
         "div":"realtimeMonitorData",
         "type": 'automateHedge',
         "showgraph" :  false,
-        "updateRealtime":false},i); 
+        "updateRealtime":false},i);
         graphData[i] = s;
         //need a delayed load!!
-        //graphData[i].load();    
+        //graphData[i].load();
       }
         var i = 0;
-        var delayLoading = setInterval(function () {   
-              graphData[i].load();                    
-              i++;    
-              if(i> graphData.length-1) 
+        var delayLoading = setInterval(function () {
+              graphData[i].load();
+              i++;
+              if(i> graphData.length-1)
                 clearInterval(delayLoading);
         }, 150)
     });
@@ -212,12 +212,12 @@ function updateRealtimePortfolio(code,i){
 
     $.get(server, function(data) {
       if (code.contains('us'))
-            try{              
+            try{
               var result = parseUSRealtime(data);
             } catch(e){
               smartLog(e.Message);
             }
-            
+
         else if (code.toLowerCase().contains('f_'))
         // parse CN FUTURE realtime
             var result = parseFutureRealtime(data);
@@ -259,7 +259,7 @@ function updateFetchedRealtimePortfolio(){
 			pf_balance.effect("highlight", {}, 1200);
 
 		} else {
-			// could not find 
+			// could not find
 		}
 	}
 
@@ -315,7 +315,7 @@ function appendToPortfolio(result, rtmData){
     myPurchaseListMetaData['loadingComplete']++;
     myPurchaseListMetaData['totalgain']+= parseFloat(profit);
     myPurchaseListMetaData['sumBeginning'] += sumBeginning;
-    
+
     var str = htmlTemplate['pf_template_list'];
     str = str.replaceAll('#code#',code).
     replace('#name#',name).
@@ -328,7 +328,7 @@ function appendToPortfolio(result, rtmData){
     replace('#initialValue#',sumBeginning).
     replace('#currentValue#',sumCurrent);
     $('#myPf_1').append(str);
-    //color code 
+    //color code
     colorCode("#pf_balance_"+code,profit);
     colorCode("#pf_percent_"+code,parseFloat(percentSince));
 
@@ -409,11 +409,11 @@ function saveRtmCache(code, data, expire){
   loadedRtmResultsCache[code]['data'] = data;
   loadedRtmResultsCache[code]['expire'] = expire;
   return true;
-  
+
 }
 
 /*
-	get data from cache fetch from remote server 
+	get data from cache fetch from remote server
 */
 function getRtmCache(code){
   if(loadedRtmResultsCache[code] == undefined || loadedRtmResultsCache[code]['timestamp'] == undefined)
@@ -492,14 +492,14 @@ function saveGroupAlarm(obj,key){
 }
 
 /*
-	get the latest single group alarm realtime data 
+	get the latest single group alarm realtime data
 */
 function getGroupFetchData(key){
 	return gAlarm['realtimeAlarms']['Results'][key];
 }
 
 /*
-	get the latest single group alarm realtime data 
+	get the latest single group alarm realtime data
 */
 function getGroupFetchDataFullHistory(key){
 	return gAlarm['realtimeHistoryAlarms']['Results'][key];
@@ -515,7 +515,7 @@ function groupFetchStock(codes,key){
 	var param = {'groupFetch':  true,
 				 'type' : key};
 	for(key in groupedCodes){
-		fetchGroupRealtimeN(groupedCodes[key], param);	
+		fetchGroupRealtimeN(groupedCodes[key], param);
 	}
 }
 
@@ -537,12 +537,12 @@ function fetchRealtimeN(code,param){
     //check realtime cache
     var rtmResult = getRtmCache(code);
     if(rtmResult){
-    	
+
         data = rtmResult;
-       
+
         var result = parseRealtimeN(data,code);
 
-        param.result = result;  
+        param.result = result;
         param.code = code;
         param.name = result.name;
 
@@ -553,7 +553,7 @@ function fetchRealtimeN(code,param){
     		// dosomething here tomorrow for tracklist
     		updateTrackListRtmResults(param.tid,result);
     		trackListAlarmExec(param);
-    	} 
+    	}
        return;
     }
 	  // no realtime cache found begin AJAX
@@ -622,8 +622,8 @@ function fetchGroupRealtimeN(codes,key){
          	}
          }
 
-         
-         	
+
+
     });
 
 }
@@ -669,11 +669,11 @@ function parseRealtimeN(data,code){
 	Parsing japanese stock realtime data
 */
 function parseJPRealtime(data){
-	
+
 	if(data == "")
 		return false;
 
-	var r = data.split(',');
+	var r = data.split('#tu#');
 
 	var obj = {};
 	obj['name'] = r[0];
@@ -683,7 +683,7 @@ function parseJPRealtime(data){
 	obj['priceIncrement'] = r[3];
 	obj['percent'] = r[4];
 	obj['volume'] = 1;
-	
+
 	return obj;
 }
 
@@ -793,7 +793,7 @@ function parseJPGroupRealtime(data){
 	obj['priceIncrement'] = chg_price;
 	obj['chg_percent'] = chg_percent;
 	obj['volume'] = 1;
-	
+
 	final.push(obj);
 	return final;
 }
@@ -831,7 +831,7 @@ function parseUSGroupRealtime(raw){
 			saveRtmCache('us_chad',t,300);
 		else
 			saveRtmCache(t['code'],t,30);
-		
+
 
 	}
 	return obj;
@@ -885,7 +885,7 @@ function alarms(){
 	}
 
 	if(coolDownReady(gAlarm['AlarmCountDowns']['c11s'])){
-		
+
 		// load custom hedge pairs, load default system tracking stocks, including online and offline ones
 		loadAlarms();
 		// check all loaded alarms
@@ -922,7 +922,7 @@ function loadAlarms(){
 	main Alarm Executor
 */
 function exeAlarms(){
-	/** check realtime alarm for 
+	/** check realtime alarm for
 	absolute raise above 3%
 	absolute raise above 5%
 	relative stregth
@@ -939,7 +939,7 @@ function exeAlarms(){
 	ckrealtimeHistoryAlarm();
 
 	/** check realtime user conditons,
-	track certain stocks for target price or percent, 
+	track certain stocks for target price or percent,
 	for example, stock trading at $15.4 / share, user could track
 	A. when drop below $14 per share
 	B. when drop below 2.5% of todays increment
@@ -963,7 +963,7 @@ function exeAlarms(){
 function prepareCusAlarmParameters(){
 	// fetch all stocks in custom.csv
 	$.post( "load.php", { filename: "data/Statistics/custom.csv" }).done(function( data ) {
-        
+
         //reset data holders
         resetGraphdata();
 		resetLoadedResults();
@@ -990,21 +990,21 @@ function prepareCusAlarmParameters(){
 	        "type": 'automateHedge',
 	        "showgraph" :  false,
 	        'consoleUpdateMode': 'alarmlog',
-	        "updateRealtime":false},i); 
+	        "updateRealtime":false},i);
 	      graphData[i] = s;
           } else {
           data.splice(i,1);
           }
         }
         var i = 1;
-        var delayLoading = setInterval(function () {   
-              graphData[i].load();                    
-              i++;    
-              if(i> totalLength-2) 
+        var delayLoading = setInterval(function () {
+              graphData[i].load();
+              i++;
+              if(i> totalLength-2)
                 clearInterval(delayLoading);
         }, 150);
       });
-}  
+}
 
 /*
 	re-call updater to update custom alarms
@@ -1013,7 +1013,7 @@ function updateRTMCusAlarm(){
 	var list = gAlarm['cuslist'];
 	var listCache = gAlarm['cusAlarmCache'];
 	var listCacheSub = {};
-	
+
 	for(var i = 0 ; i < list.length; i ++){
 		listCacheSub = listCache[list[i]];
 		if(listCacheSub == undefined){
@@ -1035,7 +1035,7 @@ function updateRTMCusAlarm(){
 			for(var j = 0 ; j < t.length; j ++){
 				param.subid = j;
 				fetchRealtimeN(t[j],param);
-			}			
+			}
 		}
 	}
 }
@@ -1147,26 +1147,26 @@ function formatLoadedCustomAlarm(alarmStr){
 	var t = alarmStr.split("\n");
 	var theader = t.shift();
 	t = t.removeEmpty();
-	
+
 	// prepare structure
 	theader = theader.split(",");
 	var result = {};
 	for(var i = 0; i < t.length; i ++){
 		var t_array = t[i].split(",");
 		var sub = new Array();
-		// initial sublevel 
+		// initial sublevel
 		result[t_array[0]] = {};
 		for(var j = 0 ; j < theader.length; j ++){
 			result[t_array[0]][theader[j]] = t_array[j];
 		}
-		
+
 		//proceed for special case
 		var codes = result[t_array[0]].code.split("&");
 		var p = result[t_array[0]].purchasePriceArr.split("&");
 		result[t_array[0]]['purchasePrice'] = {};
 		for(var j = 0 ; j < codes.length ; j ++)
 			result[t_array[0]]['purchasePrice'][codes[j]] = parseFloat(p[j]).toFixed(2);
-		
+
 	}
 	return result;
 }
@@ -1210,7 +1210,7 @@ function trackListAlarmExec(param){
 
 	switch(obj.alarmType){
 		// important!!!!!!!!!!!!!!!!!!!!!!!!!
-		// conditions are missing cases for = 
+		// conditions are missing cases for =
 		case 1:
 			if(obj.condition == '>'){
 				if(obj.results.currentPrice > obj.priceOrNumber)
@@ -1264,14 +1264,14 @@ function cleanTrackList(){
 		if(now - parseInt(list[i].timestamp) > list[i].expirationDate)
 			list.splice(i,1);
 	}
-	
+
 	saveTrackList();
 	if(gAlarmFan>3)
 		smartLog(' cleaning alarmTrackList complete! ','alarm');
 }
 
 /*
-	remove from tracklist 
+	remove from tracklist
 */
 function trackListDone(tid){
 	gAlarm['alarmTrackList']['main'].splice(tid,1);
@@ -1279,7 +1279,7 @@ function trackListDone(tid){
 }
 
 /*
-	remove from tracklist 
+	remove from tracklist
 */
 function formatTracklistPrice(val,type){
 	return (type == 1) ?  ('$'+ val) : (val + '%');
@@ -1366,7 +1366,7 @@ function addToMarketWatch(code){
 */
 function saveMarketWatch(){
 	var data = userMarketWatch;
-	saveObj(data, 'data/MarketWatch.txt');	
+	saveObj(data, 'data/MarketWatch.txt');
 }
 
 /*
@@ -1382,7 +1382,7 @@ function loadMarketWatch(){
 function execSingleMarketWatch(){
 	var t = gAlarm['realtimeAlarms']['Results']['marketWatch'];
 	var code = (t.code).replace('^','');
-		
+
 		if(t.divCode != undefined){
 			var div = $('#'+t.divCode);
 			var nameDiv = $('#codename_'+t.divCode).html(t.name);
@@ -1404,7 +1404,7 @@ function execMarketWatch(){
 	for(var i = 0 ; i < t.length ; i ++){
 		//update values
 		var code = (t[i].code).replace('^','');
-		
+
 		if(t[i].divCode != undefined){
 			var div = $('#'+t[i].divCode);
 			var nameDiv = $('#codename_'+divCode).html(t[i].name);
@@ -1420,7 +1420,7 @@ function execMarketWatch(){
 }
 
 /*************** ALARM SYSTEMS - ALGORITHMS AND EVENT WATCHER ***************/
-/** Key: event, ckdata, ckalarms, 
+/** Key: event, ckdata, ckalarms,
 /** Desc: condition checkings. See if any data is within conditonal change
 
 /*
@@ -1430,7 +1430,7 @@ function execMarketWatch(){
 function ckRealtimeHistoryDataRatio(id,obj,type,objHistory,numberOfBacktrace){
 	var target = objHistory.length - numberOfBacktrace;
 	if(target<1){
-		if(gAlarmFan>3)	
+		if(gAlarmFan>3)
 			smartLog('not enough data points for '+obj[id].name+' current points' + target,'alarm');
 		return false;
 	}
@@ -1484,7 +1484,7 @@ function _ckrealtimeWithHistory(obj, criteria){
 		var code = lastObj[i].code;
 		// Algorithm check sudden surger in volume
 		if(criteria.cks.contains('volIncrease')){
-		// check current key value compare to last N, 
+		// check current key value compare to last N,
 		// return in a ratio with f(current) / sum(F(current - n))
 		// MA5 is actually 6
 		// MA30 is actually 31
@@ -1543,24 +1543,24 @@ function _ckrealtime(obj, criteria){
 		// hig surge/plunge limit
 		var alarmSelected= false;
 		if(criteria.cks.contains('blimit') && !alarmSelected)
-			// alarm set to 1 hour of cooldown	
+			// alarm set to 1 hour of cooldown
 			alarmSelected = sendAlarmFull(Language(ckStockRange(obj[i],-11,-9.5), obj[i].name + ' 碰到跌停板, 当前:'+parseFloat(obj[i].chg_percent).toFixed(1)+"%"),'blimit_'+obj[i].code,obj[i].name,86400,-1,9999);
 		if(criteria.cks.contains('slimit')&& !alarmSelected)
-			// alarm set to 1 hour of cooldown	
+			// alarm set to 1 hour of cooldown
 			alarmSelected = sendAlarmFull(Language(ckStockRange(obj[i],9.5,11), obj[i].name + ' 碰到涨停板, 当前:'+parseFloat(obj[i].chg_percent).toFixed(1)+"%"),'slimit_'+obj[i].code,obj[i].name,86400,1,9999);
 		// raise or drop 5%
 		if(criteria.cks.contains('ns5')&& !alarmSelected)
-			// alarm set to 1 hour of cooldown	
+			// alarm set to 1 hour of cooldown
 			alarmSelected = sendAlarmFull(Language(ckStockRange(obj[i],-9.5,-5), obj[i].name + ' 跌幅超过5%, 当前:'+parseFloat(obj[i].chg_percent).toFixed(1)+"%"),'ns5_'+obj[i].code,obj[i].name,86400,-1,9999);
 		if(criteria.cks.contains('s5')&& !alarmSelected)
-			// alarm set to 1 hour of cooldown	
+			// alarm set to 1 hour of cooldown
 			alarmSelected = sendAlarmFull(Language(ckStockRange(obj[i],5,9.5), obj[i].name + ' 涨幅超过5%, 当前:'+parseFloat(obj[i].chg_percent).toFixed(1)+"%"),'s5_'+obj[i].code,obj[i].name,86400,1,9999);
 		// raise or drop 3%
 		if(criteria.cks.contains('s3')&& !alarmSelected)
-			// alarm set to 1 hour of cooldown	
+			// alarm set to 1 hour of cooldown
 			alarmSelected = sendAlarmFull(Language(ckStockRange(obj[i],3,5), obj[i].name + ' 涨幅超过3%, 当前:'+parseFloat(obj[i].chg_percent).toFixed(1)+"%"),'s3_'+obj[i].code,obj[i].name,86400,2,9999);
 		if(criteria.cks.contains('ns3')&& !alarmSelected)
-			// alarm set to 1 hour of cooldown	
+			// alarm set to 1 hour of cooldown
 			alarmSelected = sendAlarmFull(Language(ckStockRange(obj[i],-5,-3), obj[i].name + ' 跌幅超过3%, 当前:'+parseFloat(obj[i].chg_percent).toFixed(1)+"%"),'ns3_'+obj[i].code,obj[i].name,86400,-2,9999);
 	}
 }
@@ -1585,7 +1585,7 @@ function sendAlarm(msg,id,name){
 	importance = '5110' indicate sending to mobile device
 */
 function sendAlarmFull(msg, id, name, duration, importance, repeat){
-	
+
 	if(msg == '' || msg == undefined)
 		return false;
 
@@ -1657,7 +1657,7 @@ function sendAlarmFull(msg, id, name, duration, importance, repeat){
 			sendTocellphone(phonemsg);
 			// end of alarm, return
 			return true;
-		}	
+		}
 
 		if(gAlarmFan>2)
 			smartLog("Alarm: ("+getFullTime()+ ") "+ name +" ("+id+") still cooling down, time left:"+ getCoolDownTimeinStr(cooldownList[id])+", repeat: "+cooldownList[id]['repeat'],'alarm');
@@ -1707,7 +1707,7 @@ function sendTocellphone(msg){
 	$.get(server, function(data) {
        	console.log(data);
     });
-	
+
 }
 /*
 	check if it is offline development mode
@@ -1959,7 +1959,7 @@ function savePairedStatisticResultsToServer(arr,filename){
 /*************** CONSOLE FUNCTIONS ***************/
 
 /** Console Function deals with user inputs, execute
-commands without gui, and helps to facilitate the productivity 
+commands without gui, and helps to facilitate the productivity
 
 /*************** CONSOLE FUNCTIONS ***************/
 
@@ -1967,7 +1967,7 @@ commands without gui, and helps to facilitate the productivity
 	main function to deal with user input in realtime console mode
 */
 function ckcmd(cmdraw){
-	// add 600050 chad 
+	// add 600050 chad
 	// split first
 	var param = cmdraw.split(' ');
 	var cmd = param[0];
@@ -1999,21 +1999,21 @@ function ckcmd(cmdraw){
 				for(var i = 0 ; i < codes.length; i ++)
 				smartLog(codes[i].code + codes[i].condition + formatTracklistPrice(codes[i].priceOrNumber, codes[i].alarmType));
 			}
-			
+
 		break;
 
 		// command to deal with tracklist
 		case 'track':
 		if(param.length ==2){
 			if(param[1] == '-d'){
-				smartLog("TrackList reset: no more tracking on any custom input stocks");	
+				smartLog("TrackList reset: no more tracking on any custom input stocks");
 				resetTrackList();
 				return ;
 			}
 		}
 		if(param.length != 6 && param.length != 3 && param.length != 4){
 			smartLog("wrong parameters, -track stock -pNumber -percent% -expirationDate -smartPercent sendMobile");
-			return;	
+			return;
 		}
 		if(param.length == 3){
 			// expire after one year
@@ -2025,7 +2025,7 @@ function ckcmd(cmdraw){
 
 		if(!param[2].contains('p') && !param[2].contains('%') || param[2].contains('p') && param[2].contains('%')){
 			smartLog("failed! for price check use >p13.5, for percentile use >3.5%");
-			return;		
+			return;
 		}
 
 		var condition = param[2].substring(0,1);
@@ -2035,7 +2035,7 @@ function ckcmd(cmdraw){
 			smartLog('failed! missing condition, please use >p13.5 or >3.5%');
 			return;
 		}
-		
+
 		var code = param[1];
 		// 1: price , 2: percent
 		var alarmType = param[2].contains('p') ? 1 : 2;
@@ -2058,7 +2058,7 @@ function ckcmd(cmdraw){
 		obj.timestamp = getTimestamp();
 		// determine greater or smaller
 		obj.condition = condition;
-		// determine a percentage based or price based alarm 
+		// determine a percentage based or price based alarm
 		obj.alarmType =alarmType;
 		// the number that belongs to a percent or price
 		obj.priceOrNumber = priceOrNumber;
@@ -2076,14 +2076,14 @@ function ckcmd(cmdraw){
 		// repeate set to 5 minutes or 300 seconds
 		obj.duration = 300;
 		//Add to alarmtracklist
-		gAlarm['alarmTrackList']['main'].push(obj);	
+		gAlarm['alarmTrackList']['main'].push(obj);
 
 		//save tracklist
 		saveTrackList();
 
 		break;
 		// superfast
-		// console 
+		// console
 		case 'help':
 			smartLog(" -add stock1 stock2 ");
 			smartLog(" -track stock {conditon}pNumber/{condition}percent% smartPercnt sendMobile");
@@ -2134,7 +2134,7 @@ function ckcmd(cmdraw){
 				var nos = parseFloat(param[3]);
 				// formatting
 				code = formatStockName(code);
-				var obj = {'code':code, 
+				var obj = {'code':code,
 						   'cost':purchasePrice,
 							'nos' : nos};
 				addEntryToPortfolio(obj);
@@ -2201,7 +2201,7 @@ function ckcmd(cmdraw){
 
 /*************** TIME FUNCTIONS ***************/
 
-/*************** These functions will used to deal with time 
+/*************** These functions will used to deal with time
 related issues, format times, and get timestamps*/
 
 /*************** TIME FUNCTIONS ***************/
@@ -2256,7 +2256,7 @@ function toUnivfiedMMDDYYYY(date) {
 }
 
 /*
-	get yyyy-mm-dd 
+	get yyyy-mm-dd
 */
 function getFullYMD(){
 	var date =new Date();
@@ -2276,7 +2276,7 @@ function getCNFullYMDH(){
     var nd = new Date(utc + (3600000 * offset));
     var t = (nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear()+" "+
     nd.getHours() + ":"+nd.getMinutes();
-    return t;   
+    return t;
 }
 
 /*
@@ -2296,7 +2296,7 @@ function getDayOneYearAgo() {
     var nd = new Date(utc + (3600000 * offset));
     nd.setFullYear(nd.getFullYear() - 1);
     return ((nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear());
-}    
+}
 
 /*
 	get current date in the month
@@ -2396,7 +2396,7 @@ function getTimeDifferenceInDays(targetTime){
 	var date1 = new Date(targetTime);
 	var date2 = new Date();
 	var timeDiff = Math.abs(date2.getTime() - date1.getTime());
-	var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+	var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 	return diffDays;
 }
 
@@ -2406,5 +2406,3 @@ function getTimeDifferenceInDays(targetTime){
 function showpflistDetail(id){
 	$('#'+id).toggle("fast");
 }
-
-

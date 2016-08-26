@@ -35,13 +35,14 @@ if($len == 0){
 	exit(0);
 }
 $tempresult = array();
-
 for($i = 0 ;  $i < $len; $i++){
 	$t = explode('::', $AlarmMarketLists[$i]);
+  if(count($t)>1){
 	$tempresult[$t[0]] = [];
 	$tempresult[$t[0]]['id'] = $t[0];
 	$tempresult[$t[0]]['cooldown'] = $t[1];
 	$tempresult[$t[0]]['codes'] = $t[2];
+	}
 }
 
 $result['realtimeAlarms'] = $tempresult;
