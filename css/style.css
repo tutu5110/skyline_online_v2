@@ -28,6 +28,7 @@ img{ padding:0;
 #skylineLabBackground{
   position: absolute;;
   z-index: 0;
+
 }
 .red{
   color: #F5055D;
@@ -165,7 +166,6 @@ html{
     margin:0;
     padding: 40px 0 0 45px;
     padding-left: 30px;
-    padding-top: 40px;
     background-color: rgb(0,0,0);
     background-image: url('../img/skymonitor.jpg');
     background-size: cover;
@@ -265,7 +265,6 @@ div.dygraph-legend{ background-color: #000; }
     margin:0;
     padding: 0
     padding-right: 0px;
-    padding-top: 40px;
     background-color: rgb(0,0,0);
 }
 
@@ -306,7 +305,7 @@ div.dygraph-legend{ background-color: #000; }
     background-repeat: no-repeat;
     float: left;
     position: absolute;
-    margin: 5pt 0 0 16pt;
+    margin: 45pt 0 0 25pt;
     background-size: 200pt 40pt;
     z-index: 1;
 }
@@ -318,13 +317,13 @@ div.dygraph-legend{ background-color: #000; }
     background-size: 76pt 212pt;
     position: relative; 
     float: right;
-    margin: -14px 35pt 0 0;
+    margin: 31px 35pt 0 0;
     z-index: 2;
 }
 #mainGraphHolder_blur{
      width: 620pt;
      height: 250pt;
-     margin: 0 auto 0 auto;
+     margin-left: 229pt;
      background-image: url('../img/maingraphBack.png?id=112112');
      background-size: 620pt 250pt;
      position: relative;

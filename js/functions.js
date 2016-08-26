@@ -166,6 +166,8 @@ function updatePurchase(code, val){
 	Main function runs portfolio loading;
 */
 function showPortfolio(){
+  if(!ckOnline())
+    return false;
   for(var i = 0 ; i < portfolio['codes'].length ; i ++){
      updateRealtimePortfolio(portfolio['codes'][i],i);
   }
@@ -589,6 +591,8 @@ function fetchRealtimeN(code,param){
 	fetch clustered stocks, codes will be an array of all similar sorted stocks
 */
 function fetchGroupRealtimeN(codes,key){
+  if(!ckOnline())
+    return;
 	// deal with Japan speciall case, since japanese stock are not based on JSON
 	if(fetchGroupRealtimeN_JPONLY(codes)) return true;
 
@@ -2091,7 +2095,33 @@ function ckcmd(cmdraw){
 			smartLog(" -marketwatch stock1");
 			smartLog(" -pf stockcode purchasePrice nos");
 			smartLog(" -comp stock1 stock2");
+      smartLog(" -w weather_type(sunny,rain)");
+      smartLog(" -top stock : bring a stock to top");
 		break;
+
+    case 'top':
+      if(param.length != 2)
+        return returnLog('top function require two parameters, "top stock1" -help for details');
+        // check for abrieviated case
+        if(!param[1].contains(','))
+           return returnLog(' top function takes a pair of stocks: eg, 510300,us_chad || 601818,601327');
+        var tmp = param[1].split(',');
+        if(tmp[1] == undefined || tmp[1] == "")
+          tmp[1] = 'us_chad';
+        code = formatStockNames(tmp).join(',');
+
+        if(!removetoCustomQue(code))
+            return returnLog(" No such pair find as " + code + " in current stack");
+        if(addtoCustomQue(code))
+           rtmCustomExport();
+       //superfast
+    break;
+    case 'w':
+      if(param.length != 2)
+        return returnLog('w (weather) function require two parameters, -help for details');
+       var weatherType = param[1];
+       window.location.href =  ("#"+weatherType);
+    break;
 
 		case 'pf':
 			if(param.length != 4 && param.length != 3)

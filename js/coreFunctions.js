@@ -6,7 +6,7 @@
 /*
   this function logs for realtime
 */
-function log(msg){
+function sklog(msg){
   
   //console
   console.log(msg);
@@ -22,7 +22,7 @@ function log(msg){
   merges two obj
 */
 function returnLog(msg, outputdiv){
-  outputdiv = outputdiv || 'alarm';
+  outputdiv = outputdiv || '';
   smartLog(msg, outputdiv);
   return false;
 }

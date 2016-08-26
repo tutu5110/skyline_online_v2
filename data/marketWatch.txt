@@ -1,1 +1,1 @@
-["jp_7312","jp_8604","sh601996","sz300307","sz002594","sz000031","sz002711","sh600563","sz002413","us_chad","us_nflx","us_fb","us_goog"]
+["jp_7312","jp_8604","jp_2121","sh601996","sz300307","sz002594","sz000031","sz002711","sh600563","sz002413","us_chad","us_nflx","us_fb","us_goog","sh600118","us_momo","us_chd","us_t","us_twtr"]

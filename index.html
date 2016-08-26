@@ -98,15 +98,21 @@
     <script src="js/regression.js"></script>
     <script src="js/checkboxes.js"></script>
     <script src="js/skyLab.js"></script>
-    <script src="js/rainyday.min.js"></script>
+    <!--<script src="js/rainyday.min.js"></script>-->
+    
 </head>
     <body>
         <div id="master">
                <div id="skylineLab">
                <div id="skylineLabBackground">
-                  <img id="rainDay" style="width:1440px; height:900px;" />
+                  <div class="container">
+                    <div class="slideshow">
+                      <canvas width="1440" height="667" id="container" style="position: absolute; width: 1440px; height: 667px;"></canvas>
+                    </div>
+                  </div>
+                  <!--<img id="rainDay" style="width:1440px; height:900px;" />-->
                </div>
-                   <div id="logoLeft"></div>
+                   <!--<div id="logoLeft"></div>-->
                    <div id="logoRight"></div>
                    <div id="mainGraphHolder">
                        <div id="mainGraphHolder_blur">
@@ -185,6 +191,11 @@
 
 <script type="text/javascript">
 
+var drizzleMaxCt = 0;
+var targetNum = 500;
+var drizzleCooldownCt = 0;
+var drizzleCooldownCtTarget = 400;
+
 var g;
 
 var gSection = 1;
@@ -249,6 +260,8 @@ var NUM_OF_GRAPHS = 0;
 var CNSTOCK_SHORT_PREFIX = 's_';
 
 var isControlHeld = false;
+
+var rtmTimeout = 5000;
 
 var isShiftHeld = false;
 
@@ -452,7 +465,7 @@ $(document).ready(function(){
    if(offlineDevelopperMode)
    console.log("OFFline development mode on! no internet is required nor data will be updated");
    // fastfind graph
-   $('#mainGraphHolder').css('margin','117pt 0 0 0');
+   $('#mainGraphHolder').css('margin','145pt 0 0 0');
 
    //update footer
    var footer = $('.skyFooter');
@@ -611,7 +624,9 @@ $.post( "staticData.php").done(function(data) {
       showPortfolio();
       // default load custom selected stocks in to section iii
       //loadRTMCanvasCustom();
-      setTimeout(loadRTMCanvasCustom,5000);
+      if(!ckOnline())
+        rtmTimeout = 1;
+      setTimeout(loadRTMCanvasCustom,rtmTimeout);
 
       // default load one pair of experiment stocks into section i
       loadSkyLab();
@@ -621,6 +636,7 @@ $.post( "staticData.php").done(function(data) {
       bindbuttons();
       // get data for alarm
       loadMarketWatch();
+
 
       /**** After these code executed, jumps to 
        POSTAJAX_INITIAL_LOADING
@@ -659,6 +675,10 @@ function showConsole(msg){
   $('#realtimeConsole #content').html(msg);
   gRTMConsoleOn = true;
   $('#realtimeConsole #userinput').focus();
+}
+
+function hideConsole(){
+  resetConsole();
 }
 
 function resetConsole(){
@@ -742,8 +762,11 @@ function keyup(evt) {
       $('#realtimeConsole #userinput').val('');
   }
 
-  //check main keyboard entries
-  if(evt.keyCode == 87){
+  //check key inputs
+  if(evt.keyCode == 27){
+    gRTMConsoleOn ? hideConsole() : showConsole('Aloha!');
+
+  } else if(evt.keyCode == 87){
     // case 'w'
     if(PREVIOUS_MOUSEON_GRAPHID != C_MOUSEON_GRAPHID) {
       PREVIOUS_MOUSEON_GRAPHID =  C_MOUSEON_GRAPHID;
@@ -1079,8 +1102,9 @@ function removetoCustomQue(codes){
     if(codes == rtmCanvasCustom[i]){
       rtmCanvasCustom.splice(i,1);
       showMessage(codes+' removed:)');
-      return;
+      return true;
     }
+  return false;
 }
 
 
@@ -1432,7 +1456,7 @@ function smartLog(msg, type){
     break;
 
     default:
-    log(msg);
+    sklog(msg);
     break;
   }
 }
@@ -2337,6 +2361,7 @@ function getDataLength(dataLen) {
     return ((nd.getMonth() + 1) + "/" + nd.getDate() + "/" + nd.getFullYear());
 }    
 
+/*
 var image = document.getElementById('rainDay');
 image.onload = function() {
     var engine = new RainyDay({
@@ -2351,12 +2376,11 @@ image.onload = function() {
 };
 image.crossOrigin = 'anonymous';
 image.src = 'img/skyback_main.jpg';
-
+*/
 
 </script>
         <!-- content -->
-        
-
+ <script src="js/rain.min.js?do=12322222"></script>       
         </body>
 </html>
 
