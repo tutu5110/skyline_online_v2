@@ -63,7 +63,7 @@ String.prototype.toTimeStamp = function (){
   String.prototype.insertAfter = function(add, search){
         var pos = a.indexOf(search) + search.length;
         pos =  (pos != -1) ? pos : this.length;
-        return [this.slice(0, pos), add, this.slice(pos)].join('');  
+        return [this.slice(0, pos), add, this.slice(pos)].join('');
   }
 
   String.prototype.convert2USDateFromCN = function(){
@@ -90,7 +90,7 @@ String.prototype.toTimeStamp = function (){
 
   Array.prototype.clean = function(deleteValue) {
   for (var i = 0; i < this.length; i++) {
-    if (this[i] == deleteValue) {         
+    if (this[i] == deleteValue) {
       this.splice(i, 1);
       i--;
     }
@@ -114,6 +114,8 @@ Array.prototype.removeEmpty = function(){
   return this;
 }
 
+
+
 Object.size = function(obj) {
     var size = 0, key;
     for (key in obj) {
@@ -127,4 +129,3 @@ Object.push = function (obj){
         this.key= obj.key;
     }
 }
-

@@ -16,7 +16,6 @@ $result['skylab'] = file_get_contents($sysStaticHTMLFolder.'skylab_body.html');
 
 $result['rtm_statistics_template'] = file_get_contents($sysStaticHTMLFolder.'rtm_statistics_template.html');
 
-
 $result['cusalarm'] = file_get_contents($sysAlarmFolder.'cusalarm.txt');
 
 $result['alarmTrackList'] = file_get_contents($sysAlarmFolder.'AlarmTrackLists.txt');
@@ -26,6 +25,8 @@ $result['marketWatch'] = file_get_contents($sysAlarmFolder.'marketWatch.txt');
 $AlarmMarketLists = file_get_contents($sysAlarmFolder.'AlarmMarketLists.txt');
 
 $result['myPortfolio'] = file_get_contents($sysAlarmFolder.'myPortfolio.txt');
+
+$result['CN_Stocklist'] = file_get_contents($sysListFolder.'CN_Stocklist.csv');
 
 $AlarmMarketLists = explode("\n", $AlarmMarketLists);
 

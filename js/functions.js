@@ -2406,3 +2406,126 @@ function getTimeDifferenceInDays(targetTime){
 function showpflistDetail(id){
 	$('#'+id).toggle("fast");
 }
+
+/* combine calculation */
+function getAllStocks(){
+  $.post( "load.php", { filename: filename }).done(function( data ) {
+     var loadedListtmp = JSON.parse(data).split("\n");
+     var len = loadedListtmp.length;
+     var loadedList = new Array();
+     for(var i = 0 ; i < len ; i ++){
+       var _tmp = loadedListtmp[i].split(',');
+       loadedList.push([_tmp[1],_tmp[0]]);
+     }
+
+     for(var i = 0 ; i < loadedList.length; i ++){
+     var stockNames = [loadedList[i][0],targetStock];
+     stockNames = formatStockNames(stockNames);
+     var s = new SKYDataLoader([stockNames[0],stockNames[1]],
+     {"duration":"2y",
+     "div":"realtimeMonitorData",
+     "type": 'automateHedge',
+     "showgraph" :  false,
+     "updateRealtime":false},i);
+     graphData[i] = s;
+     //need a delayed load!!
+     //graphData[i].load();
+   }
+     var i = 0;
+     var delayLoading = setInterval(function () {
+           graphData[i].load();
+           i++;
+           if(i> graphData.length-1)
+             clearInterval(delayLoading);
+     }, 150)
+ });
+}
+
+function loadStock(server, CALLBACK){
+  $.get(server, function(data) {
+      if(data == "" )
+        return ;
+      eval(CALLBACK);
+    });
+}
+
+function loadfile(filename,CALLBACK){
+  $.post( "load.php", { filename: filename }).done(function( data ) {
+      eval(CALLBACK);
+ });
+}
+
+/*ajax callbacks **/
+function __callback(func,data,param){
+  switch(func){
+      case 'calcByCriteria':
+        calcByCriteria(data,param);
+      break;
+
+      default:
+      break;
+  }
+}
+
+function calcByCriteria(data,param){
+  var t = eval(data);
+  var code = Object.keys(t.data)[0]; //returns 'someVal'
+  var daykline = t.data[code].qfqday;
+  var volume = __getSubArray(daykline,5);
+  var date = __getSubArray(daykline,0);
+  var volMA5Data = getMovingAverage(volume,5);
+  var comparaRatio = new Array();
+
+  var maxVolRatio = 0;
+  var maxVolRatioDay = "";
+  var result = {};
+  for(var i = 0 ; i < volMA5Data.length ; i ++){
+      if(volMA5Data[i] == 0)
+          comparaRatio.push(0);
+      else{
+          var ratio = volume[i] / volMA5Data[i];
+          comparaRatio.push(ratio);
+          if(ratio > maxVolRatio){
+            maxVolRatio = ratio;
+            maxVolRatioDay = date[i];
+          }
+      }
+  }
+
+  result['maxRatio'] = maxVolRatio;
+  result['maxVolRatioDay'] = maxVolRatioDay;
+  result['comparaRatio'] = comparaRatio;
+  console.log(result);
+
+}
+/*
+  format loading string to obj
+*/
+function formatLoadedStockList(str){
+    var tmp = str.split("\n");
+    var arr = new Array();
+    for(var i = 0 ; i < tmp.length; i ++){
+      var _tmp = tmp[i].split(",");
+      var obj = {};
+      obj["code"] = _tmp[1];
+      obj['name'] = _tmp[0];
+      arr.push(obj);
+    }
+    return arr;
+}
+
+function fastcalculate(){
+   var s = clone(CN_Stocklist);
+   for(var i = 0 ; i < 3; i ++){
+     var server = SKYLINE_CACHE_SERVER.replace("#SYMBOL#", formatStockName(s[i].code)).replace('#begin#','0').replace('#end#','1');
+     var str = formatStockName(s[i].code);
+      loadStock(server,'__callback("calcByCriteria",data,'+JSON.stringify(str)+')');
+   }
+}
+
+function __getSubArray(arr,index){
+  var _arr = new Array();
+  for(var i = 0 ; i < arr.length ; i ++)
+    _arr.push(arr[i][index]);
+  return _arr;
+}

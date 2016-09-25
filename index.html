@@ -12,7 +12,7 @@
 
 
     Methods & Functions
-    Exploding Volume:
+    Exploding Volume:w
     Checks Volume up to 30,60,120,180,360 records before.
     Check for price movement
     Check for relatively High / Low Points with settings of 30,60,120,180,360 records before
@@ -81,6 +81,8 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" type="text/css" href="css/checkbox.css?123"/>
     <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link href="css/multi-switch.min.css" rel="stylesheet">
+
     <script src="js/jquery-1.11.3.min.js"></script>
     <script src="js/jquery-ui.js"></script>
     <script src="js/dygraph-combined.js"></script>
@@ -98,13 +100,16 @@
     <script src="js/regression.js"></script>
     <script src="js/checkboxes.js"></script>
     <script src="js/skyLab.js"></script>
+    <script src="js/multi-switch.js"></script>
+
   <!--  <script src="js/rainyday.min.js"></script> -->
 
 </head>
     <body>
         <div id="master">
+
                <div id="skylineLab">
-               <div id="skylineLabBackground">
+                 <div id="skylineLabBackground">
                   <div class="container">
                     <div class="slideshow">
                       <canvas width="1440" height="667" id="container" style="position: absolute; width: 1440px; height: 667px;"></canvas>
@@ -127,6 +132,18 @@
                            <h2>Snug here on the top</h2>
                           </div>
                       </div>
+                   </div>
+               </div>
+               <div id="skylineTesting">
+                 <div>
+                    <button onclick="fastcalculate()"> Test!</button><br><br>
+                    <input type="checkbox" name="priceCheck" class="multi-switch" unchecked-value="0" checked-value="1" value="0"><div class="multi-switch-font" style="margin-top:5px;">Price Check</div>
+                    <form id="priceform">
+                        <input type="checkbox" name="p_volatility" class="multi-switch" unchecked-value="0" checked-value="1" value="0"><input disabled class="multi-switch-input" value="Volatility"><br>
+                        <input type="checkbox" name="p_more" class="multi-switch" unchecked-value="0" checked-value="1" value="0"><input disabled class="multi-switch-input" value="Price Greater Than"><br>
+                        <input type="checkbox" name="p_less" class="multi-switch" unchecked-value="0" checked-value="1" value="0"><input disabled class="multi-switch-input" value="Price Less Than"><br>
+                        <input type="checkbox" name="p_similar" class="multi-switch" unchecked-value="0" checked-value="1" value="0"><input disabled class="multi-switch-input" value="Price Similar To"><br>
+                    </form>
                    </div>
                </div>
                <div id="mainBody">
@@ -200,11 +217,13 @@ var g;
 
 var gSection = 1;
 
-var offlineDevelopperMode = 0;
+var offlineDevelopperMode = 1;
 
 var gAlarmOn = true;
 
 var gAlarmFan = 1;
+
+var NUM_OF_SECTIONS = 4;
 
 var P_DATE_AGO = 90;
 
@@ -266,6 +285,8 @@ var rtmTimeout = 5000;
 var isShiftHeld = false;
 
 var gAlarm = {};
+
+var CN_Stocklist = {};
 
 var userMarketWatch = new Array();
 
@@ -452,10 +473,12 @@ $(document).ready(function(){
    var w = $(document).width();
    var h = $(document).height();
    // update window width
+   $('.multi-switch').multiSwitch();
+
    originalWindowWidth = w;
    // set skyline width
    var rtmheight = Math.ceil(rtmCanvasListIncrement /5) * 535+590;
-   $('#master').width(3*w+120).height(rtmheight);
+   $('#master').width(NUM_OF_SECTIONS*w+120).height(rtmheight);
    $('#skylineLab').width(w).height(h);
    $('#mainBody').width(w).height(h);
 
@@ -617,6 +640,8 @@ $.post( "staticData.php").done(function(data) {
 
       gAlarm['realtimeHistoryAlarms']['ratioResults'] = {};
 
+      CN_Stocklist = formatLoadedStockList(htmlTemplate['CN_Stocklist']);
+
       loadAlarms();
 
       exeAlarms();
@@ -702,15 +727,17 @@ function colorCode(div,val){
 window.onscroll = function (e) {
 
   var left = (window.pageXOffset || document.scrollLeft) - (document.clientLeft || 0);
-  if(left > 1010 && left < 2290)
-      gSection =2;
-  else if(left > 2290)
-      gSection = 3;
-  else if(left<1700)
-      gSection = 1;
-  else
-      gSection = 1;
 
+  if(left >0 && left < 1100)
+    gSection = 1;
+  else if(left >= 1100 && left < 2300)
+    gSection = 2;
+  else if(left >= 2300 && left < 3700)
+    gSection = 3;
+  else if(left >= 3700)
+    gSection = 4;
+  else
+    gSection = 1;
 }
 
 
